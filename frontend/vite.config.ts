@@ -1,11 +1,15 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import compression from "vite-plugin-compression2";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
+import dotenv from "dotenv";
+dotenv.config();
 
 // https://vitejs.dev/config https://vitest.dev/config
 export default defineConfig({
   plugins: [react(), compression()],
-  base: "/dashboard",
+  base: process.env.VITE_BASE || "/dashboard",
   build: {
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
