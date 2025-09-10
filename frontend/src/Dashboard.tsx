@@ -21,7 +21,11 @@ const Dashboard = () => {
             href="https://flowbite.com/"
             className="flex items-center space-x-3 rtl:space-x-reverse"
           >
-            <img src="/golem.svg" className="h-8" alt="GLM" />
+            <img
+              src={`${import.meta.env.BASE_URL}/golem.svg`}
+              className="h-8"
+              alt="GLM"
+            />
             <span className="self-center whitespace-nowrap text-2xl font-semibold dark:text-white">
               Golem Network - Providers
             </span>
