@@ -1,9 +1,9 @@
 export function assetsUrl(): string {
-  const backendBase = import.meta.env.VITE_BACKEND_BASE_URL;
-  if (!backendBase) {
+  const backendBase = import.meta.env.BASE_URL;
+  if (backendBase == "/") {
     return "";
   }
-  return backendBase + "/";
+  return backendBase;
 }
 
 export function backendUrl(): string {

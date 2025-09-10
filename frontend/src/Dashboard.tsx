@@ -26,7 +26,7 @@ const Dashboard = () => {
             <img
               width={32}
               height={32}
-              src={`${assetsUrl()}assets/golem.svg`}
+              src={`${assetsUrl()}/assets/golem.svg`}
               className="h-8"
               alt="GLM"
             />
