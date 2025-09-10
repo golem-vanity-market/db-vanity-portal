@@ -5,21 +5,15 @@
   "private": true,
   "type": "module",
   "author": {
-    "name": "João Paulo Moraes",
-    "email": "joaopaulomoraes@outlook.com",
-    "url": "https://github.com/joaopaulomoraes"
-  },
-  "bugs": {
-    "url": "https://github.com/joaopaulomoraes/reactjs-vite-tailwindcss-boilerplate/issues",
-    "email": "joaopaulomoraes@outlook.com"
+    "name": "Golem Network",
+    "email": "contact@golem.network",
+    "url": "https://github.com/golem-vanity-market"
   },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "format": "prettier --write .",
     "serve": "vite preview",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
     "lint": "eslint src --max-warnings=0",
     "typecheck": "tsc --project tsconfig.json --noEmit"
   },

@@ -2,7 +2,9 @@
   "name": "backend-ts",
   "type": "module",
   "scripts": {
+    "build": "tsc",
     "dev": "ts-node src/app.ts",
+    "prod": "node dist/app.js",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
