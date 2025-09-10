@@ -22,7 +22,9 @@ const Dashboard = () => {
             className="flex items-center space-x-3 rtl:space-x-reverse"
           >
             <img
-              src={`${import.meta.env.BASE_URL}/golem.svg`}
+              width={32}
+              height={32}
+              src={`${import.meta.env.BASE_URL}/golem.svg2`}
               className="h-8"
               alt="GLM"
             />
