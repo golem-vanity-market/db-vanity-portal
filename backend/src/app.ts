@@ -2,7 +2,7 @@ import jsLogger, { type ILogger } from "js-logger";
 import { getBytes, Wallet } from "ethers";
 import { type AccountData, createClient, Tagged } from "golem-base-sdk";
 import { startStatusServer } from "./server.ts";
-import { operations } from "./queries.ts";
+import { operations, type ProviderData } from "./queries.ts";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -36,7 +36,7 @@ async function init() {
     parseInt(process.env.GOLEM_DB_CHAIN_ID || "60138453033"),
     key,
     process.env.GOLEM_DB_RPC || "https://ethwarsaw.holesky.golemdb.io/rpc",
-      process.env.GOLEM_DB_RPC_WS || "wss://ethwarsaw.holesky.golemdb.io/rpc/ws",
+    process.env.GOLEM_DB_RPC_WS || "wss://ethwarsaw.holesky.golemdb.io/rpc/ws",
   );
 
   const port = process.env.PORT || 5555;
@@ -49,13 +49,27 @@ async function init() {
     log.info("Connected to Golem DB as", wallet.address);
 
     operations.updateBlockInfo({
-        number: block,
-        date: new Date().toISOString(),
-    })
+      number: block,
+      date: new Date().toISOString(),
+    });
     await new Promise((resolve) => setTimeout(resolve, 5000));
 
+    //download data
 
-
+    try {
+      const providerDataResp = await fetch(
+        `${process.env.GROUPED_ESTIMATORS_DOWNLOAD_URL}`,
+      );
+      const providersJson = await providerDataResp.json();
+      if (providerDataResp.status !== 200) {
+        log.error("Failed to fetch provider data:", providersJson);
+        continue;
+      }
+      operations.updateProviderData(providersJson as ProviderData);
+    } catch (e) {
+      log.error(`Failed to fetch provider data ${e}`);
+      operations.updateProviderData(null);
+    }
   }
 
   // Fill your initialization code here

@@ -12,7 +12,8 @@
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "declaration": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "noEmit": true
   },
   "types": ["jest"],
   "include": ["src/**/*"],

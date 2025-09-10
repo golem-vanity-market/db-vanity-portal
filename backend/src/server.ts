@@ -74,6 +74,14 @@ export function startStatusServer(listenAddr: string) {
             timestamp: new Date().toISOString(),
           });
         }
+        // === Provider data ===
+        if (req.method === "GET" && pathname === "/providers") {
+          return sendJSON(200, {
+            providers: operations.getProviderData(),
+            timestamp: new Date().toISOString(),
+          });
+        }
+
         // Default 404
         sendJSON(404, { error: "Not Found" });
       } catch (err) {
