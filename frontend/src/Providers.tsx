@@ -75,8 +75,6 @@ const Providers = () => {
   }, []);
 
   const onLoad = useCallback(async () => {
-    setLoading(true);
-
     // First try cache
     const cachedData = loadCache();
     if (cachedData) {
