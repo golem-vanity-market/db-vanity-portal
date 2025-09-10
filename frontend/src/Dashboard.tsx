@@ -17,26 +17,28 @@ const Dashboard = () => {
   const location = useLocation();
   return (
     <div className="min-h-screen bg-gray-100">
-      <nav className="border-gray-200 bg-white dark:bg-gray-900">
-        <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
+      <nav className="border-b border-gray-200 bg-white dark:bg-gray-900">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between p-4">
+          {/* Logo + Title */}
           <a
-            href="https://flowbite.com/"
+            href={assetsUrl()}
             className="flex items-center space-x-3 rtl:space-x-reverse"
           >
             <img
               width={32}
               height={32}
               src={`${assetsUrl()}/assets/golem.svg`}
-              className="h-8"
+              className="h-8 w-8"
               alt="GLM"
             />
-            <span className="self-center whitespace-nowrap text-2xl font-semibold dark:text-white">
-              Golem Network - Providers
-            </span>
+            <span className="hidden self-center whitespace-nowrap text-2xl font-semibold md:inline dark:text-white">
+        Golem Network - Providers
+      </span>
           </a>
 
-          <div className="hidden w-full md:block md:w-auto" id="navbar-default">
-            <ul className="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 font-medium md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:p-0 rtl:space-x-reverse dark:border-gray-700 dark:bg-gray-800 md:dark:bg-gray-900">
+          {/* Navigation */}
+          <div id="navbar-default">
+            <ul className="flex space-x-8 font-medium">
               <li>
                 <button
                   onClick={() => navigate("/")}
