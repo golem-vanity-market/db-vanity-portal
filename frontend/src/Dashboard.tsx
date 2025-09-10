@@ -24,7 +24,7 @@ const Dashboard = () => {
             <img
               width={32}
               height={32}
-              src={`${import.meta.env.BASE_URL}/assets/golem.svg`}
+              src={`${import.meta.env.BASE_URL ?? ""}assets/golem.svg`}
               className="h-8"
               alt="GLM"
             />
