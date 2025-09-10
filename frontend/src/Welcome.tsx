@@ -1,6 +1,20 @@
 import React from "react";
 
 const Welcome = () => {
+
+  const check_backend = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}`);
+      if (response.ok) {
+        const data = await response.json();
+        alert(`Backend is healthy: ${data.message}`);
+      } else {
+        alert("Backend is not reachable");
+      }
+    } catch (error) {
+      alert("Error connecting to backend");
+    }
+  };
   return (
     <div className="rounded bg-blue-50 p-6 text-center shadow">
       <h1 className="mb-2 text-2xl font-bold">Welcome</h1>
@@ -12,7 +26,9 @@ const Welcome = () => {
         Data is presented based on the best available information, <br />
         but may not always be accurate or up-to-date.
       </p>
+      <button onClick={() => check_backend()}>Check backend connection</button>
     </div>
+
   );
 };
 

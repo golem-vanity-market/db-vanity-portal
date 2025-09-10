@@ -33,10 +33,10 @@ async function init() {
   );
 
   const client = await createClient(
-    parseInt(process.env.GOLEM_DB_CHAIN_ID || "60138453033"),
+    parseInt(process.env.GOLEM_DB_CHAIN_ID || ""),
     key,
-    process.env.GOLEM_DB_RPC || "https://ethwarsaw.holesky.golemdb.io/rpc",
-    process.env.GOLEM_DB_RPC_WS || "wss://ethwarsaw.holesky.golemdb.io/rpc/ws",
+    process.env.GOLEM_DB_RPC || "",
+    process.env.GOLEM_DB_RPC_WS || "",
   );
 
   const port = process.env.PORT || 5555;

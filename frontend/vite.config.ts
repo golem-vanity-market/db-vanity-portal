@@ -9,7 +9,7 @@ dotenv.config();
 // https://vitejs.dev/config https://vitest.dev/config
 export default defineConfig({
   plugins: [react(), compression()],
-  base: process.env.VITE_BASE || "/dashboard",
+  base: process.env.VITE_BASE || "/",
   build: {
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
