@@ -17,19 +17,52 @@ interface ProviderData {
   >;
 }
 
+const CACHE_KEY = "providerDataCache";
+const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+
 const Providers = () => {
-  const [providerData, setProviderData] = React.useState<ProviderData | null>(
-    null,
-  );
   const [loading, setLoading] = React.useState<boolean>(false);
+
+  const saveCache = (data: ProviderData) => {
+    const cache = {
+      timestamp: Date.now(),
+      data,
+    };
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+  };
+
+  const loadCache = (): ProviderData | null => {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (!cached) return null;
+
+    try {
+      const parsed = JSON.parse(cached);
+      if (Date.now() - parsed.timestamp < CACHE_TTL) {
+        return parsed.data;
+      } else {
+        localStorage.removeItem(CACHE_KEY);
+        return null;
+      }
+    } catch {
+      return null;
+    }
+  };
+
+  const [providerData, setProviderData] = React.useState<ProviderData | null>(
+    loadCache(),
+  );
 
   const check_backend = useCallback(async () => {
     try {
+      setLoading(true);
       const response = await fetch(`${backendUrl()}/providers`);
       if (response.ok) {
         const data = await response.json();
         const providers = data.providers || null;
-        setProviderData(providers);
+        if (providers) {
+          setProviderData(providers);
+          saveCache(providers);
+        }
         setLoading(false);
       } else {
         alert("Backend is not reachable");
@@ -42,14 +75,23 @@ const Providers = () => {
   }, []);
 
   const onLoad = useCallback(async () => {
-    //sleep for 1 second to allow backend to start
     setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // First try cache
+    const cachedData = loadCache();
+    if (cachedData) {
+      setProviderData(cachedData);
+      setLoading(false);
+      return;
+    }
+
+    // Fallback to backend
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // small delay
     await check_backend();
   }, [check_backend]);
 
   useEffect(() => {
-    onLoad().then(() => console.log("Fetched provider data"));
+    onLoad().then(() => console.log("Provider data loaded (cache or backend)"));
   }, [onLoad]);
 
   return (
@@ -65,7 +107,7 @@ const Providers = () => {
       </p>
 
       <button
-        onClick={() => onLoad()}
+        onClick={() => check_backend()}
         className="mt-4 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
       >
         Refresh Data
