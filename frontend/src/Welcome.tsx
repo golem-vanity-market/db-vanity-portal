@@ -2,7 +2,6 @@ import React from "react";
 import { backendUrl } from "./utils";
 
 const Welcome = () => {
-
   const check_backend = async () => {
     try {
       const response = await fetch(`${backendUrl()}`);
@@ -29,7 +28,6 @@ const Welcome = () => {
       </p>
       <button onClick={() => check_backend()}>Check backend connection</button>
     </div>
-
   );
 };
 

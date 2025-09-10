@@ -3,6 +3,7 @@ import React from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import Welcome from "./Welcome";
 import Providers from "./Providers";
+import { assetsUrl } from "./utils";
 
 function navClassName(selected: boolean): string {
   if (selected) {
@@ -25,7 +26,7 @@ const Dashboard = () => {
             <img
               width={32}
               height={32}
-              src={`${import.meta.env.BASE_URL ?? ""}assets/golem.svg`}
+              src={`${assetsUrl()}assets/golem.svg`}
               className="h-8"
               alt="GLM"
             />

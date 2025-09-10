@@ -80,11 +80,11 @@ export function startStatusServer(listenAddr: string) {
 
           const reqData: ProviderData = {
             grouped: pd?.grouped ?? "",
-            byProviderId: {}
-          }
+            byProviderId: {},
+          };
 
           for (const [key, value] of Object.entries(pd?.byProviderId || {})) {
-            if (value.totalWork < 200E9) {
+            if (value.totalWork < 200e9) {
               continue;
             }
             if (value.totalWorkHours < 1) {
@@ -99,9 +99,8 @@ export function startStatusServer(listenAddr: string) {
               jobId: value.jobId,
               totalCost: value.totalCost,
               totalWorkHours: value.totalWorkHours,
-            }
+            };
           }
-
 
           return sendJSON(200, {
             providers: reqData,

@@ -1,6 +1,3 @@
-
-
-
 ```
 
 WALLET_PRIVATE_KEY=abd6b....
