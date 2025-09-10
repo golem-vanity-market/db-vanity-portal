@@ -2,6 +2,7 @@ import React from "react";
 
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import Welcome from "./Welcome";
+import Providers from "./Providers";
 
 function navClassName(selected: boolean): string {
   if (selected) {
@@ -45,6 +46,14 @@ const Dashboard = () => {
               </li>
               <li>
                 <button
+                  onClick={() => navigate("/providers")}
+                  className={navClassName(location.pathname === "/providers")}
+                >
+                  Providers
+                </button>
+              </li>
+              <li>
+                <button
                   onClick={() => navigate("/about")}
                   className={navClassName(location.pathname === "/about")}
                 >
@@ -60,6 +69,9 @@ const Dashboard = () => {
         <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
           <Routes>
             <Route path="/" element={<Welcome />} />
+          </Routes>
+          <Routes>
+            <Route path="/providers" element={<Providers />} />
           </Routes>
           <Routes>
             <Route path="/about" element={<div>About</div>} />

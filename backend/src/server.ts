@@ -2,7 +2,7 @@ import http from "node:http";
 import url from "node:url";
 
 import { log } from "./app.ts";
-import { appState, operations } from "./queries.ts";
+import { appState, operations, type ProviderData } from "./queries.ts";
 
 export function startStatusServer(listenAddr: string) {
   const addr = listenAddr.replace("http://", "").replace("https://", "");
@@ -76,8 +76,35 @@ export function startStatusServer(listenAddr: string) {
         }
         // === Provider data ===
         if (req.method === "GET" && pathname === "/providers") {
+          const pd = operations.getProviderData();
+
+          const reqData: ProviderData = {
+            grouped: pd?.grouped ?? "",
+            byProviderId: {}
+          }
+
+          for (const [key, value] of Object.entries(pd?.byProviderId || {})) {
+            if (value.totalWork < 200E9) {
+              continue;
+            }
+            if (value.totalWorkHours < 1) {
+              continue;
+            }
+
+            reqData.byProviderId[key] = {
+              providerName: value.providerName,
+              providerId: value.providerId,
+              numberOfJobs: value.numberOfJobs,
+              totalWork: value.totalWork,
+              jobId: value.jobId,
+              totalCost: value.totalCost,
+              totalWorkHours: value.totalWorkHours,
+            }
+          }
+
+
           return sendJSON(200, {
-            providers: operations.getProviderData(),
+            providers: reqData,
             timestamp: new Date().toISOString(),
           });
         }

@@ -1,10 +1,11 @@
 import React from "react";
+import { backendUrl } from "./utils";
 
 const Welcome = () => {
 
   const check_backend = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}`);
+      const response = await fetch(`${backendUrl()}`);
       if (response.ok) {
         const data = await response.json();
         alert(`Backend is healthy: ${data.message}`);
