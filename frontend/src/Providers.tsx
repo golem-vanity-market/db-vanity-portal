@@ -316,6 +316,13 @@ const Providers = () => {
           Refresh Data
         </button>
 
+        <button
+          onClick={() => setUpdateNo(updateNo + 1)}
+          className="mt-4 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+        >
+          Load Data from
+        </button>
+
         {loading && <p className="mt-4 text-gray-600">Loading...</p>}
 
         {/* ✅ Filter input */}
