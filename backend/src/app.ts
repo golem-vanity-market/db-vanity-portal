@@ -3,7 +3,7 @@ import { getBytes, Wallet } from "ethers";
 import { type AccountData, createClient, Tagged } from "golem-base-sdk";
 import { startStatusServer } from "./server.ts";
 import { operations } from "./queries.ts";
-import { type ProviderData } from "../../shared/src/provider.ts";
+import { ProviderData } from "../../shared/src/provider.ts";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -66,7 +66,7 @@ async function init() {
         log.error("Failed to fetch provider data:", providersJson);
         continue;
       }
-      operations.updateProviderData(providersJson as ProviderData);
+      operations.updateProviderData(new ProviderData(providersJson));
     } catch (e) {
       log.error(`Failed to fetch provider data ${e}`);
       operations.updateProviderData(null);

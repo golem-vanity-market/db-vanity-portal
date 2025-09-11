@@ -17,6 +17,6 @@
     "jsx": "react-jsx",
     "types": ["vite/client", "@testing-library/jest-dom"]
   },
-  "include": ["src"],
+  "include": ["src", "../shared/**/*"],
   "exclude": ["node_modules"]
 }

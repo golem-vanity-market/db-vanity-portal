@@ -1,4 +1,4 @@
-import { type ProviderData } from "../../shared/src/provider.ts";
+import { ProviderData } from "../../shared/src/provider.ts";
 
 export interface BlockInfo {
   number: bigint;
@@ -33,7 +33,7 @@ export const appState: ApplicationState = {
 
 class Operations {
   public getProviderData(): ProviderData | null {
-    return appState.providerData;
+    return appState.providerData?.clone() ?? null;
   }
 
   public updateBlockInfo(blockInfo: BlockInfo) {

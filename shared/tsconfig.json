@@ -4,7 +4,6 @@
     "module": "nodenext",
     "lib": ["ES2020", "dom"],
     "outDir": "./dist",
-    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -12,7 +11,8 @@
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "declaration": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "noEmit": true
   },
   "types": ["jest"],
   "include": ["src/**/*"],

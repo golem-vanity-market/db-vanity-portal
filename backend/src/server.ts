@@ -2,7 +2,7 @@ import http from "node:http";
 import url from "node:url";
 
 import { log } from "./app.ts";
-import { appState, operations, type ProviderData } from "./queries.ts";
+import { appState, operations } from "./queries.ts";
 
 export function startStatusServer(listenAddr: string) {
   const addr = listenAddr.replace("http://", "").replace("https://", "");
@@ -78,31 +78,15 @@ export function startStatusServer(listenAddr: string) {
         if (req.method === "GET" && pathname === "/providers") {
           const pd = operations.getProviderData();
 
-          const reqData: ProviderData = {
-            grouped: pd?.grouped ?? "",
-            byProviderId: {},
-          };
-
-          for (const [key, value] of Object.entries(pd?.byProviderId || {})) {
-            reqData.byProviderId[key] = {
-              providerName: value.providerName,
-              providerId: value.providerId,
-              numberOfJobs: value.numberOfJobs,
-              totalWork: value.totalWork,
-              jobId: value.jobId,
-              totalCost: value.totalCost,
-              totalWorkHours: value.totalWorkHours,
-              numberOfJobs24h: value.numberOfJobs24h,
-              totalWork24h: value.totalWork24h,
-              totalCost24h: value.totalCost24h,
-              totalWorkHours24h: value.totalWorkHours24h,
-              lastJobDate: value.lastJobDate,
-              longestJob: value.longestJob,
-            };
+          if (!pd) {
+            return sendJSON(200, {
+              providers: {},
+              timestamp: new Date().toISOString(),
+            })
           }
 
           return sendJSON(200, {
-            providers: reqData,
+            providers: pd,
             timestamp: new Date().toISOString(),
           });
         }

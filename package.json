@@ -8,8 +8,9 @@
     "shared"
   ],
   "scripts": {
-    "backend-dev": "cd backend && npm run dev",
-    "frontend-dev": "cd frontend && npm run dev",
+    "backend:dev": "npm run dev --workspace=backend",
+    "frontend:dev": "npm run dev --workspace=frontend",
+    "build": "npm run build --workspaces",
     "format": "npm run format --workspaces",
     "lint": "npm run lint --workspaces"
   },
