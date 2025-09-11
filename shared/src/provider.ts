@@ -12,6 +12,7 @@ export interface ProviderDataEntry {
   totalWorkHours24h: number;
   lastJobDate: string;
   longestJob: number;
+  longestJob24h: number;
 }
 
 export interface FilterCriteria {
@@ -65,6 +66,7 @@ export class ProviderData implements ProviderDataType {
         totalWorkHours24h: value.totalWorkHours24h,
         lastJobDate: value.lastJobDate,
         longestJob: value.longestJob,
+        longestJob24h: value.longestJob24h,
       }; // create a copy of each entry
     }
   }

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from "react";
-import { backendUrl } from "./utils";
+import { backendUrl, displayDifficulty, displayHours } from "./utils";
 import { ProviderData, ProviderDataEntry } from "../../shared/src/provider";
 
 const CACHE_KEY = "providerDataCache";
@@ -32,7 +32,7 @@ export interface FilterCriteria {
 const defaultFilterCriteria = (): FilterCriteria => {
   return {
     minWorkHours: 0.1,
-    minWorkHours24h: 0.0,
+    minWorkHours24h: null,
     minTotalCost: null,
     minTotalCost24h: null,
     minNumberOfJobs: null,
@@ -45,6 +45,7 @@ const defaultFilterCriteria = (): FilterCriteria => {
 
 const Providers = () => {
   const [loading, setLoading] = React.useState(false);
+  const [updateNo, setUpdateNo] = React.useState(0);
 
   const loadCachedCriteria = (): FilterCriteria => {
     const cachedCriteria = localStorage.getItem("providerFilterCriteria");
@@ -70,18 +71,6 @@ const Providers = () => {
     setFilterCriteriaInt(criteria);
     saveCriteriaToCache(criteria);
   }, []);
-
-  useEffect(() => {
-    const cachedCriteria = localStorage.getItem("providerFilterCriteria");
-    if (cachedCriteria) {
-      try {
-        const parsed = JSON.parse(cachedCriteria);
-        setFilterCriteria(parsed);
-      } catch {
-        // ignore
-      }
-    }
-  }, [setFilterCriteria]);
 
   const saveCache = (data: ProviderData) => {
     const cache = {
@@ -111,6 +100,9 @@ const Providers = () => {
   const [providerData, setProviderData] = React.useState<ProviderData | null>(
     loadCache(),
   );
+  const [filteredProviders, setFilteredProviders] = React.useState<
+    ProviderDataEntry[]
+  >([]);
 
   const getFilteredProviders = useCallback(() => {
     if (!providerData) return [];
@@ -158,6 +150,18 @@ const Providers = () => {
     return filtered;
   }, [providerData, filterCriteria]);
 
+  useEffect(() => {
+    const currentFiltered = filteredProviders;
+
+    const newFiltered = getFilteredProviders();
+    if (JSON.stringify(currentFiltered) === JSON.stringify(newFiltered)) {
+      console.log("Filtered providers unchanged, not updating state.");
+    } else {
+      console.log("Filtered providers changed, updating state.");
+      setFilteredProviders(getFilteredProviders());
+    }
+  }, [providerData, filterCriteria, getFilteredProviders, filteredProviders]);
+
   const totalProviderCount = useCallback(() => {
     return providerData ? Object.keys(providerData.byProviderId).length : 0;
   }, [providerData]);
@@ -198,6 +202,16 @@ const Providers = () => {
     onLoad().then(() => console.log("Provider data loaded (cache or backend)"));
   }, [onLoad]);
 
+  useEffect(() => {
+    if (updateNo > 0) {
+      check_backend().then(() => console.log("Provider data refreshed"));
+    }
+  }, [updateNo, check_backend]);
+
+  const clear_data = useCallback(async () => {
+    setFilterCriteria(defaultFilterCriteria());
+  }, [setFilterCriteria]);
+
   const displayProvider = useCallback(
     (row: number, provider: ProviderDataEntry) => {
       if (row > maxDisplayRows) return null;
@@ -211,13 +225,78 @@ const Providers = () => {
           </h2>
           <p className="text-sm text-gray-600">
             Provider ID:{" "}
-            <span className="font-mono">{provider.providerId}</span>
+            <span className="font-mono">
+              <a
+                href={`https://stats.golem.network/network/provider/${provider.providerId}`}
+              >
+                {provider.providerId}
+              </a>
+            </span>
           </p>
           <div className="mt-2 space-y-1 text-sm text-gray-700">
-            <p>Number of Jobs: {provider.numberOfJobs}</p>
-            <p>Total Work: {provider.totalWork}</p>
-            <p>Total Cost: ${provider.totalCost.toFixed(2)}</p>
-            <p>Total Work Hours: {provider.totalWorkHours}</p>
+            <table>
+              <thead>
+                <tr>
+                  <th className="px-2 text-left font-normal">Metric</th>
+                  <th className="px-2 text-left font-normal">All Time</th>
+                  <th className="px-2 text-left font-normal">Last 24h</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="px-2">Total Work Hours</td>
+                  <td className="px-2">
+                    {displayHours(provider.totalWorkHours)}
+                  </td>
+                  <td className="px-2">
+                    {displayHours(provider.totalWorkHours24h)}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-2">Total Work</td>
+                  <td className="px-2">
+                    {displayDifficulty(provider.totalWork)}
+                  </td>
+                  <td className="px-2">
+                    {displayDifficulty(provider.totalWork24h)}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-2">Total Cost</td>
+                  <td className="px-2">{provider.totalCost.toFixed(4)} GLM</td>
+                  <td className="px-2">
+                    {provider.totalCost24h.toFixed(4)} GLM
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-2">Speed</td>
+                  <td className="px-2">
+                    {displayDifficulty(
+                      provider.totalWork / provider.totalWorkHours / 3600,
+                    )}
+                    /s
+                  </td>
+                  <td className="px-2">
+                    {displayDifficulty(
+                      provider.totalWork24h / provider.totalWorkHours24h / 3600,
+                    )}
+                    /s
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-2">Number of Jobs</td>
+                  <td className="px-2">{provider.numberOfJobs}</td>
+                  <td className="px-2">{provider.numberOfJobs24h}</td>
+                </tr>
+                <tr>
+                  <td className="px-2">Longest Job (hours)</td>
+                  <td className="px-2">{displayHours(provider.longestJob)}</td>
+                  <td className="px-2">
+                    {displayHours(provider.longestJob24h)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </li>
       );
@@ -226,13 +305,12 @@ const Providers = () => {
   );
 
   const displayAll = useCallback(() => {
-    const filteredProviders = getFilteredProviders();
     return (
       <div className="rounded bg-blue-50 p-6 text-center shadow">
         <h1 className="mb-2 text-2xl font-bold">Providers</h1>
 
         <button
-          onClick={() => check_backend()}
+          onClick={() => setUpdateNo(updateNo + 1)}
           className="mt-4 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
         >
           Refresh Data
@@ -261,7 +339,12 @@ const Providers = () => {
             />
           </label>
         </div>
-
+        <button
+          onClick={() => clear_data()}
+          className="mt-4 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+        >
+          Reset Filters
+        </button>
         {/* ✅ Sort controls */}
         <div className="mt-4 flex items-center gap-4">
           <label className="font-medium text-gray-700">
@@ -278,8 +361,16 @@ const Providers = () => {
             >
               <option value="providerName">Provider Name (Descr asc)</option>
               <option value="totalCost">Total Cost</option>
+              <option value="totalCost24h">Total Cost 24h</option>
               <option value="totalWork">Total Work</option>
+              <option value="totalWork24h">Total Work 24h</option>
               <option value="totalWorkHours">Total Work Hours</option>
+              <option value="totalWorkHours24h">Total Work Hours 24h</option>
+              <option value="numberOfJobs">Number of Jobs</option>
+              <option value="numberOfJobs24h">Number of Jobs 24h</option>
+              <option value="lastJobDate">Last Job Date</option>
+              <option value="longestJob">Longest Job</option>
+              <option value="longestJob24h">Longest Job 24h</option>
             </select>
           </label>
 
@@ -324,15 +415,16 @@ const Providers = () => {
       </div>
     );
   }, [
-    getFilteredProviders,
-    check_backend,
-    displayProvider,
-    filterCriteria,
     loading,
-    maxDisplayRows,
-    providerData,
-    setFilterCriteria,
+    filterCriteria,
+    providerData?.byProviderId,
+    filteredProviders,
     totalProviderCount,
+    maxDisplayRows,
+    check_backend,
+    clear_data,
+    setFilterCriteria,
+    displayProvider,
   ]);
 
   return displayAll();
