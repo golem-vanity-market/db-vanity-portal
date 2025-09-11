@@ -13,7 +13,5 @@
     "build": "npm run build --workspaces",
     "format": "npm run format --workspaces",
     "lint": "npm run lint --workspaces"
-  },
-  "devDependencies": {},
-  "dependencies": {}
+  }
 }
