@@ -1,4 +1,4 @@
-interface ProviderDataEntry {
+export interface ProviderDataEntry {
   providerName: string;
   providerId: string;
   numberOfJobs: number;
@@ -12,6 +12,19 @@ interface ProviderDataEntry {
   totalWorkHours24h: number;
   lastJobDate: string;
   longestJob: number;
+}
+
+export interface FilterCriteria {
+  minWorkHours: number | null;
+  minWorkHours24h: number | null;
+  minTotalCost: number | null;
+  minTotalCost24h: number | null;
+  minNumberOfJobs: number | null;
+  minNumberOfJobs24h: number | null;
+  providerNameSearch: string | null;
+
+  sortBy: 'totalWork' | 'totalWork24h' | 'totalCost' | 'totalCost24h' | 'numberOfJobs' | 'numberOfJobs24h' | 'totalWorkHours' | 'totalWorkHours24h' | 'lastJobDate' | 'longestJob';
+  sortOrder: 'asc' | 'desc';
 }
 
 export interface ProviderDataType {
