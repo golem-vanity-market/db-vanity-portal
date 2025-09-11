@@ -1072,10 +1072,10 @@ const Providers = () => {
 
               <option value="totalCost">Total Cost</option>
               <option value="totalCost24h">Total Cost 24h</option>
-              <option value="totalSpeed">Total Speed</option>
-              <option value="totalSpeed24h">Total Speed 24h</option>
-              <option value="totalEfficiency">Total Efficiency</option>
-              <option value="totalEfficiency24h">Total Efficiency 24h</option>
+              <option value="speed">Total Speed</option>
+              <option value="speed24h">Total Speed 24h</option>
+              <option value="efficiency">Total Efficiency</option>
+              <option value="efficiency24h">Total Efficiency 24h</option>
               <option value="totalWork">Total Work</option>
               <option value="totalWork24h">Total Work 24h</option>
               <option value="totalWorkHours">Total Work Hours</option>

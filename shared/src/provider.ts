@@ -28,17 +28,7 @@ export interface FilterCriteria {
   minNumberOfJobs24h: number | null;
   providerNameSearch: string | null;
 
-  sortBy:
-    | "totalWork"
-    | "totalWork24h"
-    | "totalCost"
-    | "totalCost24h"
-    | "numberOfJobs"
-    | "numberOfJobs24h"
-    | "totalWorkHours"
-    | "totalWorkHours24h"
-    | "lastJobDate"
-    | "longestJob";
+  sortBy: string;
   sortOrder: "asc" | "desc";
 }
 
