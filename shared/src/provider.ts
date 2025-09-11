@@ -23,8 +23,18 @@ export interface FilterCriteria {
   minNumberOfJobs24h: number | null;
   providerNameSearch: string | null;
 
-  sortBy: 'totalWork' | 'totalWork24h' | 'totalCost' | 'totalCost24h' | 'numberOfJobs' | 'numberOfJobs24h' | 'totalWorkHours' | 'totalWorkHours24h' | 'lastJobDate' | 'longestJob';
-  sortOrder: 'asc' | 'desc';
+  sortBy:
+    | "totalWork"
+    | "totalWork24h"
+    | "totalCost"
+    | "totalCost24h"
+    | "numberOfJobs"
+    | "numberOfJobs24h"
+    | "totalWorkHours"
+    | "totalWorkHours24h"
+    | "lastJobDate"
+    | "longestJob";
+  sortOrder: "asc" | "desc";
 }
 
 export interface ProviderDataType {
@@ -38,7 +48,7 @@ export class ProviderData implements ProviderDataType {
 
   constructor(data: ProviderDataType) {
     this.grouped = data.grouped;
-    this.byProviderId = { };
+    this.byProviderId = {};
     for (const key in data.byProviderId) {
       const value = data.byProviderId[key];
       this.byProviderId[key] = {
@@ -54,7 +64,7 @@ export class ProviderData implements ProviderDataType {
         totalWorkHours: value.totalWorkHours,
         totalWorkHours24h: value.totalWorkHours24h,
         lastJobDate: value.lastJobDate,
-        longestJob: value.longestJob
+        longestJob: value.longestJob,
       }; // create a copy of each entry
     }
   }
@@ -63,4 +73,3 @@ export class ProviderData implements ProviderDataType {
     return new ProviderData(this);
   }
 }
-

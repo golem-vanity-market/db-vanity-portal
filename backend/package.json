@@ -22,5 +22,8 @@
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.42.0"
   },
-  "include": ["src", "../shared/src"]
+  "include": [
+    "src",
+    "../shared/src"
+  ]
 }

@@ -82,7 +82,7 @@ export function startStatusServer(listenAddr: string) {
             return sendJSON(200, {
               providers: {},
               timestamp: new Date().toISOString(),
-            })
+            });
           }
 
           return sendJSON(200, {

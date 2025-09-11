@@ -15,6 +15,7 @@ export interface FilterCriteria {
   providerNameSearch: string | null;
 
   sortBy:
+    | "providerName"
     | "totalWork"
     | "totalWork24h"
     | "totalCost"
@@ -28,15 +29,23 @@ export interface FilterCriteria {
   sortOrder: "asc" | "desc";
 }
 
-const defaultFilterCriteria = () => {
+const defaultFilterCriteria = (): FilterCriteria => {
   return {
     minWorkHours: 0.1,
     minWorkHours24h: 0.0,
+    minTotalCost: null,
+    minTotalCost24h: null,
+    minNumberOfJobs: null,
+    minNumberOfJobs24h: null,
+    providerNameSearch: null,
+    sortBy: "providerName",
+    sortOrder: "asc",
   };
 };
 
 const Providers = () => {
-  const [loading, setLoading] = React.useState<boolean>(false);
+  const [loading, setLoading] = React.useState(false);
+
   const loadCachedCriteria = (): FilterCriteria => {
     const cachedCriteria = localStorage.getItem("providerFilterCriteria");
     if (cachedCriteria) {
@@ -48,8 +57,8 @@ const Providers = () => {
     }
     return defaultFilterCriteria();
   };
-  const [maxDisplayRows, _setMaxDisplayRows] = React.useState<number>(1000);
 
+  const [maxDisplayRows] = React.useState<number>(1000);
   const [filterCriteria, setFilterCriteriaInt] =
     React.useState<FilterCriteria>(loadCachedCriteria());
 
@@ -106,22 +115,46 @@ const Providers = () => {
   const getFilteredProviders = useCallback(() => {
     if (!providerData) return [];
     const filtered: ProviderDataEntry[] = [];
+
     for (const providerId in providerData.byProviderId) {
       const provider = providerData.byProviderId[providerId];
+
+      // ✅ fix filtering bug: use && not ||
       if (
-        filterCriteria.minWorkHours !== null ||
+        filterCriteria.minWorkHours !== null &&
         provider.totalWorkHours < filterCriteria.minWorkHours
       ) {
         continue;
       }
       if (
-        filterCriteria.minWorkHours24h !== null ||
+        filterCriteria.minWorkHours24h !== null &&
         provider.totalWorkHours24h < filterCriteria.minWorkHours24h
       ) {
         continue;
       }
+
       filtered.push(provider);
     }
+
+    // ✅ apply sorting
+    const { sortBy, sortOrder } = filterCriteria;
+    filtered.sort((a, b) => {
+      let aVal: any;
+      let bVal: any;
+
+      if (sortBy === "providerName") {
+        aVal = a.providerName?.toLowerCase() || "";
+        bVal = b.providerName?.toLowerCase() || "";
+      } else {
+        aVal = (a as any)[sortBy] ?? 0;
+        bVal = (b as any)[sortBy] ?? 0;
+      }
+
+      if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+
     return filtered;
   }, [providerData, filterCriteria]);
 
@@ -140,28 +173,24 @@ const Providers = () => {
           setProviderData(providers);
           saveCache(providers);
         }
-        setLoading(false);
       } else {
         alert("Backend is not reachable");
-        setLoading(false);
       }
     } catch (error) {
       alert("Error connecting to backend");
+    } finally {
       setLoading(false);
     }
   }, []);
 
   const onLoad = useCallback(async () => {
-    // First try cache
     const cachedData = loadCache();
     if (cachedData) {
       setProviderData(cachedData);
       setLoading(false);
       return;
     }
-
-    // Fallback to backend
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // small delay
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     await check_backend();
   }, [check_backend]);
 
@@ -170,15 +199,15 @@ const Providers = () => {
   }, [onLoad]);
 
   const displayProvider = useCallback(
-    (row: number, provider: any) => {
-      if (row > maxDisplayRows) return null; // Limit to first 100 for performance
+    (row: number, provider: ProviderDataEntry) => {
+      if (row > maxDisplayRows) return null;
       return (
         <li
           key={provider.providerId}
           className="rounded-lg border bg-white p-4 shadow"
         >
           <h2 className="text-lg font-semibold text-blue-700">
-            {row} - {provider.providerName}
+            {row + 1} - {provider.providerName}
           </h2>
           <p className="text-sm text-gray-600">
             Provider ID:{" "}
@@ -197,19 +226,10 @@ const Providers = () => {
   );
 
   const displayAll = useCallback(() => {
-    console.log("Rerendering");
     const filteredProviders = getFilteredProviders();
     return (
       <div className="rounded bg-blue-50 p-6 text-center shadow">
         <h1 className="mb-2 text-2xl font-bold">Providers</h1>
-        <p className="text-gray-700">
-          This project displays provider estimations and is currently{" "}
-          <span className="font-semibold text-orange-600">experimental</span>.
-        </p>
-        <p className="mt-2 text-gray-700">
-          Data is presented based on the best available information, <br />
-          but may not always be accurate or up-to-date.
-        </p>
 
         <button
           onClick={() => check_backend()}
@@ -220,6 +240,7 @@ const Providers = () => {
 
         {loading && <p className="mt-4 text-gray-600">Loading...</p>}
 
+        {/* ✅ Filter input */}
         <div>
           <label className="mt-4 block text-left font-medium text-gray-700">
             Minimum Work Hours:
@@ -227,7 +248,7 @@ const Providers = () => {
               type="number"
               step="0.1"
               min="0"
-              value={filterCriteria.minWorkHours || ""}
+              value={filterCriteria.minWorkHours ?? ""}
               onChange={(e) =>
                 setFilterCriteria({
                   ...filterCriteria,
@@ -241,12 +262,51 @@ const Providers = () => {
           </label>
         </div>
 
+        {/* ✅ Sort controls */}
+        <div className="mt-4 flex items-center gap-4">
+          <label className="font-medium text-gray-700">
+            Sort By:
+            <select
+              value={filterCriteria.sortBy}
+              onChange={(e) =>
+                setFilterCriteria({
+                  ...filterCriteria,
+                  sortBy: e.target.value as FilterCriteria["sortBy"],
+                })
+              }
+              className="ml-2 rounded border border-gray-300 px-2 py-1"
+            >
+              <option value="providerName">Provider Name (Descr asc)</option>
+              <option value="totalCost">Total Cost</option>
+              <option value="totalWork">Total Work</option>
+              <option value="totalWorkHours">Total Work Hours</option>
+            </select>
+          </label>
+
+          <label className="font-medium text-gray-700">
+            Order:
+            <select
+              value={filterCriteria.sortOrder}
+              onChange={(e) =>
+                setFilterCriteria({
+                  ...filterCriteria,
+                  sortOrder: e.target.value as "asc" | "desc",
+                })
+              }
+              className="ml-2 rounded border border-gray-300 px-2 py-1"
+            >
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
+          </label>
+        </div>
+
         <div className="mt-6 text-left">
           {providerData?.byProviderId ? (
             <>
               <div className="mb-4 font-medium text-gray-800">
                 Found {filteredProviders.length}/{totalProviderCount()}{" "}
-                providers that meets your criteria. Displaying{" "}
+                providers matching criteria. Displaying{" "}
                 {Math.min(filteredProviders.length, maxDisplayRows)} providers.
               </div>
               <ul className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
@@ -274,6 +334,7 @@ const Providers = () => {
     setFilterCriteria,
     totalProviderCount,
   ]);
+
   return displayAll();
 };
 
