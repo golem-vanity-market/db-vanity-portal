@@ -338,19 +338,26 @@ const Providers = () => {
       <div className="rounded bg-blue-50 p-6 text-center shadow">
         <h1 className="mb-2 text-2xl font-bold">Providers</h1>
 
-        <button
-          onClick={() => setUpdateNo(updateNo + 1)}
-          className="mt-4 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-        >
-          Refresh Data
-        </button>
-
-        <button
-          onClick={() => setUpdateNo(updateNo + 1)}
-          className="mt-4 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-        >
-          Load Data from
-        </button>
+        <div className="mt-4 flex flex-wrap justify-center gap-4">
+          <button
+            onClick={() => clear_data()}
+            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          >
+            Reset Filters
+          </button>
+          <button
+            onClick={() => setUpdateNo(updateNo + 1)}
+            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          >
+            Refresh Data
+          </button>
+          <button
+            onClick={() => setUpdateNo(updateNo + 1)}
+            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          >
+            From Golem DB
+          </button>
+        </div>
 
         {loading && <p className="mt-4 text-gray-600">Loading...</p>}
 
@@ -687,28 +694,10 @@ const Providers = () => {
                   placeholder="Type a name fragment"
                 />
               </td>
-              <td className="p-2">
-                <button
-                  onClick={() =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      providerNameSearch: null,
-                    })
-                  }
-                  className="rounded bg-gray-200 px-3 py-1 hover:bg-gray-300"
-                >
-                  ✕
-                </button>
-              </td>
             </tr>
           </tbody>
         </table>
-        <button
-          onClick={() => clear_data()}
-          className="mt-4 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-        >
-          Reset Filters
-        </button>
+
         {/* ✅ Sort controls */}
         <div className="mt-4 flex items-center gap-4">
           <label className="font-medium text-gray-700">
@@ -723,7 +712,7 @@ const Providers = () => {
               }
               className="ml-2 rounded border border-gray-300 px-2 py-1"
             >
-              <option value="providerName">Provider Name (Descr asc)</option>
+              <option value="providerName">Provider Name</option>
               <option value="totalCost">Total Cost</option>
               <option value="totalCost24h">Total Cost 24h</option>
               <option value="totalWork">Total Work</option>
