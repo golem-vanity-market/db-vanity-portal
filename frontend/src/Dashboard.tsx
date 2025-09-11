@@ -28,12 +28,12 @@ const Dashboard = () => {
               width={32}
               height={32}
               src={`${assetsUrl()}/assets/golem.svg`}
-              className="h-8 w-8"
+              className="size-8"
               alt="GLM"
             />
             <span className="hidden self-center whitespace-nowrap text-2xl font-semibold md:inline dark:text-white">
-        Golem Network - Providers
-      </span>
+              Golem Network - Providers
+            </span>
           </a>
 
           {/* Navigation */}

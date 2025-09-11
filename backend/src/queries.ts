@@ -1,3 +1,5 @@
+import { type ProviderData } from "../../shared/src/provider.ts";
+
 export interface BlockInfo {
   number: bigint;
   date: string | null;
@@ -18,27 +20,6 @@ export interface BlockInfo {
  *       "lastJobDate": "2025-09-10T00:29:41.506Z",
  *       "longestJob": 3.986357777777778
  */
-export interface ProviderData {
-  grouped: string;
-  byProviderId: Record<
-    string,
-    {
-      providerName: string;
-      providerId: string;
-      numberOfJobs: number;
-      numberOfJobs24h: number;
-      totalWork: number;
-      totalWork24h: number;
-      jobId: string;
-      totalCost: number;
-      totalCost24h: number;
-      totalWorkHours: number;
-      totalWorkHours24h: number;
-      lastJobDate: string;
-      longestJob: number;
-    }
-  >;
-}
 
 interface ApplicationState {
   latestBlock: BlockInfo | null;

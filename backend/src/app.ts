@@ -2,7 +2,8 @@ import jsLogger, { type ILogger } from "js-logger";
 import { getBytes, Wallet } from "ethers";
 import { type AccountData, createClient, Tagged } from "golem-base-sdk";
 import { startStatusServer } from "./server.ts";
-import { operations, type ProviderData } from "./queries.ts";
+import { operations } from "./queries.ts";
+import { type ProviderData } from "../../shared/src/provider.ts";
 import dotenv from "dotenv";
 dotenv.config();
 

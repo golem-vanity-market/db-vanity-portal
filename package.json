@@ -1,0 +1,18 @@
+{
+  "name": "monorepo-project",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend",
+    "shared"
+  ],
+  "scripts": {
+    "backend-dev": "cd backend && npm run dev",
+    "frontend-dev": "cd frontend && npm run dev",
+    "format": "npm run format --workspaces",
+    "lint": "npm run lint --workspaces"
+  },
+  "devDependencies": {},
+  "dependencies": {}
+}

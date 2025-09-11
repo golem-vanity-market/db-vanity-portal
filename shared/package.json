@@ -1,5 +1,5 @@
 {
-  "name": "db-provider-reputation-backend",
+  "name": "db-provider-reputation-shared",
   "type": "module",
   "scripts": {
     "build": "tsc",
