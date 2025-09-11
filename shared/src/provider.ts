@@ -13,6 +13,10 @@ export interface ProviderDataEntry {
   lastJobDate: string;
   longestJob: number;
   longestJob24h: number;
+  speed: number; // jobs per hour (optional field)
+  speed24h: number; // jobs per hour in the last 24h (optional field)
+  efficiency: number; // work units per cost (optional field)
+  efficiency24h: number; // work units per cost in the last 24h (optional field)
 }
 
 export interface FilterCriteria {
@@ -67,6 +71,10 @@ export class ProviderData implements ProviderDataType {
         lastJobDate: value.lastJobDate,
         longestJob: value.longestJob,
         longestJob24h: value.longestJob24h,
+        speed: value.totalWork / value.totalWorkHours,
+        speed24h: value.totalWork24h / value.totalWorkHours24h,
+        efficiency: value.totalWork / value.totalCost,
+        efficiency24h: value.totalWork24h / value.totalCost24h,
       }; // create a copy of each entry
     }
   }

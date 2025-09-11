@@ -6,6 +6,18 @@ const CACHE_KEY = "providerDataCache";
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 
 export interface FilterCriteria {
+  minWork: number | null;
+  maxWork: number | null;
+  minWork24h: number | null;
+  maxWork24h: number | null;
+  minSpeed: number | null;
+  maxSpeed: number | null;
+  minSpeed24h: number | null;
+  maxSpeed24h: number | null;
+  minEfficiency: number | null;
+  maxEfficiency: number | null;
+  minEfficiency24h: number | null;
+  maxEfficiency24h: number | null;
   minWorkHours: number | null;
   maxWorkHours: number | null;
   minWorkHours24h: number | null;
@@ -30,6 +42,10 @@ export interface FilterCriteria {
     | "numberOfJobs24h"
     | "totalWorkHours"
     | "totalWorkHours24h"
+    | "speed"
+    | "speed24h"
+    | "efficiency"
+    | "efficiency24h"
     | "lastJobDate"
     | "longestJob";
   sortOrder: "asc" | "desc";
@@ -37,6 +53,18 @@ export interface FilterCriteria {
 
 const defaultFilterCriteria = (): FilterCriteria => {
   return {
+    minWork: null,
+    maxWork: null,
+    minWork24h: null,
+    maxWork24h: null,
+    minSpeed: null,
+    maxSpeed: null,
+    minSpeed24h: null,
+    maxSpeed24h: null,
+    minEfficiency: null,
+    maxEfficiency: null,
+    minEfficiency24h: null,
+    maxEfficiency24h: null,
     minWorkHours: 0.1,
     maxWorkHours: null,
     minWorkHours24h: null,
@@ -131,10 +159,31 @@ const Providers = () => {
       if (val === null) return false;
       return val > limit;
     };
-
+    const cs9 = (val: number | null, limit: number | null) => {
+      if (limit === null) return false;
+      if (val === null) return false;
+      return val < limit * 1e9;
+    };
+    const cb9 = (val: number | null, limit: number | null) => {
+      if (limit === null) return false;
+      if (val === null) return false;
+      return val > limit * 1e9;
+    };
     for (const providerId in providerData.byProviderId) {
       const p = providerData.byProviderId[providerId];
 
+      if (cs9(p.totalWork, fc.minWork)) continue;
+      if (cb9(p.totalWork, fc.maxWork)) continue;
+      if (cs9(p.totalWork24h, fc.minWork24h)) continue;
+      if (cb9(p.totalWork24h, fc.maxWork24h)) continue;
+      if (cs9(p.speed, fc.minSpeed)) continue;
+      if (cb9(p.speed, fc.maxSpeed)) continue;
+      if (cs9(p.speed24h, fc.minSpeed24h)) continue;
+      if (cb9(p.speed24h, fc.maxSpeed24h)) continue;
+      if (cs9(p.efficiency, fc.minEfficiency)) continue;
+      if (cb9(p.efficiency, fc.maxEfficiency)) continue;
+      if (cs9(p.efficiency24h, fc.minEfficiency24h)) continue;
+      if (cb9(p.efficiency24h, fc.maxEfficiency24h)) continue;
       if (cs(p.totalCost, fc.minTotalCost)) continue;
       if (cb(p.totalCost, fc.maxTotalCost)) continue;
       if (cs(p.totalCost24h, fc.minTotalCost24h)) continue;
@@ -300,15 +349,22 @@ const Providers = () => {
                 <tr>
                   <td className="px-2">Speed</td>
                   <td className="px-2">
-                    {displayDifficulty(
-                      provider.totalWork / provider.totalWorkHours / 3600,
-                    )}
+                    {displayDifficulty(provider.speed)}
                     /s
                   </td>
                   <td className="px-2">
-                    {displayDifficulty(
-                      provider.totalWork24h / provider.totalWorkHours24h / 3600,
-                    )}
+                    {displayDifficulty(provider.speed24h)}
+                    /s
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-2">Efficiency</td>
+                  <td className="px-2">
+                    {displayDifficulty(provider.efficiency)}
+                    /s
+                  </td>
+                  <td className="px-2">
+                    {displayDifficulty(provider.efficiency24h)}
                     /s
                   </td>
                 </tr>
@@ -372,6 +428,306 @@ const Providers = () => {
             </tr>
           </thead>
           <tbody>
+            {/* Minimum Work */}
+            <tr className="border-b">
+              <td className="p-2">Work</td>
+              <td className="p-2">
+                <input
+                  type="number"
+                  step="0.1"
+                  value={filterCriteria.minWork ?? ""}
+                  onChange={(e) =>
+                    setFilterCriteria({
+                      ...filterCriteria,
+                      minWork: e.target.value
+                        ? parseFloat(e.target.value)
+                        : null,
+                    })
+                  }
+                  className="w-24 rounded border border-gray-300 px-2 py-1"
+                />
+              </td>
+              <td className="p-2">
+                <input
+                  type="number"
+                  step="0.1"
+                  value={filterCriteria.maxWork ?? ""}
+                  onChange={(e) =>
+                    setFilterCriteria({
+                      ...filterCriteria,
+                      maxWork: e.target.value
+                        ? parseFloat(e.target.value)
+                        : null,
+                    })
+                  }
+                  className="w-24 rounded border border-gray-300 px-2 py-1"
+                />
+              </td>
+              <td className="p-2">
+                <button
+                  onClick={() =>
+                    setFilterCriteria({
+                      ...filterCriteria,
+                      minWork: null,
+                      maxWork: null,
+                    })
+                  }
+                  className="rounded bg-gray-200 px-3 py-1 hover:bg-gray-300"
+                >
+                  ✕
+                </button>
+              </td>
+            </tr>
+            {/* Minimum Work 24h */}
+            <tr className="border-b">
+              <td className="p-2">Work (24h)</td>
+              <td className="p-2">
+                <input
+                  type="number"
+                  step="0.1"
+                  value={filterCriteria.minWork24h ?? ""}
+                  onChange={(e) =>
+                    setFilterCriteria({
+                      ...filterCriteria,
+                      minWork24h: e.target.value
+                        ? parseFloat(e.target.value)
+                        : null,
+                    })
+                  }
+                  className="w-24 rounded border border-gray-300 px-2 py-1"
+                />
+              </td>
+              <td className="p-2">
+                <input
+                  type="number"
+                  step="0.1"
+                  value={filterCriteria.maxWork24h ?? ""}
+                  onChange={(e) =>
+                    setFilterCriteria({
+                      ...filterCriteria,
+                      maxWork24h: e.target.value
+                        ? parseFloat(e.target.value)
+                        : null,
+                    })
+                  }
+                  className="w-24 rounded border border-gray-300 px-2 py-1"
+                />
+              </td>
+              <td className="p-2">
+                <button
+                  onClick={() =>
+                    setFilterCriteria({
+                      ...filterCriteria,
+                      minWork24h: null,
+                      maxWork24h: null,
+                    })
+                  }
+                  className="rounded bg-gray-200 px-3 py-1 hover:bg-gray-300"
+                >
+                  ✕
+                </button>
+              </td>
+            </tr>
+            {/* Minimum speed */}
+            <tr className="border-b">
+              <td className="p-2">Speed</td>
+              <td className="p-2">
+                <input
+                  type="number"
+                  step="0.1"
+                  value={filterCriteria.minSpeed ?? ""}
+                  onChange={(e) =>
+                    setFilterCriteria({
+                      ...filterCriteria,
+                      minSpeed: e.target.value
+                        ? parseFloat(e.target.value)
+                        : null,
+                    })
+                  }
+                  className="w-24 rounded border border-gray-300 px-2 py-1"
+                />
+              </td>
+              <td className="p-2">
+                <input
+                  type="number"
+                  step="0.1"
+                  value={filterCriteria.maxSpeed ?? ""}
+                  onChange={(e) =>
+                    setFilterCriteria({
+                      ...filterCriteria,
+                      maxSpeed: e.target.value
+                        ? parseFloat(e.target.value)
+                        : null,
+                    })
+                  }
+                  className="w-24 rounded border border-gray-300 px-2 py-1"
+                />
+              </td>
+              <td className="p-2">
+                <button
+                  onClick={() =>
+                    setFilterCriteria({
+                      ...filterCriteria,
+                      minSpeed: null,
+                      maxSpeed: null,
+                    })
+                  }
+                  className="rounded bg-gray-200 px-3 py-1 hover:bg-gray-300"
+                >
+                  ✕
+                </button>
+              </td>
+            </tr>
+            {/* Minimum speed 24h */}
+            <tr className="border-b">
+              <td className="p-2">Speed (24h)</td>
+              <td className="p-2">
+                <input
+                  type="number"
+                  step="0.1"
+                  value={filterCriteria.minSpeed24h ?? ""}
+                  onChange={(e) =>
+                    setFilterCriteria({
+                      ...filterCriteria,
+                      minSpeed24h: e.target.value
+                        ? parseFloat(e.target.value)
+                        : null,
+                    })
+                  }
+                  className="w-24 rounded border border-gray-300 px-2 py-1"
+                />
+              </td>
+              <td className="p-2">
+                <input
+                  type="number"
+                  step="0.1"
+                  value={filterCriteria.maxSpeed24h ?? ""}
+                  onChange={(e) =>
+                    setFilterCriteria({
+                      ...filterCriteria,
+                      maxSpeed24h: e.target.value
+                        ? parseFloat(e.target.value)
+                        : null,
+                    })
+                  }
+                  className="w-24 rounded border border-gray-300 px-2 py-1"
+                />
+              </td>
+              <td className="p-2">
+                <button
+                  onClick={() =>
+                    setFilterCriteria({
+                      ...filterCriteria,
+                      minSpeed24h: null,
+                      maxSpeed24h: null,
+                    })
+                  }
+                  className="rounded bg-gray-200 px-3 py-1 hover:bg-gray-300"
+                >
+                  ✕
+                </button>
+              </td>
+            </tr>
+            {/* Minimum efficiency */}
+            <tr className="border-b">
+              <td className="p-2">Efficiency</td>
+              <td className="p-2">
+                <input
+                  type="number"
+                  step="0.1"
+                  value={filterCriteria.minEfficiency ?? ""}
+                  onChange={(e) =>
+                    setFilterCriteria({
+                      ...filterCriteria,
+                      minEfficiency: e.target.value
+                        ? parseFloat(e.target.value)
+                        : null,
+                    })
+                  }
+                  className="w-24 rounded border border-gray-300 px-2 py-1"
+                />
+              </td>
+              <td className="p-2">
+                <input
+                  type="number"
+                  step="0.1"
+                  value={filterCriteria.maxEfficiency ?? ""}
+                  onChange={(e) =>
+                    setFilterCriteria({
+                      ...filterCriteria,
+                      maxEfficiency: e.target.value
+                        ? parseFloat(e.target.value)
+                        : null,
+                    })
+                  }
+                  className="w-24 rounded border border-gray-300 px-2 py-1"
+                />
+              </td>
+              <td className="p-2">
+                <button
+                  onClick={() =>
+                    setFilterCriteria({
+                      ...filterCriteria,
+                      minEfficiency: null,
+                      maxEfficiency: null,
+                    })
+                  }
+                  className="rounded bg-gray-200 px-3 py-1 hover:bg-gray-300"
+                >
+                  ✕
+                </button>
+              </td>
+            </tr>
+            {/* Minimum efficiency 24h */}
+            <tr className="border-b">
+              <td className="p-2">Efficiency (24h)</td>
+              <td className="p-2">
+                <input
+                  type="number"
+                  step="0.1"
+                  value={filterCriteria.minEfficiency24h ?? ""}
+                  onChange={(e) =>
+                    setFilterCriteria({
+                      ...filterCriteria,
+                      minEfficiency24h: e.target.value
+                        ? parseFloat(e.target.value)
+                        : null,
+                    })
+                  }
+                  className="w-24 rounded border border-gray-300 px-2 py-1"
+                />
+              </td>
+              <td className="p-2">
+                <input
+                  type="number"
+                  step="0.1"
+                  value={filterCriteria.maxEfficiency24h ?? ""}
+                  onChange={(e) =>
+                    setFilterCriteria({
+                      ...filterCriteria,
+                      maxEfficiency24h: e.target.value
+                        ? parseFloat(e.target.value)
+                        : null,
+                    })
+                  }
+                  className="w-24 rounded border border-gray-300 px-2 py-1"
+                />
+              </td>
+              <td className="p-2">
+                <button
+                  onClick={() =>
+                    setFilterCriteria({
+                      ...filterCriteria,
+                      minEfficiency24h: null,
+                      maxEfficiency24h: null,
+                    })
+                  }
+                  className="rounded bg-gray-200 px-3 py-1 hover:bg-gray-300"
+                >
+                  ✕
+                </button>
+              </td>
+            </tr>
             {/* Minimum Work Hours */}
             <tr className="border-b">
               <td className="p-2">Work Hours</td>
@@ -713,8 +1069,13 @@ const Providers = () => {
               className="ml-2 rounded border border-gray-300 px-2 py-1"
             >
               <option value="providerName">Provider Name</option>
+
               <option value="totalCost">Total Cost</option>
               <option value="totalCost24h">Total Cost 24h</option>
+              <option value="totalSpeed">Total Speed</option>
+              <option value="totalSpeed24h">Total Speed 24h</option>
+              <option value="totalEfficiency">Total Efficiency</option>
+              <option value="totalEfficiency24h">Total Efficiency 24h</option>
               <option value="totalWork">Total Work</option>
               <option value="totalWork24h">Total Work 24h</option>
               <option value="totalWorkHours">Total Work Hours</option>

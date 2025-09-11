@@ -28,6 +28,12 @@ export function classNames(...classes: unknown[]): string {
 }
 
 export const displayDifficulty = (difficulty: number): string => {
+  if (difficulty === undefined || difficulty === null) {
+    return "N/A";
+  }
+  if (isNaN(difficulty)) {
+    return "NaN";
+  }
   const units = ["", "kH", "MH", "GH", "TH", "PH", "EH", "ZH", "YH"];
   let unitIndex = 0;
 
