@@ -92,6 +92,27 @@ const Providers = () => {
     onLoad().then(() => console.log("Provider data loaded (cache or backend)"));
   }, [onLoad]);
 
+  const displayProvider = (row: number, provider: any) => {
+    return (
+      <li
+        key={provider.providerId}
+        className="rounded-lg border bg-white p-4 shadow"
+      >
+        <h2 className="text-lg font-semibold text-blue-700">
+          {row} - {provider.providerName}
+        </h2>
+        <p className="text-sm text-gray-600">
+          Provider ID: <span className="font-mono">{provider.providerId}</span>
+        </p>
+        <div className="mt-2 space-y-1 text-sm text-gray-700">
+          <p>Number of Jobs: {provider.numberOfJobs}</p>
+          <p>Total Work: {provider.totalWork}</p>
+          <p>Total Cost: ${provider.totalCost.toFixed(2)}</p>
+          <p>Total Work Hours: {provider.totalWorkHours}</p>
+        </div>
+      </li>
+    );
+  };
   return (
     <div className="rounded bg-blue-50 p-6 text-center shadow">
       <h1 className="mb-2 text-2xl font-bold">Providers</h1>
@@ -116,26 +137,9 @@ const Providers = () => {
       <div className="mt-6 text-left">
         {providerData?.byProviderId ? (
           <ul className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-            {Object.values(providerData.byProviderId).map((provider) => (
-              <li
-                key={provider.providerId}
-                className="rounded-lg border bg-white p-4 shadow"
-              >
-                <h2 className="text-lg font-semibold text-blue-700">
-                  {provider.providerName}
-                </h2>
-                <p className="text-sm text-gray-600">
-                  Provider ID:{" "}
-                  <span className="font-mono">{provider.providerId}</span>
-                </p>
-                <div className="mt-2 space-y-1 text-sm text-gray-700">
-                  <p>Number of Jobs: {provider.numberOfJobs}</p>
-                  <p>Total Work: {provider.totalWork}</p>
-                  <p>Total Cost: ${provider.totalCost.toFixed(2)}</p>
-                  <p>Total Work Hours: {provider.totalWorkHours}</p>
-                </div>
-              </li>
-            ))}
+            {Object.values(providerData.byProviderId).map((provider, row) =>
+              displayProvider(row, provider),
+            )}
           </ul>
         ) : (
           <p className="mt-4 text-gray-600">
