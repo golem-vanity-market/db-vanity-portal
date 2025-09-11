@@ -84,13 +84,6 @@ export function startStatusServer(listenAddr: string) {
           };
 
           for (const [key, value] of Object.entries(pd?.byProviderId || {})) {
-            if (value.totalWork < 200e9) {
-              continue;
-            }
-            if (value.totalWorkHours < 1) {
-              continue;
-            }
-
             reqData.byProviderId[key] = {
               providerName: value.providerName,
               providerId: value.providerId,
@@ -99,6 +92,12 @@ export function startStatusServer(listenAddr: string) {
               jobId: value.jobId,
               totalCost: value.totalCost,
               totalWorkHours: value.totalWorkHours,
+              numberOfJobs24h: value.numberOfJobs24h,
+              totalWork24h: value.totalWork24h,
+              totalCost24h: value.totalCost24h,
+              totalWorkHours24h: value.totalWorkHours24h,
+              lastJobDate: value.lastJobDate,
+              longestJob: value.longestJob,
             };
           }
 

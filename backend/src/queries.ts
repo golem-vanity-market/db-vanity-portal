@@ -3,6 +3,21 @@ export interface BlockInfo {
   date: string | null;
 }
 
+/**
+ *       "providerName": "magical-passenger",
+ *       "providerId": "0x6d39b54b74d0fa63688e2e1b2c83d706fe304052",
+ *       "numberOfJobs": 120,
+ *       "numberOfJobs24h": 0,
+ *       "totalWork": 196062267384,
+ *       "totalWork24h": 0,
+ *       "jobId": "sum",
+ *       "totalCost": 0.3055777114419082,
+ *       "totalWorkHours": 51.41130500000003,
+ *       "totalWorkHours24h": 0,
+ *       "totalCost24h": 0,
+ *       "lastJobDate": "2025-09-10T00:29:41.506Z",
+ *       "longestJob": 3.986357777777778
+ */
 export interface ProviderData {
   grouped: string;
   byProviderId: Record<
@@ -11,10 +26,16 @@ export interface ProviderData {
       providerName: string;
       providerId: string;
       numberOfJobs: number;
+      numberOfJobs24h: number;
       totalWork: number;
+      totalWork24h: number;
       jobId: string;
       totalCost: number;
+      totalCost24h: number;
       totalWorkHours: number;
+      totalWorkHours24h: number;
+      lastJobDate: string;
+      longestJob: number;
     }
   >;
 }
