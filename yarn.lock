@@ -4390,6 +4390,8 @@ __metadata:
 "monorepo-project@workspace:.":
   version: 0.0.0-use.local
   resolution: "monorepo-project@workspace:."
+  dependencies:
+    typescript: "npm:^5.9.2"
   languageName: unknown
   linkType: soft
 
