@@ -12,13 +12,7 @@ export default defineConfig({
   base: process.env.VITE_BASE || "/",
   define: {
     // Provide a minimal `process` object so code like process.env.NODE_ENV works
-    "process.env": {},
-    "process.browser": true,
-  },
-  resolve: {
-    alias: {
-      process: "process/browser",
-    },
+    process: null,
   },
   build: {
     chunkSizeWarningLimit: 1500,
