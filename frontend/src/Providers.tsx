@@ -3,7 +3,7 @@ import { displayDifficulty, displayHours } from "./utils";
 import { ProviderData, ProviderDataEntry, ProviderDataType } from "../../shared/src/provider";
 import RangeFilterRow from "./RangeFilterRow";
 import { createROClient } from "golem-base-sdk";
-import { deserializeProvider } from "../../shared/src/serialization";
+import { deserializeProvider } from "../../shared/src/provider";
 
 const CACHE_KEY = "providerDataCache";
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes

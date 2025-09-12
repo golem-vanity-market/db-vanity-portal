@@ -11,7 +11,7 @@ import { startStatusServer } from "./server.ts";
 import { operations } from "./queries.ts";
 import { ProviderData } from "../../shared/src/provider.ts";
 import dotenv from "dotenv";
-import { serializeProvider } from "../../shared/src/serialization.ts";
+import { serializeProvider } from "../../shared/src/provider.ts";
 
 dotenv.config();
 
