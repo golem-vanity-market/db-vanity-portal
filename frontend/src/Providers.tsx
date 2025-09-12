@@ -1,7 +1,9 @@
-import React, { useCallback, useEffect } from "react";
-import { backendUrl, displayDifficulty, displayHours } from "./utils";
-import { ProviderData, ProviderDataEntry } from "../../shared/src/provider";
+import React, { useCallback, useEffect, useMemo } from "react";
+import { displayDifficulty, displayHours } from "./utils";
+import { ProviderData, ProviderDataEntry, ProviderDataType } from "../../shared/src/provider";
 import RangeFilterRow from "./RangeFilterRow";
+import { createROClient } from "golem-base-sdk";
+import { deserializeProvider } from "../../shared/src/serialization";
 
 const CACHE_KEY = "providerDataCache";
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
@@ -87,6 +89,15 @@ const defaultFilterCriteria = (): FilterCriteria => {
 const Providers = () => {
   const [loading, setLoading] = React.useState(false);
   const [updateNo, setUpdateNo] = React.useState(0);
+  const client = useMemo(
+    () =>
+      createROClient(
+        parseInt(import.meta.env.VITE_GOLEM_DB_CHAIN_ID || ""),
+        import.meta.env.VITE_GOLEM_DB_RPC || "",
+        import.meta.env.VITE_GOLEM_DB_RPC_WS || "",
+      ),
+    [],
+  );
 
   const loadCachedCriteria = (): FilterCriteria => {
     const cachedCriteria = localStorage.getItem("providerFilterCriteria");
@@ -238,23 +249,49 @@ const Providers = () => {
   const check_backend = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${backendUrl()}/providers`);
-      if (response.ok) {
-        const data = await response.json();
-        const providers = data.providers || null;
-        if (providers) {
-          setProviderData(providers);
-          saveCache(providers);
+
+      if (client) {
+        const entities = await client.queryEntities(`$owner="${import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}"`);
+        console.log("Fetched entities from Golem DB:", entities);
+        const newProviderData: ProviderDataType = {
+          grouped: "all",
+          byProviderId: {},
+        };
+        for (const entity of entities) {
+          let data;
+          try {
+            data = deserializeProvider(entity.storageValue);
+          } catch (e) {
+            console.error("Failed to deserialize provider data:", e);
+            continue;
+          }
+          newProviderData.byProviderId[data.providerId] = data;
         }
+        const newProviderDataObj = new ProviderData(newProviderData);
+        setProviderData(newProviderDataObj);
+        saveCache(newProviderDataObj);
       } else {
-        alert("Backend is not reachable");
+        console.log("Fetching provider data from backend...");
+
+        /*
+        const response = await fetch(`${backendUrl()}/providers`);
+        if (response.ok) {
+          const data = await response.json();
+          const providers = data.providers || null;
+          if (providers) {
+            setProviderData(providers);
+            saveCache(providers);
+          }
+        } else {
+          alert("Backend is not reachable");
+        }*/
       }
     } catch (error) {
       alert("Error connecting to backend");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [client]);
 
   const onLoad = useCallback(async () => {
     const cachedData = loadCache();
@@ -363,7 +400,7 @@ const Providers = () => {
 
   const displayAll = useCallback(() => {
     return (
-      <div className="rounded bg-blue-50 p-6 text-center shadow">
+      <div className="rounded bg-blue-50 p-6 text-center shadow w-full">
         <h1 className="mb-2 text-2xl font-bold">Providers</h1>
 
         <div className="mt-4 flex flex-wrap justify-center gap-4">
@@ -375,12 +412,6 @@ const Providers = () => {
             className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
           >
             Refresh Data
-          </button>
-          <button
-            onClick={() => setUpdateNo(updateNo + 1)}
-            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-          >
-            From Golem DB
           </button>
         </div>
 

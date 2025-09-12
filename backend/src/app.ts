@@ -79,16 +79,6 @@ async function init() {
       log.error(`Failed to fetch provider data ${e}`);
       operations.updateProviderData(null);
     }
-
-    const encoder = new TextEncoder();
-    const creates: GolemBaseCreate[] = [
-      {
-        data: encoder.encode("foo"),
-        btl: 25,
-        stringAnnotations: [new Annotation("provId", "provId_foo")],
-        numericAnnotations: [],
-      },
-    ];
     try {
       const block = await client.getRawClient().httpClient.getBlockNumber();
       log.info("Current Ethereum block number is", block);
