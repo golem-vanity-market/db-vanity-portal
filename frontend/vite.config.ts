@@ -4,22 +4,24 @@ import compression from "vite-plugin-compression2";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 import dotenv from "dotenv";
+
 dotenv.config();
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 // https://vitejs.dev/config https://vitest.dev/config
 export default defineConfig({
-  plugins: [react(), compression()],
+  plugins: [
+    react(),
+    compression(),
+    nodePolyfills({
+      // Whether to polyfill `node:` protocol imports.
+      protocolImports: true,
+    }),
+  ],
   base: process.env.VITE_BASE || "/",
   define: {
     // Provide a minimal `process` object so code like process.env.NODE_ENV works
     process: null,
-  },
-  resolve: {
-    alias: {
-      // prevent Vite from trying to bundle Node built-ins
-      fs: "empty-module",
-      os: "empty-module",
-    },
   },
   build: {
     chunkSizeWarningLimit: 1500,
