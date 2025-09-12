@@ -17,20 +17,4 @@ export default defineConfig({
     }),
   ],
   base: process.env.VITE_BASE || "/",
-  define: {
-    // Provide a minimal `process` object so code like process.env.NODE_ENV works
-    process: null,
-  },
-  build: {
-    chunkSizeWarningLimit: 1500,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes("node_modules")) {
-            return id.toString().split("node_modules/")[1].split("/")[0].toString();
-          }
-        },
-      },
-    },
-  },
 });
