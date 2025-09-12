@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect } from "react";
 import { backendUrl, displayDifficulty, displayHours } from "./utils";
 import { ProviderData, ProviderDataEntry } from "../../shared/src/provider";
+import RangeFilterRow from "./RangeFilterRow";
 
 const CACHE_KEY = "providerDataCache";
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
@@ -386,574 +387,109 @@ const Providers = () => {
         {loading && <p className="mt-4 text-gray-600">Loading...</p>}
 
         {/* ✅ Filter input */}
-        <table className="mt-4 w-full table-auto border-collapse text-left">
+        <table className="mt-4 table-auto border-collapse text-left">
           <thead>
             <tr className="border-b">
               <th className="p-2 font-medium text-gray-700">Filter</th>
               <th className="p-2 font-medium text-gray-700">Min</th>
               <th className="p-2 font-medium text-gray-700">Max</th>
-              <th className="p-2 font-medium text-gray-700">Cancel</th>
             </tr>
           </thead>
           <tbody>
-            {/* Minimum Work */}
-            <tr className="border-b">
-              <td className="p-2">Work</td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.minWork ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minWork: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.maxWork ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      maxWork: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <button
-                  onClick={() =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minWork: null,
-                      maxWork: null,
-                    })
-                  }
-                  className="rounded bg-gray-200 px-3 py-1 hover:bg-gray-300"
-                >
-                  ✕
-                </button>
-              </td>
-            </tr>
-            {/* Minimum Work 24h */}
-            <tr className="border-b">
-              <td className="p-2">Work (24h)</td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.minWork24h ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minWork24h: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.maxWork24h ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      maxWork24h: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <button
-                  onClick={() =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minWork24h: null,
-                      maxWork24h: null,
-                    })
-                  }
-                  className="rounded bg-gray-200 px-3 py-1 hover:bg-gray-300"
-                >
-                  ✕
-                </button>
-              </td>
-            </tr>
-            {/* Minimum speed */}
-            <tr className="border-b">
-              <td className="p-2">Speed</td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.minSpeed ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minSpeed: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.maxSpeed ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      maxSpeed: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <button
-                  onClick={() =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minSpeed: null,
-                      maxSpeed: null,
-                    })
-                  }
-                  className="rounded bg-gray-200 px-3 py-1 hover:bg-gray-300"
-                >
-                  ✕
-                </button>
-              </td>
-            </tr>
-            {/* Minimum speed 24h */}
-            <tr className="border-b">
-              <td className="p-2">Speed (24h)</td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.minSpeed24h ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minSpeed24h: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.maxSpeed24h ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      maxSpeed24h: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <button
-                  onClick={() =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minSpeed24h: null,
-                      maxSpeed24h: null,
-                    })
-                  }
-                  className="rounded bg-gray-200 px-3 py-1 hover:bg-gray-300"
-                >
-                  ✕
-                </button>
-              </td>
-            </tr>
-            {/* Minimum efficiency */}
-            <tr className="border-b">
-              <td className="p-2">Efficiency</td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.minEfficiency ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minEfficiency: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.maxEfficiency ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      maxEfficiency: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <button
-                  onClick={() =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minEfficiency: null,
-                      maxEfficiency: null,
-                    })
-                  }
-                  className="rounded bg-gray-200 px-3 py-1 hover:bg-gray-300"
-                >
-                  ✕
-                </button>
-              </td>
-            </tr>
-            {/* Minimum efficiency 24h */}
-            <tr className="border-b">
-              <td className="p-2">Efficiency (24h)</td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.minEfficiency24h ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minEfficiency24h: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.maxEfficiency24h ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      maxEfficiency24h: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <button
-                  onClick={() =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minEfficiency24h: null,
-                      maxEfficiency24h: null,
-                    })
-                  }
-                  className="rounded bg-gray-200 px-3 py-1 hover:bg-gray-300"
-                >
-                  ✕
-                </button>
-              </td>
-            </tr>
-            {/* Minimum Work Hours */}
-            <tr className="border-b">
-              <td className="p-2">Work Hours</td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.minWorkHours ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minWorkHours: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.maxWorkHours ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      maxWorkHours: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <button
-                  onClick={() =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minWorkHours: null,
-                      maxWorkHours: null,
-                    })
-                  }
-                  className="rounded bg-gray-200 px-3 py-1 hover:bg-gray-300"
-                >
-                  ✕
-                </button>
-              </td>
-            </tr>
-
-            {/* Work Hours (24h) */}
-            <tr className="border-b">
-              <td className="p-2">Work Hours (24h)</td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.minWorkHours24h ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minWorkHours24h: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.maxWorkHours24h ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      maxWorkHours24h: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <button
-                  onClick={() =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minWorkHours24h: null,
-                      maxWorkHours24h: null,
-                    })
-                  }
-                  className="rounded bg-gray-200 px-3 py-1 hover:bg-gray-300"
-                >
-                  ✕
-                </button>
-              </td>
-            </tr>
-
-            {/* Total Cost */}
-            <tr className="border-b">
-              <td className="p-2">Total Cost</td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.minTotalCost ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minTotalCost: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.maxTotalCost ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      maxTotalCost: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <button
-                  onClick={() =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minTotalCost: null,
-                      maxTotalCost: null,
-                    })
-                  }
-                  className="rounded bg-gray-200 px-3 py-1 hover:bg-gray-300"
-                >
-                  ✕
-                </button>
-              </td>
-            </tr>
-
-            {/* Total Cost (24h) */}
-            <tr className="border-b">
-              <td className="p-2">Total Cost (24h)</td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.minTotalCost24h ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minTotalCost24h: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.maxTotalCost24h ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      maxTotalCost24h: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <button
-                  onClick={() =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minTotalCost24h: null,
-                      maxTotalCost24h: null,
-                    })
-                  }
-                  className="rounded bg-gray-200 px-3 py-1 hover:bg-gray-300"
-                >
-                  ✕
-                </button>
-              </td>
-            </tr>
-
-            {/* Number of Jobs */}
-            <tr className="border-b">
-              <td className="p-2">Number of Jobs</td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.minNumberOfJobs ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minNumberOfJobs: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.maxNumberOfJobs ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      maxNumberOfJobs: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <button
-                  onClick={() =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minNumberOfJobs: null,
-                      maxNumberOfJobs: null,
-                    })
-                  }
-                  className="rounded bg-gray-200 px-3 py-1 hover:bg-gray-300"
-                >
-                  ✕
-                </button>
-              </td>
-            </tr>
-
-            {/* Number of Jobs (24h) */}
-            <tr className="border-b">
-              <td className="p-2">Number of Jobs (24h)</td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.minNumberOfJobs24h ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minNumberOfJobs24h: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={filterCriteria.maxNumberOfJobs24h ?? ""}
-                  onChange={(e) =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      maxNumberOfJobs24h: e.target.value ? parseFloat(e.target.value) : null,
-                    })
-                  }
-                  className="w-24 rounded border border-gray-300 px-2 py-1"
-                />
-              </td>
-              <td className="p-2">
-                <button
-                  onClick={() =>
-                    setFilterCriteria({
-                      ...filterCriteria,
-                      minNumberOfJobs24h: null,
-                      maxNumberOfJobs24h: null,
-                    })
-                  }
-                  className="rounded bg-gray-200 px-3 py-1 hover:bg-gray-300"
-                >
-                  ✕
-                </button>
-              </td>
-            </tr>
-
+            <RangeFilterRow
+              label={"Work"}
+              minKey={"minWork"}
+              maxKey={"maxWork"}
+              unit={"GH"}
+              filterCriteria={filterCriteria}
+              setFilterCriteria={setFilterCriteria}
+            />
+            <RangeFilterRow
+              label={"Work 24h"}
+              minKey={"minWork24h"}
+              maxKey={"maxWork24h"}
+              unit={"GH"}
+              filterCriteria={filterCriteria}
+              setFilterCriteria={setFilterCriteria}
+            />
+            <RangeFilterRow
+              label={"Speed"}
+              minKey={"minSpeed"}
+              maxKey={"maxSpeed"}
+              unit={"GH/s"}
+              filterCriteria={filterCriteria}
+              setFilterCriteria={setFilterCriteria}
+            />
+            <RangeFilterRow
+              label={"Speed 24h"}
+              minKey={"minSpeed24h"}
+              maxKey={"maxSpeed24h"}
+              unit={"GH/s"}
+              filterCriteria={filterCriteria}
+              setFilterCriteria={setFilterCriteria}
+            />
+            <RangeFilterRow
+              label={"Efficiency"}
+              minKey={"minEfficiency"}
+              maxKey={"maxEfficiency"}
+              unit={"TH/GLM"}
+              filterCriteria={filterCriteria}
+              setFilterCriteria={setFilterCriteria}
+            />
+            <RangeFilterRow
+              label={"Efficiency 24h"}
+              minKey={"minEfficiency24h"}
+              maxKey={"maxEfficiency24h"}
+              unit={"TH/GLM"}
+              filterCriteria={filterCriteria}
+              setFilterCriteria={setFilterCriteria}
+            />
+            <RangeFilterRow
+              label={"Total Work Hours"}
+              minKey={"minWorkHours"}
+              maxKey={"maxWorkHours"}
+              unit={"h"}
+              filterCriteria={filterCriteria}
+              setFilterCriteria={setFilterCriteria}
+            />
+            <RangeFilterRow
+              label={"Total Work Hours 24h"}
+              minKey={"minWorkHours24h"}
+              maxKey={"maxWorkHours24h"}
+              unit={"h"}
+              filterCriteria={filterCriteria}
+              setFilterCriteria={setFilterCriteria}
+            />
+            <RangeFilterRow
+              label={"Total Cost"}
+              minKey={"minTotalCost"}
+              maxKey={"maxTotalCost"}
+              unit={"GLM"}
+              filterCriteria={filterCriteria}
+              setFilterCriteria={setFilterCriteria}
+            />
+            <RangeFilterRow
+              label={"Total Cost 24h"}
+              minKey={"minTotalCost24h"}
+              maxKey={"maxTotalCost24h"}
+              unit={"GLM"}
+              filterCriteria={filterCriteria}
+              setFilterCriteria={setFilterCriteria}
+            />
+            <RangeFilterRow
+              label={"Number of Jobs"}
+              minKey={"minNumberOfJobs"}
+              maxKey={"maxNumberOfJobs"}
+              filterCriteria={filterCriteria}
+              setFilterCriteria={setFilterCriteria}
+            />
+            <RangeFilterRow
+              label={"Number of Jobs 24h"}
+              minKey={"minNumberOfJobs24h"}
+              maxKey={"maxNumberOfJobs24h"}
+              filterCriteria={filterCriteria}
+              setFilterCriteria={setFilterCriteria}
+            />
             <tr className="border-b">
               <td className="p-2">Provider Name Search</td>
               <td className="p-2" colSpan={3}>
