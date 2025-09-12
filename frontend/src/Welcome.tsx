@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo } from "react";
-import { backendUrl } from "./utils";
 import { createROClient } from "golem-base-sdk";
 
 const Welcome = () => {
