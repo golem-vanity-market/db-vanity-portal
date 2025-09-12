@@ -39,10 +39,10 @@ export interface ProviderDataType {
 
 export const recomputeFields = (entry: ProviderDataEntry) => {
   entry.speed = entry.totalWorkHours
-    ? entry.totalWork / entry.totalWorkHours
+    ? entry.totalWork / entry.totalWorkHours / 3600
     : 0;
   entry.speed24h = entry.totalWorkHours24h
-    ? entry.totalWork24h / entry.totalWorkHours24h
+    ? entry.totalWork24h / entry.totalWorkHours24h / 3600
     : 0;
   entry.efficiency = entry.totalCost
     ? entry.totalWork / entry.totalCost

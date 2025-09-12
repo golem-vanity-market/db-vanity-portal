@@ -176,6 +176,16 @@ const Providers = () => {
       if (val === null) return false;
       return val > limit * 1e9;
     };
+    const cs12 = (val: number | null, limit: number | null) => {
+      if (limit === null) return false;
+      if (val === null) return false;
+      return val < limit * 1e12;
+    };
+    const cb12 = (val: number | null, limit: number | null) => {
+      if (limit === null) return false;
+      if (val === null) return false;
+      return val > limit * 1e12;
+    };
     for (const providerId in providerData.byProviderId) {
       const p = providerData.byProviderId[providerId];
 
@@ -187,10 +197,10 @@ const Providers = () => {
       if (cb9(p.speed, fc.maxSpeed)) continue;
       if (cs9(p.speed24h, fc.minSpeed24h)) continue;
       if (cb9(p.speed24h, fc.maxSpeed24h)) continue;
-      if (cs9(p.efficiency, fc.minEfficiency)) continue;
-      if (cb9(p.efficiency, fc.maxEfficiency)) continue;
-      if (cs9(p.efficiency24h, fc.minEfficiency24h)) continue;
-      if (cb9(p.efficiency24h, fc.maxEfficiency24h)) continue;
+      if (cs12(p.efficiency, fc.minEfficiency)) continue;
+      if (cb12(p.efficiency, fc.maxEfficiency)) continue;
+      if (cs12(p.efficiency24h, fc.minEfficiency24h)) continue;
+      if (cb12(p.efficiency24h, fc.maxEfficiency24h)) continue;
       if (cs(p.totalCost, fc.minTotalCost)) continue;
       if (cb(p.totalCost, fc.maxTotalCost)) continue;
       if (cs(p.totalCost24h, fc.minTotalCost24h)) continue;
@@ -372,11 +382,11 @@ const Providers = () => {
                   <td className="px-2">Efficiency</td>
                   <td className="px-2">
                     {displayDifficulty(provider.efficiency)}
-                    /s
+                    TH/GLM
                   </td>
                   <td className="px-2">
                     {displayDifficulty(provider.efficiency24h)}
-                    /s
+                    TH/GLM
                   </td>
                 </tr>
                 <tr>
