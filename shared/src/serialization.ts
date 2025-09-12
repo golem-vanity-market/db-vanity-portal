@@ -18,6 +18,7 @@ const writeUint32 = (view: DataView, offset: number, value: number): number => {
   view.setUint32(offset, value, true);
   return offset + 4;
 };
+
 const writeFloat64 = (
   view: DataView,
   offset: number,
@@ -34,6 +35,7 @@ export function serializeProvider(entry: ProviderDataEntry): Uint8Array {
   let offset = 0;
 
   offset = writeString(view, offset, entry.providerName);
+  offset = writeString(view, offset, entry.providerId);
 
   // ---- integers (uint32) ----
   offset = writeUint32(view, offset, entry.numberOfJobs);
@@ -61,7 +63,6 @@ export function serializeProvider(entry: ProviderDataEntry): Uint8Array {
 }
 
 export function deserializeProvider(
-  providerId: string,
   data: Uint8Array,
 ): ProviderDataEntry {
   const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
@@ -71,6 +72,10 @@ export function deserializeProvider(
 
   [str, consumed] = readString(view, offset);
   const providerName = str;
+  offset += consumed;
+
+  [str, consumed] = readString(view, offset);
+  const providerId = str;
   offset += consumed;
 
   const numberOfJobs = view.getUint32(offset, true);
@@ -150,6 +155,6 @@ const bin = serializeProvider(original);
 
 console.log(`Serialized size: ${bin.length}`);
 console.log("Json size:", JSON.stringify(original).length);
-const restored = deserializeProvider(original.providerId, bin);
+const restored = deserializeProvider(bin);
 
 console.log(restored);

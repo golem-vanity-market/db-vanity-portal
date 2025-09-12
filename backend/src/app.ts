@@ -1,10 +1,18 @@
 import jsLogger, { type ILogger } from "js-logger";
-import { getBytes, Wallet } from "ethers";
-import { type AccountData, createClient, Tagged } from "golem-base-sdk";
+import { getAddress, getBytes, Wallet } from "ethers";
+import {
+  type AccountData,
+  Annotation,
+  createClient,
+  type GolemBaseCreate,
+  Tagged,
+} from "golem-base-sdk";
 import { startStatusServer } from "./server.ts";
 import { operations } from "./queries.ts";
 import { ProviderData } from "../../shared/src/provider.ts";
 import dotenv from "dotenv";
+import { serializeProvider } from "../../shared/src/serialization.ts";
+
 dotenv.config();
 
 // Configure logger for convenience
@@ -21,6 +29,14 @@ jsLogger.setHandler(
 );
 
 export const log: ILogger = jsLogger.get("myLogger");
+
+function uint8ArraysEqual(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
 
 async function init() {
   log.info("Connecting to Golem DB client...");
@@ -45,14 +61,6 @@ async function init() {
   startStatusServer(`http://localhost:${port}`);
 
   while (true) {
-    const block = await client.getRawClient().httpClient.getBlockNumber();
-    log.info("Current Ethereum block number is", block);
-    log.info("Connected to Golem DB as", wallet.address);
-
-    operations.updateBlockInfo({
-      number: block,
-      date: new Date().toISOString(),
-    });
     await new Promise((resolve) => setTimeout(resolve, 5000));
 
     //download data
@@ -71,8 +79,115 @@ async function init() {
       log.error(`Failed to fetch provider data ${e}`);
       operations.updateProviderData(null);
     }
-  }
 
+    const encoder = new TextEncoder();
+    const creates: GolemBaseCreate[] = [
+      {
+        data: encoder.encode("foo"),
+        btl: 25,
+        stringAnnotations: [new Annotation("provId", "provId_foo")],
+        numericAnnotations: [],
+      },
+    ];
+    try {
+      const block = await client.getRawClient().httpClient.getBlockNumber();
+      log.info("Current Ethereum block number is", block);
+      log.info("Connected to Golem DB as", wallet.address);
+
+      const ethBalance = await client.getRawClient().httpClient.getBalance({
+        address: `0x${wallet.address.replace("0x", "").toLowerCase()}`,
+      });
+      log.info(`Current ETH balance is ${ethBalance.toString()}`);
+
+      const entitiesToInsert = [];
+      const entitiesToUpdate = [];
+
+      const byProvId = operations.getProviderData()?.byProviderId ?? {};
+      const noProv = Object.keys(byProvId).length;
+      for (let no = 0; ; no++) {
+        console.log(`Processing ${no}/${Object.keys(byProvId).length}`);
+        if (
+          (no == noProv && entitiesToInsert.length > 0) ||
+          entitiesToInsert.length >= 50
+        ) {
+          await client.createEntities(entitiesToInsert);
+          entitiesToInsert.length = 0;
+          log.info("Inserted 10 entities, continuing...");
+        }
+        if (
+          (no == noProv && entitiesToUpdate.length > 0) ||
+          entitiesToUpdate.length >= 50
+        ) {
+          await client.updateEntities(entitiesToUpdate);
+          entitiesToUpdate.length = 0;
+          log.info("Updated 10 entities, continuing...");
+        }
+        if (no >= noProv) {
+          break;
+        }
+
+        const prov = byProvId[Object.keys(byProvId)[no]];
+        if (!prov) {
+          continue;
+        }
+        const existing = await client.queryEntities(
+          `provId="${getAddress(prov.providerId).toLowerCase()}"`,
+        );
+
+        const newData = serializeProvider(prov);
+
+        if (existing.length > 0) {
+          if (uint8ArraysEqual(existing[0].storageValue, newData)) {
+            log.info(
+              `Entity for provider ${prov.providerId} is up to date, skipping...`,
+            );
+            continue;
+          }
+          log.info("Updating entity for provider", prov.providerId, "...");
+          entitiesToUpdate.push({
+            entityKey: existing[0].entityKey,
+            data: newData,
+            btl: 100,
+            stringAnnotations: [
+              new Annotation(
+                "provId",
+                getAddress(prov.providerId).toLowerCase(),
+              ),
+            ],
+            numericAnnotations: [],
+          });
+
+          continue;
+        } else {
+          log.info(`Creating entity for provider ${prov.providerId}...`);
+        }
+        const entity: GolemBaseCreate = {
+          data: newData,
+          btl: 100,
+          stringAnnotations: [
+            new Annotation(
+              "provId",
+              getAddress(prov.providerId).toLowerCase(),
+            ),
+          ],
+          numericAnnotations: [],
+        };
+        entitiesToInsert.push(entity);
+        //const receipts = await client.createEntities([entity])
+        //log.info("Created entities:", receipts.map((r) => r.entityKey.toString()));
+      }
+
+      console.log(
+        "Entities to insert:",
+        entitiesToInsert.length,
+        "to update:",
+        entitiesToUpdate.length,
+      );
+    } catch (e) {
+      log.error("Failed to create entities:", e);
+      continue;
+    }
+  }
   // Fill your initialization code here
 }
 
