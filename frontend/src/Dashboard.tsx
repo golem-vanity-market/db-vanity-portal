@@ -20,17 +20,8 @@ const Dashboard = () => {
       <nav className="border-b border-gray-200 bg-white dark:bg-gray-900">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between p-4">
           {/* Logo + Title */}
-          <a
-            href={assetsUrl()}
-            className="flex items-center space-x-3 rtl:space-x-reverse"
-          >
-            <img
-              width={32}
-              height={32}
-              src={`${assetsUrl()}/assets/golem.svg`}
-              className="size-8"
-              alt="GLM"
-            />
+          <a href={assetsUrl()} className="flex items-center space-x-3 rtl:space-x-reverse">
+            <img width={32} height={32} src={`${assetsUrl()}/assets/golem.svg`} className="size-8" alt="GLM" />
             <span className="hidden self-center whitespace-nowrap text-2xl font-semibold md:inline dark:text-white">
               Golem Network - Providers
             </span>
@@ -40,10 +31,7 @@ const Dashboard = () => {
           <div id="navbar-default">
             <ul className="flex space-x-8 font-medium">
               <li>
-                <button
-                  onClick={() => navigate("/")}
-                  className={navClassName(location.pathname === "/")}
-                >
+                <button onClick={() => navigate("/")} className={navClassName(location.pathname === "/")}>
                   Home
                 </button>
               </li>
@@ -56,10 +44,7 @@ const Dashboard = () => {
                 </button>
               </li>
               <li>
-                <button
-                  onClick={() => navigate("/about")}
-                  className={navClassName(location.pathname === "/about")}
-                >
+                <button onClick={() => navigate("/about")} className={navClassName(location.pathname === "/about")}>
                   About
                 </button>
               </li>

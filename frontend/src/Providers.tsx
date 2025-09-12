@@ -100,8 +100,7 @@ const Providers = () => {
   };
 
   const [maxDisplayRows] = React.useState<number>(1000);
-  const [filterCriteria, setFilterCriteriaInt] =
-    React.useState<FilterCriteria>(loadCachedCriteria());
+  const [filterCriteria, setFilterCriteriaInt] = React.useState<FilterCriteria>(loadCachedCriteria());
 
   const saveCriteriaToCache = (criteria: FilterCriteria) => {
     localStorage.setItem("providerFilterCriteria", JSON.stringify(criteria));
@@ -137,12 +136,8 @@ const Providers = () => {
     }
   };
 
-  const [providerData, setProviderData] = React.useState<ProviderData | null>(
-    loadCache(),
-  );
-  const [filteredProviders, setFilteredProviders] = React.useState<
-    ProviderDataEntry[]
-  >([]);
+  const [providerData, setProviderData] = React.useState<ProviderData | null>(loadCache());
+  const [filteredProviders, setFilteredProviders] = React.useState<ProviderDataEntry[]>([]);
 
   const getFilteredProviders = useCallback(() => {
     if (!providerData) return [];
@@ -196,12 +191,7 @@ const Providers = () => {
       if (cb(p.numberOfJobs, fc.maxNumberOfJobs)) continue;
       if (cs(p.numberOfJobs24h, fc.minNumberOfJobs24h)) continue;
       if (cb(p.numberOfJobs24h, fc.maxNumberOfJobs24h)) continue;
-      if (
-        fc.providerNameSearch &&
-        !p.providerName
-          .toLowerCase()
-          .includes(fc.providerNameSearch.toLowerCase())
-      )
+      if (fc.providerNameSearch && !p.providerName.toLowerCase().includes(fc.providerNameSearch.toLowerCase()))
         continue;
       filtered.push(p);
     }
@@ -294,21 +284,14 @@ const Providers = () => {
     (row: number, provider: ProviderDataEntry) => {
       if (row > maxDisplayRows) return null;
       return (
-        <li
-          key={provider.providerId}
-          className="rounded-lg border bg-white p-4 shadow"
-        >
+        <li key={provider.providerId} className="rounded-lg border bg-white p-4 shadow">
           <h2 className="text-lg font-semibold text-blue-700">
             {row + 1} - {provider.providerName}
           </h2>
           <p className="text-sm text-gray-600">
             Provider ID:{" "}
             <span className="font-mono">
-              <a
-                href={`https://stats.golem.network/network/provider/${provider.providerId}`}
-              >
-                {provider.providerId}
-              </a>
+              <a href={`https://stats.golem.network/network/provider/${provider.providerId}`}>{provider.providerId}</a>
             </span>
           </p>
           <div className="mt-2 space-y-1 text-sm text-gray-700">
@@ -323,28 +306,18 @@ const Providers = () => {
               <tbody>
                 <tr>
                   <td className="px-2">Total Work Hours</td>
-                  <td className="px-2">
-                    {displayHours(provider.totalWorkHours)}
-                  </td>
-                  <td className="px-2">
-                    {displayHours(provider.totalWorkHours24h)}
-                  </td>
+                  <td className="px-2">{displayHours(provider.totalWorkHours)}</td>
+                  <td className="px-2">{displayHours(provider.totalWorkHours24h)}</td>
                 </tr>
                 <tr>
                   <td className="px-2">Total Work</td>
-                  <td className="px-2">
-                    {displayDifficulty(provider.totalWork)}
-                  </td>
-                  <td className="px-2">
-                    {displayDifficulty(provider.totalWork24h)}
-                  </td>
+                  <td className="px-2">{displayDifficulty(provider.totalWork)}</td>
+                  <td className="px-2">{displayDifficulty(provider.totalWork24h)}</td>
                 </tr>
                 <tr>
                   <td className="px-2">Total Cost</td>
                   <td className="px-2">{provider.totalCost.toFixed(4)} GLM</td>
-                  <td className="px-2">
-                    {provider.totalCost24h.toFixed(4)} GLM
-                  </td>
+                  <td className="px-2">{provider.totalCost24h.toFixed(4)} GLM</td>
                 </tr>
                 <tr>
                   <td className="px-2">Speed</td>
@@ -376,9 +349,7 @@ const Providers = () => {
                 <tr>
                   <td className="px-2">Longest Job (hours)</td>
                   <td className="px-2">{displayHours(provider.longestJob)}</td>
-                  <td className="px-2">
-                    {displayHours(provider.longestJob24h)}
-                  </td>
+                  <td className="px-2">{displayHours(provider.longestJob24h)}</td>
                 </tr>
               </tbody>
             </table>
@@ -395,10 +366,7 @@ const Providers = () => {
         <h1 className="mb-2 text-2xl font-bold">Providers</h1>
 
         <div className="mt-4 flex flex-wrap justify-center gap-4">
-          <button
-            onClick={() => clear_data()}
-            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-          >
+          <button onClick={() => clear_data()} className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
             Reset Filters
           </button>
           <button
@@ -439,9 +407,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      minWork: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      minWork: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -455,9 +421,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      maxWork: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      maxWork: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -489,9 +453,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      minWork24h: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      minWork24h: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -505,9 +467,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      maxWork24h: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      maxWork24h: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -539,9 +499,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      minSpeed: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      minSpeed: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -555,9 +513,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      maxSpeed: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      maxSpeed: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -589,9 +545,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      minSpeed24h: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      minSpeed24h: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -605,9 +559,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      maxSpeed24h: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      maxSpeed24h: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -639,9 +591,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      minEfficiency: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      minEfficiency: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -655,9 +605,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      maxEfficiency: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      maxEfficiency: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -689,9 +637,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      minEfficiency24h: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      minEfficiency24h: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -705,9 +651,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      maxEfficiency24h: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      maxEfficiency24h: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -739,9 +683,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      minWorkHours: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      minWorkHours: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -755,9 +697,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      maxWorkHours: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      maxWorkHours: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -790,9 +730,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      minWorkHours24h: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      minWorkHours24h: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -806,9 +744,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      maxWorkHours24h: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      maxWorkHours24h: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -841,9 +777,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      minTotalCost: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      minTotalCost: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -857,9 +791,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      maxTotalCost: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      maxTotalCost: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -892,9 +824,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      minTotalCost24h: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      minTotalCost24h: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -908,9 +838,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      maxTotalCost24h: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      maxTotalCost24h: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -943,9 +871,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      minNumberOfJobs: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      minNumberOfJobs: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -959,9 +885,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      maxNumberOfJobs: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      maxNumberOfJobs: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -994,9 +918,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      minNumberOfJobs24h: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      minNumberOfJobs24h: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -1010,9 +932,7 @@ const Providers = () => {
                   onChange={(e) =>
                     setFilterCriteria({
                       ...filterCriteria,
-                      maxNumberOfJobs24h: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      maxNumberOfJobs24h: e.target.value ? parseFloat(e.target.value) : null,
                     })
                   }
                   className="w-24 rounded border border-gray-300 px-2 py-1"
@@ -1110,20 +1030,15 @@ const Providers = () => {
           {providerData?.byProviderId ? (
             <>
               <div className="mb-4 font-medium text-gray-800">
-                Found {filteredProviders.length}/{totalProviderCount()}{" "}
-                providers matching criteria. Displaying{" "}
+                Found {filteredProviders.length}/{totalProviderCount()} providers matching criteria. Displaying{" "}
                 {Math.min(filteredProviders.length, maxDisplayRows)} providers.
               </div>
               <ul className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-                {filteredProviders.map((provider, row) =>
-                  displayProvider(row, provider),
-                )}
+                {filteredProviders.map((provider, row) => displayProvider(row, provider))}
               </ul>
             </>
           ) : (
-            <p className="mt-4 text-gray-600">
-              No provider data available. Click the button above to fetch data.
-            </p>
+            <p className="mt-4 text-gray-600">No provider data available. Click the button above to fetch data.</p>
           )}
         </div>
       </div>
