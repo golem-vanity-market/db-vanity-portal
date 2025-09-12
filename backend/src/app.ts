@@ -38,6 +38,8 @@ function uint8ArraysEqual(a: Uint8Array, b: Uint8Array): boolean {
   return true;
 }
 
+const BTL = parseInt(process.env.GOLEM_DB_TTL || "120") / 2; // default 2 minutes
+
 async function init() {
   log.info("Connecting to Golem DB client...");
 
@@ -137,7 +139,7 @@ async function init() {
           entitiesToUpdate.push({
             entityKey: existing[0].entityKey,
             data: newData,
-            btl: 100,
+            btl: BTL,
             stringAnnotations: [
               new Annotation(
                 "provId",
@@ -153,7 +155,7 @@ async function init() {
         }
         const entity: GolemBaseCreate = {
           data: newData,
-          btl: 100,
+          btl: BTL,
           stringAnnotations: [
             new Annotation(
               "provId",
