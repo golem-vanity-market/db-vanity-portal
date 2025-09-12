@@ -5,7 +5,7 @@ export default tseslint.config(
     ignores: ["dist/", "node_modules/", ".env"],
   },
   {
-    files: ["src/**/*.ts"],
+    files: ["src/**/*.ts", "../shared/**/*.ts"],
     extends: [...tseslint.configs.recommendedTypeChecked],
     languageOptions: {
       parserOptions: {
