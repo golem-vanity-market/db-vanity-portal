@@ -14,6 +14,13 @@ export default defineConfig({
     // Provide a minimal `process` object so code like process.env.NODE_ENV works
     process: null,
   },
+  resolve: {
+    alias: {
+      // prevent Vite from trying to bundle Node built-ins
+      fs: "empty-module",
+      os: "empty-module",
+    },
+  },
   build: {
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
