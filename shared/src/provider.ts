@@ -37,6 +37,22 @@ export interface ProviderDataType {
   byProviderId: Record<string, ProviderDataEntry>;
 }
 
+export const recomputeFields = (entry: ProviderDataEntry) => {
+  entry.speed = entry.totalWorkHours
+    ? entry.totalWork / entry.totalWorkHours
+    : 0;
+  entry.speed24h = entry.totalWorkHours24h
+    ? entry.totalWork24h / entry.totalWorkHours24h
+    : 0;
+  entry.efficiency = entry.totalCost
+    ? entry.totalWork / entry.totalCost
+    : Infinity;
+  entry.efficiency24h = entry.totalCost24h
+    ? entry.totalWork24h / entry.totalCost24h
+    : Infinity;
+  return entry;
+};
+
 export class ProviderData implements ProviderDataType {
   grouped: string;
   byProviderId: Record<string, ProviderDataEntry>;
@@ -46,7 +62,7 @@ export class ProviderData implements ProviderDataType {
     this.byProviderId = {};
     for (const key in data.byProviderId) {
       const value = data.byProviderId[key];
-      this.byProviderId[key] = {
+      this.byProviderId[key] = recomputeFields({
         providerName: value.providerName,
         providerId: value.providerId,
         numberOfJobs: value.numberOfJobs,
@@ -61,11 +77,11 @@ export class ProviderData implements ProviderDataType {
         lastJobDate: value.lastJobDate,
         longestJob: value.longestJob,
         longestJob24h: value.longestJob24h,
-        speed: value.totalWork / value.totalWorkHours,
-        speed24h: value.totalWork24h / value.totalWorkHours24h,
-        efficiency: value.totalWork / value.totalCost,
-        efficiency24h: value.totalWork24h / value.totalCost24h,
-      }; // create a copy of each entry
+        speed: 0,
+        speed24h: 0,
+        efficiency: 0,
+        efficiency24h: 0,
+      }); // create a copy of each entry
     }
   }
 
