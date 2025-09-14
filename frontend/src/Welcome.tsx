@@ -49,6 +49,13 @@ const Welcome = () => {
           </a>
         </p>
 
+        <p>
+          Go to the providers tab to see the list of providers and their estimations.
+          <a href={"/providers"} className="ml-1 font-semibold text-blue-600">
+            Providers &rarr;
+          </a>
+        </p>
+
         {current_block === null ? (
           <p className="mt-4 text-gray-700">Checking connection to Golem:DB blockchain...</p>
         ) : (
