@@ -123,7 +123,7 @@ async function init() {
           continue;
         }
         const existing = await client.queryEntities(
-          `group >= 0 && provId = "${getAddress(prov.providerId).toLowerCase()}"`,
+          `provId = "${getAddress(prov.providerId).toLowerCase()}"`,
         );
 
         const newData = serializeProvider(prov);
