@@ -44,11 +44,12 @@ const Welcome = () => {
         <p>
           Data is presented using aggregator on address{" "}
           <a
+            className="ml-1 font-semibold text-blue-600"
             href={`https://explorer.ethwarsaw.holesky.golemdb.io/address/${
               import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS
             }`}
           >
-            {import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}
+            {import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS} &rarr;
           </a>
         </p>
       </div>

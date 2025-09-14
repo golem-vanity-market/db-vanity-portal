@@ -378,7 +378,12 @@ const Providers = () => {
           <p className="text-sm text-gray-600">
             Provider ID:{" "}
             <span className="font-mono">
-              <a href={`https://stats.golem.network/network/provider/${provider.providerId}`}>{provider.providerId}</a>
+              <a
+                className="ml-1 font-semibold text-blue-600"
+                href={`https://stats.golem.network/network/provider/${provider.providerId}`}
+              >
+                {provider.providerId} &rarr;
+              </a>
             </span>
           </p>
           <div className="mt-2 space-y-1 text-sm text-gray-700">
