@@ -43,5 +43,5 @@ export const displayDifficulty = (difficulty: number): string => {
   }
 
   const precision = difficulty < 10 ? 3 : difficulty < 100 ? 2 : 1;
-  return difficulty.toFixed(precision) + units[unitIndex];
+  return difficulty.toFixed(precision) + " " + units[unitIndex];
 };

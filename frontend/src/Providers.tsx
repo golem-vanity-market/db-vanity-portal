@@ -426,11 +426,11 @@ const Providers = () => {
                   <td className="p-2">Efficiency</td>
                   <td className="p-2">
                     {displayDifficulty(provider.efficiency)}
-                    TH/GLM
+                    /GLM
                   </td>
                   <td className="p-2">
                     {displayDifficulty(provider.efficiency24h)}
-                    TH/GLM
+                    /GLM
                   </td>
                 </tr>
                 <tr>
