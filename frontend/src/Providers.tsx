@@ -88,9 +88,22 @@ const defaultFilterCriteria = (): FilterCriteria => {
 
 const getProviderScore = (provider: ProviderDataEntry): number => {
   // Simple scoring algorithm based on efficiency and speed
-  const efficiencyScore = provider.efficiency ? Math.log10(provider.efficiency + 1) : 0;
-  const speedScore = provider.speed ? Math.log10(provider.speed + 1) : 0;
-  return efficiencyScore * 0.7 + speedScore * 0.3;
+  const speedScore = provider.speed ? provider.speed / 10.0e6 : 0;
+  const efficiencyScore = provider.efficiency ? provider.efficiency / 1.0e12 : 0;
+  const sp = Math.min(speedScore, 1.0);
+  let ep = Math.min(efficiencyScore, 1.0);
+  if (provider.totalCost === 0) ep = 1;
+  return ((sp + ep) / 2.0) * 100;
+};
+
+const _getProviderScore24h = (provider: ProviderDataEntry) => {
+  // Simple scoring algorithm based on efficiency and speed
+  const speedScore = provider.speed24h ? provider.speed24h / 10.0e6 : 0;
+  const efficiencyScore = provider.efficiency24h ? provider.efficiency24h / 1.0e12 : 0;
+  const sp = Math.min(speedScore, 1.0);
+  let ep = Math.min(efficiencyScore, 1.0);
+  if (provider.totalCost24h === 0) ep = 1;
+  return ((sp + ep) / 2.0) * 100;
 };
 
 const Providers = () => {
@@ -360,7 +373,7 @@ const Providers = () => {
         <li key={provider.providerId} className="rounded-lg border bg-white p-4 shadow">
           <h2 className="text-lg font-semibold text-blue-700">
             {row + 1} - {provider.providerName} -{" "}
-            <span title={"Provider score"}>{getProviderScore(provider).toFixed(2)}</span>
+            <span title={"Provider score"}>{getProviderScore(provider).toFixed(2)}%</span>
           </h2>
           <p className="text-sm text-gray-600">
             Provider ID:{" "}
