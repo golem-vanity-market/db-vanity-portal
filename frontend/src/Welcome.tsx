@@ -27,18 +27,20 @@ const Welcome = () => {
   }, [client, update_current_block]);
   return (
     <div className="w-full">
-      <div className="rounded bg-blue-50 p-6 text-center shadow">
+      <div className="m-2 rounded bg-blue-50 p-6 text-center shadow">
         <h1 className="mb-2 text-2xl font-bold">Welcome</h1>
         <p className="text-gray-700">
           This project displays provider estimations and is currently{" "}
           <span className="font-semibold text-orange-600">experimental</span>.
         </p>
+      </div>
+      <div className="m-2 rounded bg-blue-50 p-6 text-center shadow">
         <p className="mt-2 text-gray-700">
           Data is presented based on the best available information, <br />
           but may not always be accurate or up-to-date.
         </p>
       </div>
-      <div className="rounded bg-blue-50 p-6 text-center shadow">
+      <div className="m-2 rounded bg-blue-50 p-6 text-center shadow">
         <p>
           Data is presented using aggregator on address{" "}
           <a
@@ -50,7 +52,7 @@ const Welcome = () => {
           </a>
         </p>
       </div>
-      <div className="rounded bg-blue-50 p-6 text-center shadow">
+      <div className="m-2 rounded bg-blue-50 p-6 text-center shadow">
         <p>
           Go to the providers tab to see the list of providers and their estimations.
           <a href={`${import.meta.env.BASE_URL}/providers`} className="ml-1 font-semibold text-blue-600">
@@ -58,7 +60,7 @@ const Welcome = () => {
           </a>
         </p>
       </div>
-      <div className="rounded bg-blue-50 p-6 text-center shadow">
+      <div className="m-2 rounded bg-blue-50 p-6 text-center shadow">
         {current_block === null ? (
           <p className="mt-4 text-gray-700">Checking connection to Golem:DB blockchain...</p>
         ) : (
