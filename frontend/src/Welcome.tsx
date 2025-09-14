@@ -38,11 +38,23 @@ const Welcome = () => {
           but may not always be accurate or up-to-date.
         </p>
 
+        <p>
+          Data is presented using aggregator on address{" "}
+          <a
+            href={`https://explorer.ethwarsaw.holesky.golemdb.io/address/${
+              import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS
+            }`}
+          >
+            {import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}
+          </a>
+        </p>
+
         {current_block === null ? (
           <p className="mt-4 text-gray-700">Checking connection to Golem:DB blockchain...</p>
         ) : (
           <p className="mt-4 text-gray-700">
-            Current Ethereum Block: <span className="font-semibold text-green-600">{current_block.toString()}</span>
+            Current block of Golem:DB chain:{" "}
+            <span className="font-semibold text-green-600">{current_block.toString()}</span>
           </p>
         )}
       </div>
