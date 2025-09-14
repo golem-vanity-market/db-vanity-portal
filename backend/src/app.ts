@@ -146,7 +146,7 @@ async function init() {
                 getAddress(prov.providerId).toLowerCase(),
               ),
             ],
-            numericAnnotations: [],
+            numericAnnotations: [new Annotation("group", no % 10)],
           });
 
           continue;
@@ -157,12 +157,9 @@ async function init() {
           data: newData,
           btl: BTL,
           stringAnnotations: [
-            new Annotation(
-              "provId",
-              getAddress(prov.providerId).toLowerCase(),
-            ),
+            new Annotation("provId", getAddress(prov.providerId).toLowerCase()),
           ],
-          numericAnnotations: [],
+          numericAnnotations: [new Annotation("group", no % 10)],
         };
         entitiesToInsert.push(entity);
         //const receipts = await client.createEntities([entity])
