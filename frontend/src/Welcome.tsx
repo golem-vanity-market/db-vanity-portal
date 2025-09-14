@@ -38,7 +38,7 @@ const Welcome = () => {
           but may not always be accurate or up-to-date.
         </p>
       </div>
-      <div>
+      <div className="rounded bg-blue-50 p-6 text-center shadow">
         <p>
           Data is presented using aggregator on address{" "}
           <a
@@ -50,7 +50,7 @@ const Welcome = () => {
           </a>
         </p>
       </div>
-      <div>
+      <div className="rounded bg-blue-50 p-6 text-center shadow">
         <p>
           Go to the providers tab to see the list of providers and their estimations.
           <a href={`${import.meta.env.BASE_URL}/providers`} className="ml-1 font-semibold text-blue-600">
@@ -58,7 +58,7 @@ const Welcome = () => {
           </a>
         </p>
       </div>
-      <div>
+      <div className="rounded bg-blue-50 p-6 text-center shadow">
         {current_block === null ? (
           <p className="mt-4 text-gray-700">Checking connection to Golem:DB blockchain...</p>
         ) : (
