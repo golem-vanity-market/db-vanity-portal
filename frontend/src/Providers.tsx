@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { displayDifficulty, displayHours } from "./utils";
-import { ProviderData, ProviderDataEntry, ProviderDataType } from "../../shared/src/provider";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
+import {displayDifficulty, displayHours} from "./utils";
+import {ProviderData, ProviderDataEntry, ProviderDataType} from "../../shared/src/provider";
 import RangeFilterRow from "./RangeFilterRow";
-import { createROClient } from "golem-base-sdk";
-import { deserializeProvider } from "../../shared/src/provider";
+import {createROClient} from "golem-base-sdk";
+import {deserializeProvider} from "../../shared/src/provider";
 
 const CACHE_KEY = "providerDataCache";
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
@@ -230,7 +230,7 @@ const Providers = () => {
     }
 
     // ✅ apply sorting
-    const { sortBy, sortOrder } = filterCriteria;
+    const {sortBy, sortOrder} = filterCriteria;
     filtered.sort((a, b) => {
       let aVal: any;
       let bVal: any;
@@ -272,9 +272,16 @@ const Providers = () => {
       setLoading(true);
 
       if (client) {
-        const entities = await client.queryEntities(
-          `group = 1 && $owner = "${import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}"`,
-        );
+        const proms = [];
+        for (let groupNo = 1; groupNo <= 10; groupNo++) {
+          proms.push(
+            client.queryEntities(
+              `group = ${groupNo} && $owner = "${import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}"`,
+            )
+          );
+        }
+        const groupResults = await Promise.all(proms);
+        const entities = groupResults.flat();
         console.log("Fetched entities from Golem DB:", entities);
         const newProviderData: ProviderDataType = {
           grouped: "all",
@@ -358,60 +365,60 @@ const Providers = () => {
           <div className="mt-2 space-y-1 text-sm text-gray-700">
             <table>
               <thead>
-                <tr>
-                  <th className="px-2 text-left font-normal">Metric</th>
-                  <th className="px-2 text-left font-normal">All Time</th>
-                  <th className="px-2 text-left font-normal">Last 24h</th>
-                </tr>
+              <tr>
+                <th className="px-2 text-left font-normal">Metric</th>
+                <th className="px-2 text-left font-normal">All Time</th>
+                <th className="px-2 text-left font-normal">Last 24h</th>
+              </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td className="px-2">Total Work Hours</td>
-                  <td className="px-2">{displayHours(provider.totalWorkHours)}</td>
-                  <td className="px-2">{displayHours(provider.totalWorkHours24h)}</td>
-                </tr>
-                <tr>
-                  <td className="px-2">Total Work</td>
-                  <td className="px-2">{displayDifficulty(provider.totalWork)}</td>
-                  <td className="px-2">{displayDifficulty(provider.totalWork24h)}</td>
-                </tr>
-                <tr>
-                  <td className="px-2">Total Cost</td>
-                  <td className="px-2">{provider.totalCost.toFixed(4)} GLM</td>
-                  <td className="px-2">{provider.totalCost24h.toFixed(4)} GLM</td>
-                </tr>
-                <tr>
-                  <td className="px-2">Speed</td>
-                  <td className="px-2">
-                    {displayDifficulty(provider.speed)}
-                    /s
-                  </td>
-                  <td className="px-2">
-                    {displayDifficulty(provider.speed24h)}
-                    /s
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-2">Efficiency</td>
-                  <td className="px-2">
-                    {displayDifficulty(provider.efficiency)}
-                    TH/GLM
-                  </td>
-                  <td className="px-2">
-                    {displayDifficulty(provider.efficiency24h)}
-                    TH/GLM
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-2">Number of Jobs</td>
-                  <td className="px-2">{provider.numberOfJobs}</td>
-                  <td className="px-2">{provider.numberOfJobs24h}</td>
-                </tr>
-                <tr>
-                  <td className="px-2">Longest Job (hours)</td>
-                  <td className="px-2">{displayHours(provider.longestJob)}</td>
-                  <td className="px-2">{displayHours(provider.longestJob24h)}</td>
-                </tr>
+              <tr>
+                <td className="px-2">Total Work Hours</td>
+                <td className="px-2">{displayHours(provider.totalWorkHours)}</td>
+                <td className="px-2">{displayHours(provider.totalWorkHours24h)}</td>
+              </tr>
+              <tr>
+                <td className="px-2">Total Work</td>
+                <td className="px-2">{displayDifficulty(provider.totalWork)}</td>
+                <td className="px-2">{displayDifficulty(provider.totalWork24h)}</td>
+              </tr>
+              <tr>
+                <td className="px-2">Total Cost</td>
+                <td className="px-2">{provider.totalCost.toFixed(4)} GLM</td>
+                <td className="px-2">{provider.totalCost24h.toFixed(4)} GLM</td>
+              </tr>
+              <tr>
+                <td className="px-2">Speed</td>
+                <td className="px-2">
+                  {displayDifficulty(provider.speed)}
+                  /s
+                </td>
+                <td className="px-2">
+                  {displayDifficulty(provider.speed24h)}
+                  /s
+                </td>
+              </tr>
+              <tr>
+                <td className="px-2">Efficiency</td>
+                <td className="px-2">
+                  {displayDifficulty(provider.efficiency)}
+                  TH/GLM
+                </td>
+                <td className="px-2">
+                  {displayDifficulty(provider.efficiency24h)}
+                  TH/GLM
+                </td>
+              </tr>
+              <tr>
+                <td className="px-2">Number of Jobs</td>
+                <td className="px-2">{provider.numberOfJobs}</td>
+                <td className="px-2">{provider.numberOfJobs24h}</td>
+              </tr>
+              <tr>
+                <td className="px-2">Longest Job (hours)</td>
+                <td className="px-2">{displayHours(provider.longestJob)}</td>
+                <td className="px-2">{displayHours(provider.longestJob24h)}</td>
+              </tr>
               </tbody>
             </table>
           </div>
@@ -443,139 +450,139 @@ const Providers = () => {
         {/* ✅ Filter input */}
         <table className="mt-4 table-auto border-collapse text-left">
           <thead>
-            <tr className="border-b">
-              <th className="p-2 font-medium text-gray-700">
-                <button
-                  onClick={() => setShowFilters((prev) => !prev)}
-                  className="mb-2 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                >
-                  {showFilters ? "Hide Filters" : "Show Filters"}
-                </button>
-              </th>
-              {showFilters && (
-                <>
-                  <th className="p-2 font-medium text-gray-700">Min</th>
-                  <th className="p-2 font-medium text-gray-700">Max</th>
-                </>
-              )}
-            </tr>
-          </thead>
-          <tbody>
+          <tr className="border-b">
+            <th className="p-2 font-medium text-gray-700">
+              <button
+                onClick={() => setShowFilters((prev) => !prev)}
+                className="mb-2 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+              >
+                {showFilters ? "Hide Filters" : "Show Filters"}
+              </button>
+            </th>
             {showFilters && (
               <>
-                <RangeFilterRow
-                  label={"Work"}
-                  minKey={"minWork"}
-                  maxKey={"maxWork"}
-                  unit={"GH"}
-                  filterCriteria={filterCriteria}
-                  setFilterCriteria={setFilterCriteria}
-                />
-                <RangeFilterRow
-                  label={"Work 24h"}
-                  minKey={"minWork24h"}
-                  maxKey={"maxWork24h"}
-                  unit={"GH"}
-                  filterCriteria={filterCriteria}
-                  setFilterCriteria={setFilterCriteria}
-                />
-                <RangeFilterRow
-                  label={"Speed"}
-                  minKey={"minSpeed"}
-                  maxKey={"maxSpeed"}
-                  unit={"MH/s"}
-                  filterCriteria={filterCriteria}
-                  setFilterCriteria={setFilterCriteria}
-                />
-                <RangeFilterRow
-                  label={"Speed 24h"}
-                  minKey={"minSpeed24h"}
-                  maxKey={"maxSpeed24h"}
-                  unit={"MH/s"}
-                  filterCriteria={filterCriteria}
-                  setFilterCriteria={setFilterCriteria}
-                />
-                <RangeFilterRow
-                  label={"Efficiency"}
-                  minKey={"minEfficiency"}
-                  maxKey={"maxEfficiency"}
-                  unit={"TH/GLM"}
-                  filterCriteria={filterCriteria}
-                  setFilterCriteria={setFilterCriteria}
-                />
-                <RangeFilterRow
-                  label={"Efficiency 24h"}
-                  minKey={"minEfficiency24h"}
-                  maxKey={"maxEfficiency24h"}
-                  unit={"TH/GLM"}
-                  filterCriteria={filterCriteria}
-                  setFilterCriteria={setFilterCriteria}
-                />
-                <RangeFilterRow
-                  label={"Total Work Hours"}
-                  minKey={"minWorkHours"}
-                  maxKey={"maxWorkHours"}
-                  unit={"h"}
-                  filterCriteria={filterCriteria}
-                  setFilterCriteria={setFilterCriteria}
-                />
-                <RangeFilterRow
-                  label={"Total Work Hours 24h"}
-                  minKey={"minWorkHours24h"}
-                  maxKey={"maxWorkHours24h"}
-                  unit={"h"}
-                  filterCriteria={filterCriteria}
-                  setFilterCriteria={setFilterCriteria}
-                />
-                <RangeFilterRow
-                  label={"Total Cost"}
-                  minKey={"minTotalCost"}
-                  maxKey={"maxTotalCost"}
-                  unit={"GLM"}
-                  filterCriteria={filterCriteria}
-                  setFilterCriteria={setFilterCriteria}
-                />
-                <RangeFilterRow
-                  label={"Total Cost 24h"}
-                  minKey={"minTotalCost24h"}
-                  maxKey={"maxTotalCost24h"}
-                  unit={"GLM"}
-                  filterCriteria={filterCriteria}
-                  setFilterCriteria={setFilterCriteria}
-                />
-                <RangeFilterRow
-                  label={"Number of Jobs"}
-                  minKey={"minNumberOfJobs"}
-                  maxKey={"maxNumberOfJobs"}
-                  filterCriteria={filterCriteria}
-                  setFilterCriteria={setFilterCriteria}
-                />
-                <RangeFilterRow
-                  label={"Number of Jobs 24h"}
-                  minKey={"minNumberOfJobs24h"}
-                  maxKey={"maxNumberOfJobs24h"}
-                  filterCriteria={filterCriteria}
-                  setFilterCriteria={setFilterCriteria}
-                />
-                <tr className="border-b">
-                  <td className="p-2">Provider Name Search</td>
-                  <td className="p-2" colSpan={3}>
-                    <input
-                      type="text"
-                      value={filterCriteria.providerNameSearch ?? ""}
-                      onChange={(e) =>
-                        setFilterCriteria({
-                          ...filterCriteria,
-                          providerNameSearch: e.target.value || null,
-                        })
-                      }
-                      className="w-48 rounded border border-gray-300 px-2 py-1"
-                      placeholder="Type a name fragment"
-                    />
-                  </td>
-                </tr>
+                <th className="p-2 font-medium text-gray-700">Min</th>
+                <th className="p-2 font-medium text-gray-700">Max</th>
               </>
             )}
+          </tr>
+          </thead>
+          <tbody>
+          {showFilters && (
+            <>
+              <RangeFilterRow
+                label={"Work"}
+                minKey={"minWork"}
+                maxKey={"maxWork"}
+                unit={"GH"}
+                filterCriteria={filterCriteria}
+                setFilterCriteria={setFilterCriteria}
+              />
+              <RangeFilterRow
+                label={"Work 24h"}
+                minKey={"minWork24h"}
+                maxKey={"maxWork24h"}
+                unit={"GH"}
+                filterCriteria={filterCriteria}
+                setFilterCriteria={setFilterCriteria}
+              />
+              <RangeFilterRow
+                label={"Speed"}
+                minKey={"minSpeed"}
+                maxKey={"maxSpeed"}
+                unit={"MH/s"}
+                filterCriteria={filterCriteria}
+                setFilterCriteria={setFilterCriteria}
+              />
+              <RangeFilterRow
+                label={"Speed 24h"}
+                minKey={"minSpeed24h"}
+                maxKey={"maxSpeed24h"}
+                unit={"MH/s"}
+                filterCriteria={filterCriteria}
+                setFilterCriteria={setFilterCriteria}
+              />
+              <RangeFilterRow
+                label={"Efficiency"}
+                minKey={"minEfficiency"}
+                maxKey={"maxEfficiency"}
+                unit={"TH/GLM"}
+                filterCriteria={filterCriteria}
+                setFilterCriteria={setFilterCriteria}
+              />
+              <RangeFilterRow
+                label={"Efficiency 24h"}
+                minKey={"minEfficiency24h"}
+                maxKey={"maxEfficiency24h"}
+                unit={"TH/GLM"}
+                filterCriteria={filterCriteria}
+                setFilterCriteria={setFilterCriteria}
+              />
+              <RangeFilterRow
+                label={"Total Work Hours"}
+                minKey={"minWorkHours"}
+                maxKey={"maxWorkHours"}
+                unit={"h"}
+                filterCriteria={filterCriteria}
+                setFilterCriteria={setFilterCriteria}
+              />
+              <RangeFilterRow
+                label={"Total Work Hours 24h"}
+                minKey={"minWorkHours24h"}
+                maxKey={"maxWorkHours24h"}
+                unit={"h"}
+                filterCriteria={filterCriteria}
+                setFilterCriteria={setFilterCriteria}
+              />
+              <RangeFilterRow
+                label={"Total Cost"}
+                minKey={"minTotalCost"}
+                maxKey={"maxTotalCost"}
+                unit={"GLM"}
+                filterCriteria={filterCriteria}
+                setFilterCriteria={setFilterCriteria}
+              />
+              <RangeFilterRow
+                label={"Total Cost 24h"}
+                minKey={"minTotalCost24h"}
+                maxKey={"maxTotalCost24h"}
+                unit={"GLM"}
+                filterCriteria={filterCriteria}
+                setFilterCriteria={setFilterCriteria}
+              />
+              <RangeFilterRow
+                label={"Number of Jobs"}
+                minKey={"minNumberOfJobs"}
+                maxKey={"maxNumberOfJobs"}
+                filterCriteria={filterCriteria}
+                setFilterCriteria={setFilterCriteria}
+              />
+              <RangeFilterRow
+                label={"Number of Jobs 24h"}
+                minKey={"minNumberOfJobs24h"}
+                maxKey={"maxNumberOfJobs24h"}
+                filterCriteria={filterCriteria}
+                setFilterCriteria={setFilterCriteria}
+              />
+              <tr className="border-b">
+                <td className="p-2">Provider Name Search</td>
+                <td className="p-2" colSpan={3}>
+                  <input
+                    type="text"
+                    value={filterCriteria.providerNameSearch ?? ""}
+                    onChange={(e) =>
+                      setFilterCriteria({
+                        ...filterCriteria,
+                        providerNameSearch: e.target.value || null,
+                      })
+                    }
+                    className="w-48 rounded border border-gray-300 px-2 py-1"
+                    placeholder="Type a name fragment"
+                  />
+                </td>
+              </tr>
+            </>
+          )}
           </tbody>
         </table>
 
