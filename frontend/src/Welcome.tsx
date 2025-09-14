@@ -51,7 +51,7 @@ const Welcome = () => {
 
         <p>
           Go to the providers tab to see the list of providers and their estimations.
-          <a href={"/providers"} className="ml-1 font-semibold text-blue-600">
+          <a href={`${import.meta.env.BASE_URL}/providers`} className="ml-1 font-semibold text-blue-600">
             Providers &rarr;
           </a>
         </p>
