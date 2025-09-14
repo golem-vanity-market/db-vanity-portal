@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useCallback } from "react";
 import { createROClient } from "golem-base-sdk";
 
 const Welcome = () => {
@@ -12,11 +12,11 @@ const Welcome = () => {
       ),
     [],
   );
-  const update_current_block = async () => {
+  const update_current_block = useCallback(async () => {
     const blockNumber = await client.getRawClient().httpClient.getBlockNumber();
     console.log("Current block number:", blockNumber);
     setCurrentBlock(blockNumber);
-  };
+  }, [client]);
 
   useEffect(() => {
     update_current_block();
@@ -24,7 +24,7 @@ const Welcome = () => {
       update_current_block();
     }, 15000); // Update every 15 seconds
     return () => clearInterval(interval);
-  }, [client]);
+  }, [client, update_current_block]);
   return (
     <div className="w-full">
       <div className="rounded bg-blue-50 p-6 text-center shadow">
