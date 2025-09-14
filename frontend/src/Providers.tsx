@@ -273,7 +273,7 @@ const Providers = () => {
 
       if (client) {
         const entities = await client.queryEntities(
-          `provId~"0x1*" && $owner="${import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}"`,
+          `provId~"0x1[*]" && $owner="${import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}"`,
         );
         console.log("Fetched entities from Golem DB:", entities);
         const newProviderData: ProviderDataType = {
