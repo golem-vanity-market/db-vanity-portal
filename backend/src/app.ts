@@ -255,6 +255,10 @@ async function init() {
     //code should never reach here
 
     console.log("Cycle complete, sleeping...");
+
+    //wait 5 minutes before next update
+    const waitSecs = 300;
+    await new Promise((resolve) => setTimeout(resolve, waitSecs * 1000));
   }
   // Fill your initialization code here
 }
