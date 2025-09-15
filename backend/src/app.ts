@@ -4,9 +4,9 @@ import {
   type AccountData,
   Annotation,
   createClient,
-  GolemBaseClient,
+  type GolemBaseClient,
   type GolemBaseCreate,
-  GolemBaseUpdate,
+  type GolemBaseUpdate,
   Tagged,
 } from "golem-base-sdk";
 import { startStatusServer } from "./server.ts";
@@ -50,7 +50,6 @@ async function createEntitiesWithRetry(
   for (let attempt = 1; ; attempt++) {
     try {
       await client.createEntities(entitiesToInsert);
-      entitiesToInsert.length = 0;
       log.info(`Inserted ${entitiesToInsert.length} entities, continuing...`);
       break;
     } catch (e) {
@@ -79,7 +78,6 @@ async function updateEntitiesWithRetry(
   for (let attempt = 1; ; attempt++) {
     try {
       await client.updateEntities(entitiesToUpdate);
-      entitiesToUpdate.length = 0;
       log.info(`Updated ${entitiesToUpdate.length} entities, continuing...`);
       break;
     } catch (e) {
@@ -162,10 +160,8 @@ async function init() {
           (no == noProv && entitiesToInsert.length > 0) ||
           entitiesToInsert.length >= 50
         ) {
-          const res = await createEntitiesWithRetry(
-            client,
-            entitiesToInsert,
-          );
+          const res = await createEntitiesWithRetry(client, entitiesToInsert);
+          entitiesToInsert.length = 0;
           if (res >= 1) {
             return res;
           }
@@ -175,6 +171,7 @@ async function init() {
           entitiesToUpdate.length >= 50
         ) {
           const res = await updateEntitiesWithRetry(client, entitiesToUpdate);
+          entitiesToUpdate.length = 0;
           if (res >= 1) {
             return res;
           }
@@ -211,7 +208,7 @@ async function init() {
                 getAddress(prov.providerId).toLowerCase(),
               ),
             ],
-            numericAnnotations: [new Annotation("group", no % 10 + 1)],
+            numericAnnotations: [new Annotation("group", (no % 10) + 1)],
           });
 
           continue;
@@ -224,7 +221,7 @@ async function init() {
           stringAnnotations: [
             new Annotation("provId", getAddress(prov.providerId).toLowerCase()),
           ],
-          numericAnnotations: [new Annotation("group", no % 10 + 1)],
+          numericAnnotations: [new Annotation("group", (no % 10) + 1)],
         };
         entitiesToInsert.push(entity);
         //const receipts = await client.createEntities([entity])
