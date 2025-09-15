@@ -389,60 +389,62 @@ const Providers = () => {
           <div className="mt-2 space-y-1 text-sm text-gray-700">
             <table>
               <thead>
-              <tr>
-                <th className="p-2 text-left font-normal">Metric</th>
-                <th className="p-2 text-left font-normal">All Time</th>
-                <th className="p-2 text-left font-normal">Last 24h</th>
-              </tr>
+
+                <tr>
+                  <th className="p-2 text-left font-normal">Metric</th>
+                  <th className="p-2 text-left font-normal">All Time</th>
+                  <th className="p-2 text-left font-normal">Last 24h</th>
+                </tr>
               </thead>
               <tbody>
-              <tr>
-                <td className="p-2">Total Work Hours</td>
-                <td className="p-2">{displayHours(provider.totalWorkHours)}</td>
-                <td className="p-2">{displayHours(provider.totalWorkHours24h)}</td>
-              </tr>
-              <tr>
-                <td className="p-2">Total Work</td>
-                <td className="p-2">{displayDifficulty(provider.totalWork)}</td>
-                <td className="p-2">{displayDifficulty(provider.totalWork24h)}</td>
-              </tr>
-              <tr>
-                <td className="p-2">Total Cost</td>
-                <td className="p-2">{provider.totalCost.toFixed(4)} GLM</td>
-                <td className="p-2">{provider.totalCost24h.toFixed(4)} GLM</td>
-              </tr>
-              <tr>
-                <td className="p-2">Speed</td>
-                <td className="p-2">
-                  {displayDifficulty(provider.speed)}
-                  /s
-                </td>
-                <td className="p-2">
-                  {displayDifficulty(provider.speed24h)}
-                  /s
-                </td>
-              </tr>
-              <tr>
-                <td className="p-2">Efficiency</td>
-                <td className="p-2">
-                  {displayDifficulty(provider.efficiency)}
-                  /GLM
-                </td>
-                <td className="p-2">
-                  {displayDifficulty(provider.efficiency24h)}
-                  /GLM
-                </td>
-              </tr>
-              <tr>
-                <td className="p-2">Number of Jobs</td>
-                <td className="p-2">{provider.numberOfJobs}</td>
-                <td className="p-2">{provider.numberOfJobs24h}</td>
-              </tr>
-              <tr>
-                <td className="p-2">Longest Job (hours)</td>
-                <td className="p-2">{displayHours(provider.longestJob)}</td>
-                <td className="p-2">{displayHours(provider.longestJob24h)}</td>
-              </tr>
+                <tr>
+                  <td className="p-2">Total Work Hours</td>
+                  <td className="p-2">{displayHours(provider.totalWorkHours)}</td>
+                  <td className="p-2">{displayHours(provider.totalWorkHours24h)}</td>
+                </tr>
+                <tr>
+                  <td className="p-2">Total Work</td>
+                  <td className="p-2">{displayDifficulty(provider.totalWork)}</td>
+                  <td className="p-2">{displayDifficulty(provider.totalWork24h)}</td>
+                </tr>
+                <tr>
+                  <td className="p-2">Total Cost</td>
+                  <td className="p-2">{provider.totalCost.toFixed(4)} GLM</td>
+                  <td className="p-2">{provider.totalCost24h.toFixed(4)} GLM</td>
+                </tr>
+                <tr>
+                  <td className="p-2">Speed</td>
+                  <td className="p-2">
+                    {displayDifficulty(provider.speed)}
+                    /s
+                  </td>
+                  <td className="p-2">
+                    {displayDifficulty(provider.speed24h)}
+                    /s
+                  </td>
+                </tr>
+                <tr>
+                  <td className="p-2">Efficiency</td>
+                  <td className="p-2">
+                    {displayDifficulty(provider.efficiency)}
+                    /GLM
+                  </td>
+                  <td className="p-2">
+                    {displayDifficulty(provider.efficiency24h)}
+                    /GLM
+                  </td>
+                </tr>
+                <tr>
+                  <td className="p-2">Number of Jobs</td>
+                  <td className="p-2">{provider.numberOfJobs}</td>
+                  <td className="p-2">{provider.numberOfJobs24h}</td>
+                </tr>
+                <tr>
+                  <td className="p-2">Longest Job (hours)</td>
+                  <td className="p-2">{displayHours(provider.longestJob)}</td>
+                  <td className="p-2">{displayHours(provider.longestJob24h)}</td>
+                </tr>
+
               </tbody>
             </table>
           </div>
