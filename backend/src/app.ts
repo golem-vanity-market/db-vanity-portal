@@ -7,6 +7,7 @@ import {
   type GolemBaseClient,
   type GolemBaseCreate,
   type GolemBaseUpdate,
+  type Hex,
   Tagged,
 } from "golem-base-sdk";
 import { startStatusServer } from "./server.ts";
@@ -14,6 +15,7 @@ import { operations } from "./queries.ts";
 import { ProviderData } from "../../shared/src/provider.ts";
 import dotenv from "dotenv";
 import { serializeProvider } from "../../shared/src/provider.ts";
+import { fetchAllEntitiesRaw } from "../../shared/src/query.js";
 
 dotenv.config();
 
@@ -139,6 +141,20 @@ async function init() {
       log.error(`Failed to fetch provider data ${e}`);
       operations.updateProviderData(null);
     }
+
+    let rawEntities: Record<
+      string,
+      {
+        entityKey: Hex;
+        storageValue: Uint8Array;
+      }
+    > = {};
+    try {
+      rawEntities = await fetchAllEntitiesRaw(client, 10, wallet.address);
+    } catch (ex) {
+      log.error("Failed to fetch existing entities:", ex);
+      continue;
+    }
     try {
       const block = await client.getRawClient().httpClient.getBlockNumber();
       log.info("Current Ethereum block number is", block);
@@ -184,14 +200,12 @@ async function init() {
         if (!prov) {
           continue;
         }
-        const existing = await client.queryEntities(
-          `provId = "${getAddress(prov.providerId).toLowerCase()}"`,
-        );
+        const existing = rawEntities[prov.providerId] ?? null;
 
         const newData = serializeProvider(prov);
 
-        if (existing.length > 0) {
-          if (uint8ArraysEqual(existing[0].storageValue, newData)) {
+        if (existing) {
+          if (uint8ArraysEqual(existing.storageValue, newData)) {
             log.info(
               `Entity for provider ${prov.providerId} is up to date, skipping...`,
             );
@@ -199,7 +213,7 @@ async function init() {
           }
           log.info("Updating entity for provider", prov.providerId, "...");
           entitiesToUpdate.push({
-            entityKey: existing[0].entityKey,
+            entityKey: existing.entityKey,
             data: newData,
             btl: BTL,
             stringAnnotations: [
@@ -229,15 +243,18 @@ async function init() {
       }
 
       console.log(
-        "Entities to insert:",
+        "Entities to insert (should be null):",
         entitiesToInsert.length,
-        "to update:",
+        "to update also null:",
         entitiesToUpdate.length,
       );
     } catch (e) {
       log.error("Failed to create entities:", e);
       continue;
     }
+    //code should never reach here
+
+    console.log("Cycle complete, sleeping...");
   }
   // Fill your initialization code here
 }
