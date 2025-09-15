@@ -1,5 +1,6 @@
 {
   "name": "db-provider-reputation-backend",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "build": "tsc",
@@ -16,6 +17,7 @@
     "uuid": "^12.0.0"
   },
   "devDependencies": {
+    "@types/node": "^24.3.2",
     "eslint": "^9.34.0",
     "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
