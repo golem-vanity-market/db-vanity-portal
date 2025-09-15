@@ -43,11 +43,6 @@ const Dashboard = () => {
                   Providers
                 </button>
               </li>
-              <li>
-                <button onClick={() => navigate("/about")} className={navClassName(location.pathname === "/about")}>
-                  About
-                </button>
-              </li>
             </ul>
           </div>
         </div>
@@ -60,9 +55,6 @@ const Dashboard = () => {
           </Routes>
           <Routes>
             <Route path="/providers" element={<Providers />} />
-          </Routes>
-          <Routes>
-            <Route path="/about" element={<div>About</div>} />
           </Routes>
         </div>
       </div>

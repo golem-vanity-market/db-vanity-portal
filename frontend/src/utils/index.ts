@@ -1,13 +1,13 @@
 export function displayHours(totalHours: number): string {
   if (totalHours < 1) {
     const minutes = Math.round(totalHours * 60);
-    return `${minutes}m`;
+    return `${minutes} m`;
   } else if (totalHours < 24) {
-    return `${totalHours.toFixed(1)}h`;
+    return `${totalHours.toFixed(1)} h`;
   } else {
     const days = Math.floor(totalHours / 24);
     const hours = Math.round(totalHours % 24);
-    return `${days}d ${hours}h`;
+    return `${days} d ${hours} h`;
   }
 }
 
@@ -43,5 +43,5 @@ export const displayDifficulty = (difficulty: number): string => {
   }
 
   const precision = difficulty < 10 ? 3 : difficulty < 100 ? 2 : 1;
-  return difficulty.toFixed(precision) + units[unitIndex];
+  return difficulty.toFixed(precision) + " " + units[unitIndex];
 };

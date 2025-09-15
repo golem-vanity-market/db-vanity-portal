@@ -42,7 +42,7 @@ function uint8ArraysEqual(a: Uint8Array, b: Uint8Array): boolean {
 
 const BTL = parseInt(process.env.GOLEM_DB_TTL || "120") / 2; // default 2 minutes
 
-async function tryCreateEntitiesWithRetry(
+async function createEntitiesWithRetry(
   client: GolemBaseClient,
   entitiesToInsert: GolemBaseCreate[],
 ): Promise<number> {
@@ -162,7 +162,7 @@ async function init() {
           (no == noProv && entitiesToInsert.length > 0) ||
           entitiesToInsert.length >= 50
         ) {
-          const res = await tryCreateEntitiesWithRetry(
+          const res = await createEntitiesWithRetry(
             client,
             entitiesToInsert,
           );
@@ -188,7 +188,7 @@ async function init() {
           continue;
         }
         const existing = await client.queryEntities(
-          `provId="${getAddress(prov.providerId).toLowerCase()}"`,
+          `provId = "${getAddress(prov.providerId).toLowerCase()}"`,
         );
 
         const newData = serializeProvider(prov);
@@ -201,7 +201,6 @@ async function init() {
             continue;
           }
           log.info("Updating entity for provider", prov.providerId, "...");
-
           entitiesToUpdate.push({
             entityKey: existing[0].entityKey,
             data: newData,
@@ -212,7 +211,7 @@ async function init() {
                 getAddress(prov.providerId).toLowerCase(),
               ),
             ],
-            numericAnnotations: [],
+            numericAnnotations: [new Annotation("group", no % 10 + 1)],
           });
 
           continue;
@@ -225,7 +224,7 @@ async function init() {
           stringAnnotations: [
             new Annotation("provId", getAddress(prov.providerId).toLowerCase()),
           ],
-          numericAnnotations: [],
+          numericAnnotations: [new Annotation("group", no % 10 + 1)],
         };
         entitiesToInsert.push(entity);
         //const receipts = await client.createEntities([entity])
