@@ -4,7 +4,9 @@ import {
   type AccountData,
   Annotation,
   createClient,
+  GolemBaseClient,
   type GolemBaseCreate,
+  GolemBaseUpdate,
   Tagged,
 } from "golem-base-sdk";
 import { startStatusServer } from "./server.ts";
@@ -39,6 +41,64 @@ function uint8ArraysEqual(a: Uint8Array, b: Uint8Array): boolean {
 }
 
 const BTL = parseInt(process.env.GOLEM_DB_TTL || "120") / 2; // default 2 minutes
+
+async function tryCreateEntitiesWithRetry(
+  client: GolemBaseClient,
+  entitiesToInsert: GolemBaseCreate[],
+): Promise<number> {
+  const maxRetries = 5;
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await client.createEntities(entitiesToInsert);
+      entitiesToInsert.length = 0;
+      log.info(`Inserted ${entitiesToInsert.length} entities, continuing...`);
+      break;
+    } catch (e) {
+      log.error(
+        `Failed to create entities on attempt ${attempt}/${maxRetries}:`,
+        e,
+      );
+      if (attempt >= maxRetries) {
+        log.error("Max retries reached, giving up ..., stopping process");
+        return 1;
+      } else {
+        const backoffTime = attempt * 5000; // Exponential backoff
+        log.info(`Retrying in ${backoffTime / 1000} seconds...`);
+        await new Promise((resolve) => setTimeout(resolve, backoffTime));
+      }
+    }
+  }
+  return 0;
+}
+
+async function updateEntitiesWithRetry(
+  client: GolemBaseClient,
+  entitiesToUpdate: GolemBaseUpdate[],
+): Promise<number> {
+  const maxRetries = 5;
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await client.updateEntities(entitiesToUpdate);
+      entitiesToUpdate.length = 0;
+      log.info(`Updated ${entitiesToUpdate.length} entities, continuing...`);
+      break;
+    } catch (e) {
+      log.error(
+        `Failed to update entities on attempt ${attempt}/${maxRetries}:`,
+        e,
+      );
+      if (attempt >= maxRetries) {
+        log.error("Max retries reached, giving up ..., stopping process");
+        return 1;
+      } else {
+        const backoffTime = attempt * 5000; // Exponential backoff
+        log.info(`Retrying in ${backoffTime / 1000} seconds...`);
+        await new Promise((resolve) => setTimeout(resolve, backoffTime));
+      }
+    }
+  }
+  return 0;
+}
 
 async function init() {
   log.info("Connecting to Golem DB client...");
@@ -102,17 +162,22 @@ async function init() {
           (no == noProv && entitiesToInsert.length > 0) ||
           entitiesToInsert.length >= 50
         ) {
-          await client.createEntities(entitiesToInsert);
-          entitiesToInsert.length = 0;
-          log.info("Inserted 10 entities, continuing...");
+          const res = await tryCreateEntitiesWithRetry(
+            client,
+            entitiesToInsert,
+          );
+          if (res >= 1) {
+            return res;
+          }
         }
         if (
           (no == noProv && entitiesToUpdate.length > 0) ||
           entitiesToUpdate.length >= 50
         ) {
-          await client.updateEntities(entitiesToUpdate);
-          entitiesToUpdate.length = 0;
-          log.info("Updated 10 entities, continuing...");
+          const res = await updateEntitiesWithRetry(client, entitiesToUpdate);
+          if (res >= 1) {
+            return res;
+          }
         }
         if (no >= noProv) {
           break;
@@ -136,6 +201,7 @@ async function init() {
             continue;
           }
           log.info("Updating entity for provider", prov.providerId, "...");
+
           entitiesToUpdate.push({
             entityKey: existing[0].entityKey,
             data: newData,
@@ -157,10 +223,7 @@ async function init() {
           data: newData,
           btl: BTL,
           stringAnnotations: [
-            new Annotation(
-              "provId",
-              getAddress(prov.providerId).toLowerCase(),
-            ),
+            new Annotation("provId", getAddress(prov.providerId).toLowerCase()),
           ],
           numericAnnotations: [],
         };
@@ -184,7 +247,9 @@ async function init() {
 }
 
 init()
-  .then(() => {})
+  .then((code) => {
+    process.exit(code);
+  })
   .catch((e) => {
     log.error(e);
     process.exit(1);
