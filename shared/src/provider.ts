@@ -90,7 +90,6 @@ export class ProviderData implements ProviderDataType {
   }
 }
 
-
 function writeString(view: DataView, offset: number, str: string): number {
   const utf8 = new TextEncoder().encode(str);
   view.setUint32(offset, utf8.length, true);
@@ -152,9 +151,7 @@ export function serializeProvider(entry: ProviderDataEntry): Uint8Array {
   return new Uint8Array(buf, 0, offset);
 }
 
-export function deserializeProvider(
-  data: Uint8Array,
-): ProviderDataEntry {
+export function deserializeProvider(data: Uint8Array): ProviderDataEntry {
   const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
   let offset = 0;
 

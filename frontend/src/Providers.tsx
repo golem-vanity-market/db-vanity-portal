@@ -4,6 +4,7 @@ import { ProviderData, ProviderDataEntry, ProviderDataType } from "../../shared/
 import RangeFilterRow from "./RangeFilterRow";
 import { createROClient } from "golem-base-sdk";
 import { deserializeProvider } from "../../shared/src/provider";
+import { fetchAllEntities } from "../../shared/src/query.ts";
 
 const CACHE_KEY = "providerDataCache";
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
@@ -292,29 +293,11 @@ const Providers = () => {
       setLoading(true);
 
       if (client) {
-        const proms = [];
-        for (let groupNo = 1; groupNo <= 10; groupNo++) {
-          proms.push(
-            client.queryEntities(`group = ${groupNo} && $owner = "${import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}"`),
-          );
-        }
         const newProviderData: ProviderDataType = {
           grouped: "all",
           byProviderId: {},
         };
-        for (const prom of proms) {
-          const entities = await prom;
-          for (const entity of entities) {
-            let data;
-            try {
-              data = deserializeProvider(entity.storageValue);
-            } catch (e) {
-              console.error("Failed to deserialize provider data:", e);
-              continue;
-            }
-            newProviderData.byProviderId[data.providerId] = data;
-          }
-        }
+        newProviderData.byProviderId = await fetchAllEntities(client, 10, import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS);
         const newProviderDataObj = new ProviderData(newProviderData);
         setProviderData(newProviderDataObj);
         saveCache(newProviderDataObj);
