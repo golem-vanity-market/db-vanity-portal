@@ -43,9 +43,9 @@ const defaultFilterCriteria = (): FilterCriteria => ({
   maxNumberOfJobs: null,
   minNumberOfJobs24h: 1,
   maxNumberOfJobs24h: null,
-  sortBy: "providerName",
-  sortOrder: "asc",
-  displayLimit: 100,
+  sortBy: "score",
+  sortOrder: "desc",
+  displayLimit: 50,
 });
 
 const sortOptions = [
@@ -127,7 +127,7 @@ const ProvidersPage = () => {
   const [providerData, setProviderData] = useState<ProviderData | null>(null);
   const [filterCriteria, setFilterCriteria] = useState<FilterCriteria>(() => {
     const defaults = defaultFilterCriteria();
-    const cachedItem = localStorage.getItem(CACHE_KEY);
+    const cachedItem = localStorage.getItem("providerFilterCriteria");
 
     let parsedCache = null;
     if (cachedItem) {
@@ -137,7 +137,7 @@ const ProvidersPage = () => {
     }
 
     const cachedFilters = buildFilterFromLocalStorage(parsedCache, defaults);
-    localStorage.setItem(CACHE_KEY, JSON.stringify(cachedFilters));
+    localStorage.setItem("providerFilterCriteria", JSON.stringify(cachedFilters));
     return cachedFilters;
   });
 
