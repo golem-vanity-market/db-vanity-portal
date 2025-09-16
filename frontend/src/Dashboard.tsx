@@ -47,9 +47,8 @@ const Dashboard = () => {
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between p-4">
           {/* Logo + Title */}
           <a href={assetsUrl()} className="flex items-center space-x-3 rtl:space-x-reverse">
-            <img width={32} height={32} src={`${assetsUrl()}/assets/golem.svg`} className="size-8" alt="GLM" />
             <span className="hidden self-center whitespace-nowrap text-2xl font-semibold md:inline dark:text-white">
-              Golem Network - Providers
+              Vanity-Market stats
             </span>
           </a>
           <div className="ml-auto flex space-x-2 items-stretch">
