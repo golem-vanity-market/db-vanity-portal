@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import "tailwindcss/tailwind.css";
+import "./index.css";
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import Dashboard from "./Dashboard";

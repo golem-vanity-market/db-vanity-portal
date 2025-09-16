@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useCallback } from "react";
 import { createROClient } from "golem-base-sdk";
+import { Button } from "./components/ui/button";
 
 const Welcome = () => {
   const [current_block, setCurrentBlock] = React.useState<bigint | null>(null);
@@ -32,6 +33,9 @@ const Welcome = () => {
         <p className="text-gray-700">
           This project displays provider estimations and is currently{" "}
           <span className="font-semibold text-orange-600">experimental</span>.
+          <Button variant="outline" className="mt-4">
+            Learn More
+          </Button>
         </p>
       </div>
       <div className="m-2 rounded bg-blue-50 p-6 text-center shadow">
