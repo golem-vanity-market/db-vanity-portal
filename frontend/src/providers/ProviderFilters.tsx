@@ -1,7 +1,7 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { FilterCriteria } from "./provider-types";
 
 interface ProviderFiltersProps {
@@ -9,15 +9,50 @@ interface ProviderFiltersProps {
   onFilterChange: <K extends keyof FilterCriteria>(key: K, value: FilterCriteria[K]) => void;
 }
 
-const filterGroups = [
-  { title: "Performance (24h)", minKey: "minWorkHours24h", maxKey: "maxWorkHours24h", unit: "Hours" },
-  { title: "Speed (24h)", minKey: "minSpeed24h", maxKey: "maxSpeed24h", unit: "MH/s" },
-  { title: "Efficiency (24h)", minKey: "minEfficiency24h", maxKey: "maxEfficiency24h", unit: "TH/GLM" },
-  { title: "Cost (24h)", minKey: "minTotalCost24h", maxKey: "maxTotalCost24h", unit: "GLM" },
-  { title: "Jobs (24h)", minKey: "minNumberOfJobs24h", maxKey: "maxNumberOfJobs24h", unit: "" },
+const filterableMetrics = [
+  {
+    label: "Work Hours",
+    unit: "h",
+    h24: { minKey: "minWorkHours24h", maxKey: "maxWorkHours24h" },
+    allTime: { minKey: "minWorkHours", maxKey: "maxWorkHours" },
+  },
+  {
+    label: "Work Done",
+    unit: "GH",
+    h24: { minKey: "minWork24h", maxKey: "maxWork24h" },
+    allTime: { minKey: "minWork", maxKey: "maxWork" },
+  },
+  {
+    label: "Speed",
+    unit: "MH/s",
+    h24: { minKey: "minSpeed24h", maxKey: "maxSpeed24h" },
+    allTime: { minKey: "minSpeed", maxKey: "maxSpeed" },
+  },
+  {
+    label: "Efficiency",
+    unit: "TH/GLM",
+    h24: { minKey: "minEfficiency24h", maxKey: "maxEfficiency24h" },
+    allTime: { minKey: "minEfficiency", maxKey: "maxEfficiency" },
+  },
+  {
+    label: "Total Cost",
+    unit: "GLM",
+    h24: { minKey: "minTotalCost24h", maxKey: "maxTotalCost24h" },
+    allTime: { minKey: "minTotalCost", maxKey: "maxTotalCost" },
+  },
+  {
+    label: "Number of Jobs",
+    unit: "",
+    h24: { minKey: "minNumberOfJobs24h", maxKey: "maxNumberOfJobs24h" },
+    allTime: { minKey: "minNumberOfJobs", maxKey: "maxNumberOfJobs" },
+  },
 ];
 
 export const ProviderFilters = ({ filters, onFilterChange }: ProviderFiltersProps) => {
+  const handleNumericChange = (key: keyof FilterCriteria, value: string) => {
+    onFilterChange(key, value ? Number(value) : null);
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -30,75 +65,66 @@ export const ProviderFilters = ({ filters, onFilterChange }: ProviderFiltersProp
         />
       </div>
 
-      <Accordion type="multiple" className="w-full" defaultValue={["item-0"]}>
-        {filterGroups.map((group, index) => (
-          <AccordionItem key={group.title} value={`item-${index}`}>
-            <AccordionTrigger>{group.title}</AccordionTrigger>
-            <AccordionContent>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor={group.minKey}>Min {group.unit}</Label>
-                  <Input
-                    id={group.minKey}
-                    type="number"
-                    placeholder="0"
-                    value={filters[group.minKey as keyof FilterCriteria] ?? ""}
-                    onChange={(e) =>
-                      onFilterChange(group.minKey as any, e.target.value ? Number(e.target.value) : null)
-                    }
-                  />
-                </div>
-                <div>
-                  <Label htmlFor={group.maxKey}>Max {group.unit}</Label>
-                  <Input
-                    id={group.maxKey}
-                    type="number"
-                    placeholder="Any"
-                    value={filters[group.maxKey as keyof FilterCriteria] ?? ""}
-                    onChange={(e) =>
-                      onFilterChange(group.maxKey as any, e.target.value ? Number(e.target.value) : null)
-                    }
-                  />
-                </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
-
       <div className="space-y-2">
-        <Label>Sort By</Label>
-        <Select
-          value={filters.sortBy}
-          onValueChange={(value) => onFilterChange("sortBy", value as FilterCriteria["sortBy"])}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select sorting" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="providerName">Provider Name</SelectItem>
-            <SelectItem value="speed24h">Speed (24h)</SelectItem>
-            <SelectItem value="efficiency24h">Efficiency (24h)</SelectItem>
-            <SelectItem value="totalWorkHours24h">Work Hours (24h)</SelectItem>
-            <SelectItem value="totalCost24h">Cost (24h)</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+        <Label>Advanced Metric Filters</Label>
+        <ScrollArea className="pr-4 border rounded-md">
+          {/* type="multiple" allows opening multiple sections at once */}
+          <Accordion type="multiple" className="w-full px-3">
+            {filterableMetrics.map((metric) => (
+              <AccordionItem key={metric.label} value={metric.label}>
+                {/* The Trigger is now the metric name */}
+                <AccordionTrigger className="py-3">
+                  <span className="font-semibold text-sm">
+                    {metric.label} {metric.unit && `(${metric.unit})`}
+                  </span>
+                </AccordionTrigger>
 
-      <div className="space-y-2">
-        <Label>Order</Label>
-        <Select
-          value={filters.sortOrder}
-          onValueChange={(value) => onFilterChange("sortOrder", value as "asc" | "desc")}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select order" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="asc">Ascending</SelectItem>
-            <SelectItem value="desc">Descending</SelectItem>
-          </SelectContent>
-        </Select>
+                {/* The Content contains the familiar input layout */}
+                <AccordionContent className="pt-2 pb-4">
+                  <div className="space-y-4">
+                    {/* Section for "Last 24h" */}
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Last 24h</Label>
+                      <div className="grid grid-cols-2 gap-2 mt-1">
+                        <Input
+                          type="number"
+                          placeholder="Min"
+                          value={filters[metric.h24.minKey as keyof FilterCriteria] ?? ""}
+                          onChange={(e) => handleNumericChange(metric.h24.minKey as any, e.target.value)}
+                        />
+                        <Input
+                          type="number"
+                          placeholder="Max"
+                          value={filters[metric.h24.maxKey as keyof FilterCriteria] ?? ""}
+                          onChange={(e) => handleNumericChange(metric.h24.maxKey as any, e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Section for "All Time" */}
+                    <div>
+                      <Label className="text-xs text-muted-foreground">All Time</Label>
+                      <div className="grid grid-cols-2 gap-2 mt-1">
+                        <Input
+                          type="number"
+                          placeholder="Min"
+                          value={filters[metric.allTime.minKey as keyof FilterCriteria] ?? ""}
+                          onChange={(e) => handleNumericChange(metric.allTime.minKey as any, e.target.value)}
+                        />
+                        <Input
+                          type="number"
+                          placeholder="Max"
+                          value={filters[metric.allTime.maxKey as keyof FilterCriteria] ?? ""}
+                          onChange={(e) => handleNumericChange(metric.allTime.maxKey as any, e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </ScrollArea>
       </div>
     </div>
   );

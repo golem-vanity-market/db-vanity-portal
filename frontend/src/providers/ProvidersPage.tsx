@@ -47,6 +47,21 @@ const defaultFilterCriteria = (): FilterCriteria => ({
   displayLimit: 100,
 });
 
+const sortOptions = [
+  { value: "providerName", label: "Provider Name" },
+  { value: "speed24h", label: "Speed (24h)" },
+  { value: "efficiency24h", label: "Efficiency (24h)" },
+  { value: "totalWorkHours24h", label: "Work Hours (24h)" },
+  { value: "totalCost24h", label: "Cost (24h)" },
+  { value: "numberOfJobs24h", label: "Jobs (24h)" },
+  { value: "longestJob", label: "Longest Job (All Time)" },
+  { value: "speed", label: "Speed (All Time)" },
+  { value: "efficiency", label: "Efficiency (All Time)" },
+  { value: "totalWorkHours", label: "Work Hours (All Time)" },
+  { value: "totalCost", label: "Cost (All Time)" },
+  { value: "numberOfJobs", label: "Jobs (All Time)" },
+];
+
 const buildFilterFromLocalStorage = (
   cached: Partial<FilterCriteria> | null,
   defaults: FilterCriteria,
@@ -258,24 +273,44 @@ const ProvidersPage = () => {
                   : `Displaying ${displayedProviders.length} of ${totalMatches} matching providers.`}
               </p>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="hidden sm:flex items-center gap-2">
-                <Label htmlFor="display-limit" className="text-sm">
-                  Show:
+            <div className="flex flex-wrap items-end gap-4">
+              {/* Sort By Dropdown */}
+              <div className="flex-grow sm:flex-grow-0">
+                <Label htmlFor="sort-by" className="text-sm font-medium">
+                  Sort By
                 </Label>
                 <Select
-                  value={`${filterCriteria.displayLimit}`}
-                  onValueChange={(value) => handleFilterChange("displayLimit", Number(value) as DisplayLimit)}
+                  value={filterCriteria.sortBy}
+                  onValueChange={(value) => handleFilterChange("sortBy", value as FilterCriteria["sortBy"])}
                 >
-                  <SelectTrigger id="display-limit" className="w-[80px]">
-                    <SelectValue placeholder="Limit" />
+                  <SelectTrigger id="sort-by" className="w-full sm:w-[180px] mt-1">
+                    <SelectValue placeholder="Select sorting" />
                   </SelectTrigger>
                   <SelectContent>
-                    {displayOptions.map((limit) => (
-                      <SelectItem key={limit} value={`${limit}`}>
-                        {limit}
+                    {sortOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
                       </SelectItem>
                     ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Order Dropdown */}
+              <div>
+                <Label htmlFor="sort-order" className="text-sm font-medium">
+                  Order
+                </Label>
+                <Select
+                  value={filterCriteria.sortOrder}
+                  onValueChange={(value) => handleFilterChange("sortOrder", value as "asc" | "desc")}
+                >
+                  <SelectTrigger id="sort-order" className="w-full sm:w-[120px] mt-1">
+                    <SelectValue placeholder="Select order" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="asc">Ascending</SelectItem>
+                    <SelectItem value="desc">Descending</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
