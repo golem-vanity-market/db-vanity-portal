@@ -11,8 +11,36 @@ import {
   navigationMenuTriggerStyle,
 } from "./components/ui/navigation-menu";
 import { Separator } from "./components/ui/separator";
+import { createROClient } from "golem-base-sdk";
+import React, { useMemo, useCallback, useEffect } from "react";
+import { Badge } from "./components/ui/badge";
+import { Skeleton } from "./components/ui/skeleton";
 
 const Dashboard = () => {
+  const [current_block, setCurrentBlock] = React.useState<bigint | null>(null);
+  const client = useMemo(
+    () =>
+      createROClient(
+        parseInt(import.meta.env.VITE_GOLEM_DB_CHAIN_ID || ""),
+        import.meta.env.VITE_GOLEM_DB_RPC || "",
+        import.meta.env.VITE_GOLEM_DB_RPC_WS || "",
+      ),
+    [],
+  );
+  const update_current_block = useCallback(async () => {
+    const blockNumber = await client.getRawClient().httpClient.getBlockNumber();
+    console.log("Current block number:", blockNumber);
+    setCurrentBlock(blockNumber);
+  }, [client]);
+
+  useEffect(() => {
+    update_current_block();
+    const interval = setInterval(() => {
+      update_current_block();
+    }, 15000); // Update every 15 seconds
+    return () => clearInterval(interval);
+  }, [client, update_current_block]);
+
   return (
     <div className="min-h-screen">
       <div className="">
@@ -39,6 +67,15 @@ const Dashboard = () => {
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
+            <Separator orientation="vertical" className="h-9" />
+            {/* Current Block Number */}
+            {current_block !== null ? (
+              <Badge variant="outline" className="h-9">
+                Golem Base Block: {current_block.toString()}
+              </Badge>
+            ) : (
+              <Skeleton className="h-9 w-24" />
+            )}
             <Separator orientation="vertical" className="h-9" />
             {/* Dark mode toggle */}
             <ModeToggle />

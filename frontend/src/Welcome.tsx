@@ -3,29 +3,6 @@ import { createROClient } from "golem-base-sdk";
 import { Button } from "./components/ui/button";
 
 const Welcome = () => {
-  const [current_block, setCurrentBlock] = React.useState<bigint | null>(null);
-  const client = useMemo(
-    () =>
-      createROClient(
-        parseInt(import.meta.env.VITE_GOLEM_DB_CHAIN_ID || ""),
-        import.meta.env.VITE_GOLEM_DB_RPC || "",
-        import.meta.env.VITE_GOLEM_DB_RPC_WS || "",
-      ),
-    [],
-  );
-  const update_current_block = useCallback(async () => {
-    const blockNumber = await client.getRawClient().httpClient.getBlockNumber();
-    console.log("Current block number:", blockNumber);
-    setCurrentBlock(blockNumber);
-  }, [client]);
-
-  useEffect(() => {
-    update_current_block();
-    const interval = setInterval(() => {
-      update_current_block();
-    }, 15000); // Update every 15 seconds
-    return () => clearInterval(interval);
-  }, [client, update_current_block]);
   return (
     <div className="w-full">
       <div className="m-2 rounded bg-blue-50 p-6 text-center shadow">
@@ -64,16 +41,6 @@ const Welcome = () => {
             Providers &rarr;
           </a>
         </p>
-      </div>
-      <div className="m-2 rounded bg-blue-50 p-6 text-center shadow">
-        {current_block === null ? (
-          <p className="mt-4 text-gray-700">Checking connection to Golem:DB blockchain...</p>
-        ) : (
-          <p className="mt-4 text-gray-700">
-            Current block of Golem:DB chain:{" "}
-            <span className="font-semibold text-green-600">{current_block.toString()}</span>
-          </p>
-        )}
       </div>
     </div>
   );
