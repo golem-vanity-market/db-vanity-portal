@@ -1,24 +1,21 @@
-import React from "react";
-
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 import Welcome from "./Welcome";
 import Providers from "./Providers";
 import { assetsUrl } from "./utils";
 import { ModeToggle } from "./components/theme-toggle";
-
-function navClassName(selected: boolean): string {
-  if (selected) {
-    return "block rounded-sm bg-blue-700 px-3 py-2 text-white md:bg-transparent md:p-0 md:text-blue-700 dark:text-white md:dark:text-blue-500";
-  }
-  return "block rounded-sm px-3 py-2 text-gray-900 hover:bg-gray-100 md:border-0 md:p-0 md:hover:bg-transparent md:hover:text-blue-700 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent md:dark:hover:text-blue-500";
-}
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "./components/ui/navigation-menu";
+import { Separator } from "./components/ui/separator";
 
 const Dashboard = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
   return (
-    <div className="min-h-screen bg-gray-100">
-      <nav className="border-b border-gray-200 bg-white dark:bg-gray-900">
+    <div className="min-h-screen">
+      <div className="">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between p-4">
           {/* Logo + Title */}
           <a href={assetsUrl()} className="flex items-center space-x-3 rtl:space-x-reverse">
@@ -27,33 +24,29 @@ const Dashboard = () => {
               Golem Network - Providers
             </span>
           </a>
-
-          {/* Navigation */}
-          <div id="navbar-default">
-            <ul className="flex space-x-8 font-medium">
-              <li>
-                <button onClick={() => navigate("/")} className={navClassName(location.pathname === "/")}>
-                  Home
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => navigate("/providers")}
-                  className={navClassName(location.pathname === "/providers")}
-                >
-                  Providers
-                </button>
-              </li>
-            </ul>
-          </div>
-          {/* Dark mode toggle */}
-          <div className="flex items-center">
+          <div className="ml-auto flex space-x-2 items-stretch">
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                    <Link to="/">Home</Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                    <Link to="/providers">Providers</Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+            <Separator orientation="vertical" className="h-9" />
+            {/* Dark mode toggle */}
             <ModeToggle />
           </div>
         </div>
-      </nav>
+      </div>
 
-      <div className="border-gray-200 bg-white dark:bg-gray-900">
+      <div className="border-gray-200">
         <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
           <Routes>
             <Route path="/" element={<Welcome />} />
