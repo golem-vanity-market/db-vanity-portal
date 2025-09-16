@@ -70,20 +70,21 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
       <CardHeader>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <CardTitle className="text-lg">
-              <span className="text-muted-foreground">#{rank}</span> {provider.providerName}
+            <CardTitle className="text-lg flex items-center gap-2">
+              <span className="text-muted-foreground">#{rank}</span>
+              <a
+                href={`https://stats.golem.network/network/provider/${provider.providerId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-lg text-primary underline flex items-center gap-1"
+              >
+                {provider.providerName}
+                <ExternalLink className="h-4 w-4" />
+              </a>
             </CardTitle>
             <CardDescription className="font-mono text-xs break-all pt-1">{provider.providerId}</CardDescription>
           </div>
           <div className="flex items-center gap-2">
-            <a
-              href={`https://stats.golem.network/network/provider/${provider.providerId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-primary hover:underline flex items-center gap-1"
-            >
-              Stats <ExternalLink className="h-3 w-3" />
-            </a>
             <Badge className={getScoreClassName(score)}>{score.toFixed(1)}% Score</Badge>
           </div>
         </div>
