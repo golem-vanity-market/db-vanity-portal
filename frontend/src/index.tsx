@@ -3,6 +3,7 @@ import "./index.css";
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import Dashboard from "./Dashboard";
+import { ThemeProvider } from "./components/theme-provider";
 const container = document.getElementById("root") as HTMLDivElement;
 const root = createRoot(container);
 //vite env
@@ -10,7 +11,9 @@ const root = createRoot(container);
 root.render(
   <React.StrictMode>
     <BrowserRouter basename={import.meta.env.BASE_URL}>
-      <Dashboard />
+      <ThemeProvider defaultTheme="dark" storageKey="ui-theme">
+        <Dashboard />
+      </ThemeProvider>
     </BrowserRouter>
   </React.StrictMode>,
 );

@@ -4,6 +4,7 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import Welcome from "./Welcome";
 import Providers from "./Providers";
 import { assetsUrl } from "./utils";
+import { ModeToggle } from "./components/theme-toggle";
 
 function navClassName(selected: boolean): string {
   if (selected) {
@@ -44,6 +45,10 @@ const Dashboard = () => {
                 </button>
               </li>
             </ul>
+          </div>
+          {/* Dark mode toggle */}
+          <div className="flex items-center">
+            <ModeToggle />
           </div>
         </div>
       </nav>
