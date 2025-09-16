@@ -48,7 +48,7 @@ const Dashboard = () => {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-14 max-w-7xl items-center justify-between">
           <a href="/" className="flex items-center space-x-3">
-            <span className="font-bold">Vanity-Market Stats</span>
+            <span className="font-bold">Vanity Market</span>
           </a>
 
           <div className="flex items-center space-x-4">
@@ -66,17 +66,16 @@ const Dashboard = () => {
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
-
-            <Separator orientation="vertical" className="hidden sm:block h-6" />
-
-            <div className="hidden sm:flex items-center space-x-4">
-              {current_block !== null ? (
-                <Badge variant="outline">Block: {current_block.toString()}</Badge>
-              ) : (
-                <Skeleton className="h-8 w-24" />
-              )}
-              <ModeToggle />
-            </div>
+            <Separator orientation="vertical" className="h-9" />
+            {current_block !== null ? (
+              <Badge variant="outline" className="h-9">
+                Golem Base Block: {current_block.toString()}
+              </Badge>
+            ) : (
+              <Skeleton className="h-9 w-24" />
+            )}
+            <Separator orientation="vertical" className="h-9" />
+            <ModeToggle />
           </div>
         </div>
       </header>
