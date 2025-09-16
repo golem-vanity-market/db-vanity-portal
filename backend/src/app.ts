@@ -121,29 +121,50 @@ function getMetadata(prov: ProviderDataEntry, groupNo: number) {
         mapValueForAnnotation(prov.totalWorkHours24h, "totalWorkHours24h"),
       ),
 
-      new Annotation("totalWork", mapValueForAnnotation(prov.totalWork, "totalWork")),
+      new Annotation(
+        "totalWork",
+        mapValueForAnnotation(prov.totalWork, "totalWork"),
+      ),
       new Annotation(
         "totalWork24h",
         mapValueForAnnotation(prov.totalWork24h, "totalWork24h"),
       ),
-      new Annotation("totalCost", mapValueForAnnotation(prov.totalCost, "totalCost")),
+      new Annotation(
+        "totalCost",
+        mapValueForAnnotation(prov.totalCost, "totalCost"),
+      ),
       new Annotation(
         "totalCost24h",
         mapValueForAnnotation(prov.totalCost24h, "totalCost24h"),
       ),
-      new Annotation("longestJob", mapValueForAnnotation(prov.longestJob, "longestJob")),
+      new Annotation(
+        "longestJob",
+        mapValueForAnnotation(prov.longestJob, "longestJob"),
+      ),
       new Annotation(
         "longestJob24h",
         mapValueForAnnotation(prov.longestJob24h, "longestJob24h"),
       ),
       new Annotation("speed", mapValueForAnnotation(prov.speed, "speed")),
-      new Annotation("speed24h", mapValueForAnnotation(prov.speed24h, "speed24h")),
-      new Annotation("efficiency", mapValueForAnnotation(prov.efficiency, "efficiency")),
+      new Annotation(
+        "speed24h",
+        mapValueForAnnotation(prov.speed24h, "speed24h"),
+      ),
+      new Annotation(
+        "efficiency",
+        mapValueForAnnotation(prov.efficiency, "efficiency"),
+      ),
       new Annotation(
         "efficiency24h",
         mapValueForAnnotation(prov.efficiency24h, "efficiency24h"),
       ),
-      new Annotation("lastJobDate", mapValueForAnnotation(new Date(prov.lastJobDate).getTime(), "lastJobDate")),
+      new Annotation(
+        "lastJobDate",
+        mapValueForAnnotation(
+          new Date(prov.lastJobDate).getTime(),
+          "lastJobDate",
+        ),
+      ),
     ],
     numericAnnotations: [
       new Annotation("group", groupNo),

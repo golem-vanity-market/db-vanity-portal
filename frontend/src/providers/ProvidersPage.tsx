@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { createROClient } from "golem-base-sdk";
 import { ProviderData } from "../../../shared/src/provider";
-import { fetchAllEntities, mapValueForAnnotation } from "../../../shared/src/query";
+import { fetchAllEntities, mapValueForAnnotation, mapValueForNumberAnnotation } from "../../../shared/src/query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -189,6 +189,93 @@ const ProvidersPage = () => {
     }
     if (filterCriteria.minWork !== null) {
       qbuild += ` && totalWork >= "${mapValueForAnnotation(filterCriteria.minWork * 1e9, "totalWork")}"`;
+    }
+    if (filterCriteria.maxWork !== null) {
+      qbuild += ` && totalWork <= "${mapValueForAnnotation(filterCriteria.maxWork * 1e9, "totalWork")}"`;
+    }
+    if (filterCriteria.minWork24h !== null) {
+      qbuild += ` && totalWork24h >= "${mapValueForAnnotation(filterCriteria.minWork24h * 1e9, "totalWork24h")}"`;
+    }
+    if (filterCriteria.maxWork24h !== null) {
+      qbuild += ` && totalWork24h <= "${mapValueForAnnotation(filterCriteria.maxWork24h * 1e9, "totalWork24h")}"`;
+    }
+    if (filterCriteria.minSpeed !== null) {
+      qbuild += ` && speed >= "${mapValueForAnnotation(filterCriteria.minSpeed * 1e6, "speed")}"`;
+    }
+    if (filterCriteria.maxSpeed !== null) {
+      qbuild += ` && speed <= "${mapValueForAnnotation(filterCriteria.maxSpeed * 1e6, "speed")}"`;
+    }
+    if (filterCriteria.minSpeed24h !== null) {
+      qbuild += ` && speed24h >= "${mapValueForAnnotation(filterCriteria.minSpeed24h * 1e6, "speed24h")}"`;
+    }
+    if (filterCriteria.maxSpeed24h !== null) {
+      qbuild += ` && speed24h <= "${mapValueForAnnotation(filterCriteria.maxSpeed24h * 1e6, "speed24h")}"`;
+    }
+    if (filterCriteria.minEfficiency !== null) {
+      qbuild += ` && efficiency >= "${mapValueForAnnotation(filterCriteria.minEfficiency * 1e12, "efficiency")}"`;
+    }
+    if (filterCriteria.maxEfficiency !== null) {
+      qbuild += ` && efficiency <= "${mapValueForAnnotation(filterCriteria.maxEfficiency * 1e12, "efficiency")}"`;
+    }
+    if (filterCriteria.minEfficiency24h !== null) {
+      qbuild += ` && efficiency24h >= "${mapValueForAnnotation(
+        filterCriteria.minEfficiency24h * 1e12,
+        "efficiency24h",
+      )}"`;
+    }
+    if (filterCriteria.maxEfficiency24h !== null) {
+      qbuild += ` && efficiency24h <= "${mapValueForAnnotation(
+        filterCriteria.maxEfficiency24h * 1e12,
+        "efficiency24h",
+      )}"`;
+    }
+    if (filterCriteria.minTotalCost !== null) {
+      qbuild += ` && totalCost >= "${mapValueForAnnotation(filterCriteria.minTotalCost, "totalCost")}"`;
+    }
+    if (filterCriteria.maxTotalCost !== null) {
+      qbuild += ` && totalCost <= "${mapValueForAnnotation(filterCriteria.maxTotalCost, "totalCost")}"`;
+    }
+    if (filterCriteria.minTotalCost24h !== null) {
+      qbuild += ` && totalCost24h >= "${mapValueForAnnotation(filterCriteria.minTotalCost24h, "totalCost24h")}"`;
+    }
+    if (filterCriteria.maxTotalCost24h !== null) {
+      qbuild += ` && totalCost24h <= "${mapValueForAnnotation(filterCriteria.maxTotalCost24h, "totalCost24h")}"`;
+    }
+    if (filterCriteria.minWorkHours !== null) {
+      qbuild += ` && totalWorkHours >= "${mapValueForAnnotation(filterCriteria.minWorkHours, "totalWorkHours")}"`;
+    }
+    if (filterCriteria.maxWorkHours !== null) {
+      qbuild += ` && totalWorkHours <= "${mapValueForAnnotation(filterCriteria.maxWorkHours, "totalWorkHours")}"`;
+    }
+    if (filterCriteria.minWorkHours24h !== null) {
+      qbuild += ` && totalWorkHours24h >= "${mapValueForAnnotation(
+        filterCriteria.minWorkHours24h,
+        "totalWorkHours24h",
+      )}"`;
+    }
+    if (filterCriteria.maxWorkHours24h !== null) {
+      qbuild += ` && totalWorkHours24h <= "${mapValueForAnnotation(
+        filterCriteria.maxWorkHours24h,
+        "totalWorkHours24h",
+      )}"`;
+    }
+    if (filterCriteria.minNumberOfJobs !== null) {
+      qbuild += ` && numberOfJobs >= ${mapValueForNumberAnnotation(filterCriteria.minNumberOfJobs, "numberOfJobs")}`;
+    }
+    if (filterCriteria.maxNumberOfJobs !== null) {
+      qbuild += ` && numberOfJobs <= ${mapValueForNumberAnnotation(filterCriteria.maxNumberOfJobs, "numberOfJobs")}`;
+    }
+    if (filterCriteria.minNumberOfJobs24h !== null) {
+      qbuild += ` && numberOfJobs24h >= ${mapValueForNumberAnnotation(
+        filterCriteria.minNumberOfJobs24h,
+        "numberOfJobs24h",
+      )}`;
+    }
+    if (filterCriteria.maxNumberOfJobs24h !== null) {
+      qbuild += ` && numberOfJobs24h <= ${mapValueForNumberAnnotation(
+        filterCriteria.maxNumberOfJobs24h,
+        "numberOfJobs24h",
+      )}`;
     }
 
     completeQuery = completeQuery.replace("%%QUERY%%", escapeForJS(qbuild));
