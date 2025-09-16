@@ -122,6 +122,17 @@ const FilterPanel = ({ filters, onFilterChange }: FilterPanelProps) => {
     </Card>
   );
 };
+
+function escapeForJS(str: string): string {
+  return str
+    .replace(/\\/g, "\\\\") // escape backslash
+    .replace(/"/g, '\\"') // escape double quotes
+    .replace(/'/g, "\\'") // escape single quotes
+    .replace(/\n/g, "\\n") // escape newlines
+    .replace(/\r/g, "\\r") // escape carriage returns
+    .replace(/\t/g, "\\t"); // escape tabs
+}
+
 const ProvidersPage = () => {
   const [loading, setLoading] = useState(true);
   const [providerData, setProviderData] = useState<ProviderData | null>(null);
@@ -164,6 +175,20 @@ const ProvidersPage = () => {
     setFilterCriteria(defaults);
     localStorage.setItem("providerFilterCriteria", JSON.stringify(defaults));
   }, []);
+
+  const [internalQuery, setInternalQuery] = useState<string>("");
+
+  useEffect(() => {
+    let completeQuery = `curl ${
+      import.meta.env.VITE_GOLEM_DB_RPC
+    } -X POST -H "Content-Type: application/json" --data '{"method":"golembase_queryEntities","params":["%%QUERY%%"], "id": 1, "jsonrpc":"2.0"}' | jq`;
+
+    completeQuery = completeQuery.replace(
+      "%%QUERY%%",
+      escapeForJS(`$owner = "${import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}"`),
+    );
+    setInternalQuery(completeQuery);
+  }, [filterCriteria]);
 
   const fetchData = useCallback(
     async (forceRefresh = false) => {
@@ -272,6 +297,13 @@ const ProvidersPage = () => {
             <FilterPanel filters={filterCriteria} onFilterChange={handleFilterChange} />
             <Button variant="outline" className="w-full" onClick={resetFilters}>
               <FilterX className="mr-2 h-4 w-4" /> Reset Filters
+            </Button>
+            <Button
+              onClick={() => {
+                navigator.clipboard.writeText(internalQuery);
+              }}
+            >
+              Copy curl query
             </Button>
           </div>
         </aside>
