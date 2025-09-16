@@ -34,10 +34,10 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
       h24: displayDifficulty(provider.totalWork24h),
     },
     {
-      label: "Total Cost (GLM)",
+      label: "Total Cost",
       icon: <CircleDollarSign className="h-4 w-4" />,
-      allTime: provider.totalCost.toFixed(4),
-      h24: provider.totalCost24h.toFixed(4),
+      allTime: `${provider.totalCost.toFixed(4)} GLM`,
+      h24: `${provider.totalCost24h.toFixed(4)} GLM`,
     },
     {
       label: "Speed",
