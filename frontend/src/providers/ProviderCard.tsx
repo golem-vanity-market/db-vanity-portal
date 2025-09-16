@@ -23,43 +23,43 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
   const metrics = [
     {
       label: "Work Hours",
-      icon: <Timer className="h-4 w-4" />,
+      icon: <Timer className="size-4" />,
       allTime: displayHours(provider.totalWorkHours),
       h24: displayHours(provider.totalWorkHours24h),
     },
     {
       label: "Work Done",
-      icon: <Cpu className="h-4 w-4" />,
+      icon: <Cpu className="size-4" />,
       allTime: displayDifficulty(provider.totalWork),
       h24: displayDifficulty(provider.totalWork24h),
     },
     {
       label: "Total Cost",
-      icon: <CircleDollarSign className="h-4 w-4" />,
+      icon: <CircleDollarSign className="size-4" />,
       allTime: `${provider.totalCost.toFixed(4)} GLM`,
       h24: `${provider.totalCost24h.toFixed(4)} GLM`,
     },
     {
       label: "Speed",
-      icon: <GaugeCircle className="h-4 w-4" />,
+      icon: <GaugeCircle className="size-4" />,
       allTime: `${displayDifficulty(provider.speed)}/s`,
       h24: `${displayDifficulty(provider.speed24h)}/s`,
     },
     {
       label: "Efficiency",
-      icon: <TrendingUp className="h-4 w-4" />,
+      icon: <TrendingUp className="size-4" />,
       allTime: `${displayDifficulty(provider.efficiency)}/GLM`,
       h24: `${displayDifficulty(provider.efficiency24h)}/GLM`,
     },
     {
       label: "Jobs",
-      icon: <Hash className="h-4 w-4" />,
+      icon: <Hash className="size-4" />,
       allTime: provider.numberOfJobs,
       h24: provider.numberOfJobs24h,
     },
     {
       label: "Longest Job",
-      icon: <Timer className="h-4 w-4" />,
+      icon: <Timer className="size-4" />,
       allTime: displayHours(provider.longestJob),
       h24: displayHours(provider.longestJob24h),
     },
@@ -70,19 +70,19 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
       <CardHeader>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-lg">
               <span className="text-muted-foreground">#{rank}</span>
               <a
                 href={`https://stats.golem.network/network/provider/${provider.providerId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-lg text-primary underline flex items-center gap-1"
+                className="text-primary flex items-center gap-1 text-lg underline"
               >
                 {provider.providerName}
-                <ExternalLink className="h-4 w-4" />
+                <ExternalLink className="size-4" />
               </a>
             </CardTitle>
-            <CardDescription className="font-mono text-xs break-all pt-1">{provider.providerId}</CardDescription>
+            <CardDescription className="break-all pt-1 font-mono text-xs">{provider.providerId}</CardDescription>
           </div>
           <div className="flex items-center gap-2">
             <Badge className={getScoreClassName(score)}>{score.toFixed(1)}% Score</Badge>
@@ -102,7 +102,7 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
             {metrics.map((metric) => (
               <TableRow key={metric.label}>
                 <TableCell className="font-medium">
-                  <div className="flex items-center gap-2 text-muted-foreground">
+                  <div className="text-muted-foreground flex items-center gap-2">
                     {metric.icon}
                     <span className="text-card-foreground">{metric.label}</span>
                   </div>

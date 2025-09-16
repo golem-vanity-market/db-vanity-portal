@@ -14,42 +14,42 @@ const filterableMetrics = [
   {
     label: "Work Hours",
     unit: "h",
-    icon: <Timer className="h-4 w-4 text-muted-foreground" />,
+    icon: <Timer className="text-muted-foreground size-4" />,
     h24: { minKey: "minWorkHours24h", maxKey: "maxWorkHours24h" },
     allTime: { minKey: "minWorkHours", maxKey: "maxWorkHours" },
   },
   {
     label: "Work Done",
     unit: "GH",
-    icon: <Cpu className="h-4 w-4 text-muted-foreground" />,
+    icon: <Cpu className="text-muted-foreground size-4" />,
     h24: { minKey: "minWork24h", maxKey: "maxWork24h" },
     allTime: { minKey: "minWork", maxKey: "maxWork" },
   },
   {
     label: "Speed",
     unit: "MH/s",
-    icon: <GaugeCircle className="h-4 w-4 text-muted-foreground" />,
+    icon: <GaugeCircle className="text-muted-foreground size-4" />,
     h24: { minKey: "minSpeed24h", maxKey: "maxSpeed24h" },
     allTime: { minKey: "minSpeed", maxKey: "maxSpeed" },
   },
   {
     label: "Efficiency",
     unit: "TH/GLM",
-    icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
+    icon: <TrendingUp className="text-muted-foreground size-4" />,
     h24: { minKey: "minEfficiency24h", maxKey: "maxEfficiency24h" },
     allTime: { minKey: "minEfficiency", maxKey: "maxEfficiency" },
   },
   {
     label: "Total Cost",
     unit: "GLM",
-    icon: <CircleDollarSign className="h-4 w-4 text-muted-foreground" />,
+    icon: <CircleDollarSign className="text-muted-foreground size-4" />,
     h24: { minKey: "minTotalCost24h", maxKey: "maxTotalCost24h" },
     allTime: { minKey: "minTotalCost", maxKey: "maxTotalCost" },
   },
   {
     label: "Number of Jobs",
     unit: "",
-    icon: <Hash className="h-4 w-4 text-muted-foreground" />,
+    icon: <Hash className="text-muted-foreground size-4" />,
     h24: { minKey: "minNumberOfJobs24h", maxKey: "maxNumberOfJobs24h" },
     allTime: { minKey: "minNumberOfJobs", maxKey: "maxNumberOfJobs" },
   },
@@ -74,7 +74,7 @@ export const ProviderFilters = ({ filters, onFilterChange }: ProviderFiltersProp
 
       <div className="space-y-2">
         <Label>Advanced Metric Filters</Label>
-        <ScrollArea className="pr-4 border rounded-md">
+        <ScrollArea className="rounded-md border pr-4">
           {/* type="multiple" allows opening multiple sections at once */}
           <Accordion type="multiple" className="w-full px-3">
             {filterableMetrics.map((metric) => (
@@ -83,19 +83,19 @@ export const ProviderFilters = ({ filters, onFilterChange }: ProviderFiltersProp
                 <AccordionTrigger className="py-3">
                   <div className="flex items-center gap-2">
                     {metric.icon}
-                    <span className="font-semibold text-sm">
+                    <span className="text-sm font-semibold">
                       {metric.label} {metric.unit && `(${metric.unit})`}
                     </span>
                   </div>
                 </AccordionTrigger>
 
                 {/* The Content contains the familiar input layout */}
-                <AccordionContent className="pt-2 pb-4">
+                <AccordionContent className="pb-4 pt-2">
                   <div className="space-y-4">
                     {/* Section for "Last 24h" */}
                     <div>
-                      <Label className="text-xs text-muted-foreground">Last 24h</Label>
-                      <div className="grid grid-cols-2 gap-2 mt-1">
+                      <Label className="text-muted-foreground text-xs">Last 24h</Label>
+                      <div className="mt-1 grid grid-cols-2 gap-2">
                         <Input
                           type="number"
                           placeholder="Min"
@@ -113,8 +113,8 @@ export const ProviderFilters = ({ filters, onFilterChange }: ProviderFiltersProp
 
                     {/* Section for "All Time" */}
                     <div>
-                      <Label className="text-xs text-muted-foreground">All Time</Label>
-                      <div className="grid grid-cols-2 gap-2 mt-1">
+                      <Label className="text-muted-foreground text-xs">All Time</Label>
+                      <div className="mt-1 grid grid-cols-2 gap-2">
                         <Input
                           type="number"
                           placeholder="Min"

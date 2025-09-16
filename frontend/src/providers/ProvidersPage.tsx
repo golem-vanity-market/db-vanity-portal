@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Filter, FilterX, Loader2, RefreshCw } from "lucide-react";
-import { DisplayLimit, FilterCriteria } from "./provider-types";
+import { FilterCriteria } from "./provider-types";
 import { ProviderFilters } from "./ProviderFilters";
 import { ProviderCard } from "./ProviderCard";
 import { getProviderScore } from "./provider-utils";
@@ -144,7 +144,9 @@ const ProvidersPage = () => {
     if (cachedItem) {
       try {
         parsedCache = JSON.parse(cachedItem);
-      } catch {}
+      } catch {
+        // ignore parsing errors
+      }
     }
 
     const cachedFilters = buildFilterFromLocalStorage(parsedCache, defaults);
@@ -384,11 +386,11 @@ const ProvidersPage = () => {
   return (
     <div className="container mx-auto max-w-7xl pt-4 sm:pt-6 lg:pt-8">
       <div className="grid grid-cols-1 lg:grid-cols-4 lg:gap-8">
-        <aside className="hidden lg:block lg:col-span-1">
+        <aside className="hidden lg:col-span-1 lg:block">
           <div className="sticky top-20 space-y-4">
             <FilterPanel filters={filterCriteria} onFilterChange={handleFilterChange} />
             <Button variant="outline" className="w-full" onClick={resetFilters}>
-              <FilterX className="mr-2 h-4 w-4" /> Reset Filters
+              <FilterX className="mr-2 size-4" /> Reset Filters
             </Button>
             <Button
               onClick={() => {
@@ -401,7 +403,7 @@ const ProvidersPage = () => {
         </aside>
 
         <main className="lg:col-span-3">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+          <div className="mb-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
             <div>
               <h1 className="text-2xl font-bold tracking-tight">Providers</h1>
               <p className="text-muted-foreground">
@@ -420,7 +422,7 @@ const ProvidersPage = () => {
                   value={filterCriteria.sortBy}
                   onValueChange={(value) => handleFilterChange("sortBy", value as FilterCriteria["sortBy"])}
                 >
-                  <SelectTrigger id="sort-by" className="w-full sm:w-[180px] mt-1">
+                  <SelectTrigger id="sort-by" className="mt-1 w-full sm:w-[180px]">
                     <SelectValue placeholder="Select sorting" />
                   </SelectTrigger>
                   <SelectContent>
@@ -442,7 +444,7 @@ const ProvidersPage = () => {
                   value={filterCriteria.sortOrder}
                   onValueChange={(value) => handleFilterChange("sortOrder", value as "asc" | "desc")}
                 >
-                  <SelectTrigger id="sort-order" className="w-full sm:w-[120px] mt-1">
+                  <SelectTrigger id="sort-order" className="mt-1 w-full sm:w-[120px]">
                     <SelectValue placeholder="Select order" />
                   </SelectTrigger>
                   <SelectContent>
@@ -456,7 +458,7 @@ const ProvidersPage = () => {
                 <Sheet>
                   <SheetTrigger asChild>
                     <Button variant="outline" className="lg:hidden">
-                      <Filter className="mr-2 h-4 w-4" /> Filters
+                      <Filter className="mr-2 size-4" /> Filters
                     </Button>
                   </SheetTrigger>
                   <SheetContent>
@@ -464,7 +466,7 @@ const ProvidersPage = () => {
                   </SheetContent>
                 </Sheet>
                 <Button onClick={() => fetchData(true)} disabled={loading}>
-                  {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+                  {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : <RefreshCw className="mr-2 size-4" />}
                   Refresh
                 </Button>
               </div>
@@ -484,11 +486,13 @@ const ProvidersPage = () => {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 py-24 text-center">
+            <div className="border-muted-foreground/30 flex flex-col items-center justify-center rounded-lg border-2 border-dashed py-24 text-center">
               <h3 className="text-xl font-semibold">No Providers Found</h3>
-              <p className="mt-2 text-sm text-muted-foreground">Try adjusting your filters or click "Reset Filters".</p>
+              <p className="text-muted-foreground mt-2 text-sm">
+                Try adjusting your filters or click &quot;Reset Filters&quot;.
+              </p>
               <Button variant="secondary" className="mt-4" onClick={resetFilters}>
-                <FilterX className="mr-2 h-4 w-4" /> Reset Filters
+                <FilterX className="mr-2 size-4" /> Reset Filters
               </Button>
             </div>
           )}

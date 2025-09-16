@@ -5,7 +5,7 @@ const SocialLink = ({ href, icon, label }: { href: string; icon: React.ReactNode
     href={href}
     target="_blank"
     rel="noopener noreferrer"
-    className="flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
+    className="text-muted-foreground hover:text-foreground flex items-center gap-2 transition-colors"
   >
     {icon}
     <span className="hidden text-sm font-medium sm:inline">{label}</span>
@@ -16,30 +16,30 @@ export const Footer = () => {
   const socialLinks = [
     {
       href: "https://github.com/golem-vanity-market/golem-vanity-market-cli",
-      icon: <Github className="h-5 w-5" />,
+      icon: <Github className="size-5" />,
       label: "GitHub",
     },
     {
       href: "https://www.golem.network/project/vanity-market",
-      icon: <HandHelping className="h-5 w-5" />,
+      icon: <HandHelping className="size-5" />,
       label: "Ecosystem Fund",
     },
     {
       href: "https://chat.golem.network/",
-      icon: <MessageSquare className="h-5 w-5" />,
+      icon: <MessageSquare className="size-5" />,
       label: "Golem Discord",
     },
   ];
 
   return (
-    <footer className="border-t bg-muted/40">
+    <footer className="bg-muted/40 border-t">
       <div className="container mx-auto flex flex-col items-center justify-between gap-4 p-6 sm:flex-row">
-        <p className="text-center text-sm text-muted-foreground sm:text-left">
+        <p className="text-muted-foreground text-center text-sm sm:text-left">
           &copy; {new Date().getFullYear()} Vanity Market Stats
         </p>
 
-        <div className="flex items-center gap-2 text-center text-xs text-muted-foreground sm:text-left">
-          <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+        <div className="text-muted-foreground flex items-center gap-2 text-center text-xs sm:text-left">
+          <AlertTriangle className="size-4 flex-shrink-0" />
           <span>This project is still experimental. Data may not be fully accurate. Use only as reference.</span>
         </div>
 
