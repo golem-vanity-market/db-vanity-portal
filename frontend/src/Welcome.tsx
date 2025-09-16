@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 const Welcome = () => {
   const dbOwnerAddress = import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS;
   const explorerUrl = `https://explorer.ethwarsaw.holesky.golemdb.io/address/${dbOwnerAddress}`;
-  const providersUrl = `${import.meta.env.BASE_URL}/providers`;
+  const providersUrl = `/providers`;
 
   return (
     <div className="flex w-full items-center justify-center bg-background p-4">
