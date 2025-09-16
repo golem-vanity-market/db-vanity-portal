@@ -265,7 +265,7 @@ const ProvidersPage = () => {
   }, [providerData, filterCriteria]);
 
   return (
-    <div className="container mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+    <div className="container mx-auto max-w-7xl pt-4 sm:pt-6 lg:pt-8">
       <div className="grid grid-cols-1 lg:grid-cols-4 lg:gap-8">
         <aside className="hidden lg:block lg:col-span-1">
           <div className="sticky top-20 space-y-4">
