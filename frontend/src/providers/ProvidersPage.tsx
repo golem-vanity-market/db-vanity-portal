@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { createROClient } from "golem-base-sdk";
 import { ProviderData } from "../../../shared/src/provider";
-import { fetchAllEntities } from "../../../shared/src/query";
+import { fetchAllEntities, mapValueForAnnotation } from "../../../shared/src/query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -133,7 +133,6 @@ function escapeForJS(str: string): string {
     .replace(/\t/g, "\\t"); // escape tabs
 }
 
-
 const ProvidersPage = () => {
   const [loading, setLoading] = useState(true);
   const [providerData, setProviderData] = useState<ProviderData | null>(null);
@@ -189,7 +188,7 @@ const ProvidersPage = () => {
       qbuild += ` && name = "${escapeForJS(filterCriteria.providerNameSearch)}"`;
     }
     if (filterCriteria.minWork !== null) {
-      qbuild += ` && totalWork >= ${filterCriteria.minWork * 1e9}`;
+      qbuild += ` && totalWork >= "${mapValueForAnnotation(filterCriteria.minWork * 1e9, "totalWork")}"`;
     }
 
     completeQuery = completeQuery.replace("%%QUERY%%", escapeForJS(qbuild));

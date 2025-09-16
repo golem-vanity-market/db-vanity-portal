@@ -17,7 +17,7 @@ export function numberToSortableString(
     return `${"".padStart(intWidth, "9")}.${"".padEnd(fracWidth, "9")}${unit}`;
   }
 
-  const intPadded = intPart.padStart(intWidth, "_");
+  const intPadded = intPart.padStart(intWidth, "0");
   const fracPadded = fracPart.padEnd(fracWidth, "0").slice(0, fracWidth);
 
   return `${intPadded}.${fracPadded}${unit}`;
