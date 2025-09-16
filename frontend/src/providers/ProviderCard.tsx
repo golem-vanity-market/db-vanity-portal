@@ -5,6 +5,7 @@ import { ExternalLink } from "lucide-react";
 import { ProviderDataEntry } from "../../../shared/src/provider";
 import { displayDifficulty, displayHours } from "@/utils";
 import { getProviderScore } from "./provider-utils";
+import { CircleDollarSign, Cpu, GaugeCircle, Hash, Timer, TrendingUp } from "lucide-react";
 
 const getScoreVariant = (score: number) => {
   if (score > 75) return "success";
@@ -19,31 +20,49 @@ interface ProviderCardProps {
 
 export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
   const score = getProviderScore(provider);
-
   const metrics = [
     {
       label: "Work Hours",
+      icon: <Timer className="h-4 w-4" />,
       allTime: displayHours(provider.totalWorkHours),
       h24: displayHours(provider.totalWorkHours24h),
     },
     {
       label: "Work Done",
+      icon: <Cpu className="h-4 w-4" />,
       allTime: displayDifficulty(provider.totalWork),
       h24: displayDifficulty(provider.totalWork24h),
     },
-    { label: "Total Cost (GLM)", allTime: provider.totalCost.toFixed(4), h24: provider.totalCost24h.toFixed(4) },
+    {
+      label: "Total Cost (GLM)",
+      icon: <CircleDollarSign className="h-4 w-4" />,
+      allTime: provider.totalCost.toFixed(4),
+      h24: provider.totalCost24h.toFixed(4),
+    },
     {
       label: "Speed",
+      icon: <GaugeCircle className="h-4 w-4" />,
       allTime: `${displayDifficulty(provider.speed)}/s`,
       h24: `${displayDifficulty(provider.speed24h)}/s`,
     },
     {
       label: "Efficiency",
+      icon: <TrendingUp className="h-4 w-4" />,
       allTime: `${displayDifficulty(provider.efficiency)}/GLM`,
       h24: `${displayDifficulty(provider.efficiency24h)}/GLM`,
     },
-    { label: "Jobs", allTime: provider.numberOfJobs, h24: provider.numberOfJobs24h },
-    { label: "Longest Job", allTime: displayHours(provider.longestJob), h24: displayHours(provider.longestJob24h) },
+    {
+      label: "Jobs",
+      icon: <Hash className="h-4 w-4" />,
+      allTime: provider.numberOfJobs,
+      h24: provider.numberOfJobs24h,
+    },
+    {
+      label: "Longest Job",
+      icon: <Timer className="h-4 w-4" />,
+      allTime: displayHours(provider.longestJob),
+      h24: displayHours(provider.longestJob24h),
+    },
   ];
 
   return (
@@ -81,7 +100,12 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
           <TableBody>
             {metrics.map((metric) => (
               <TableRow key={metric.label}>
-                <TableCell className="font-medium">{metric.label}</TableCell>
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    {metric.icon}
+                    <span className="text-card-foreground">{metric.label}</span>
+                  </div>
+                </TableCell>
                 <TableCell className="text-right">{metric.allTime}</TableCell>
                 <TableCell className="text-right">{metric.h24}</TableCell>
               </TableRow>

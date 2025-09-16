@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FilterCriteria } from "./provider-types";
+import { CircleDollarSign, Cpu, GaugeCircle, Hash, Timer, TrendingUp } from "lucide-react";
 
 interface ProviderFiltersProps {
   filters: FilterCriteria;
@@ -13,36 +14,42 @@ const filterableMetrics = [
   {
     label: "Work Hours",
     unit: "h",
+    icon: <Timer className="h-4 w-4 text-muted-foreground" />,
     h24: { minKey: "minWorkHours24h", maxKey: "maxWorkHours24h" },
     allTime: { minKey: "minWorkHours", maxKey: "maxWorkHours" },
   },
   {
     label: "Work Done",
     unit: "GH",
+    icon: <Cpu className="h-4 w-4 text-muted-foreground" />,
     h24: { minKey: "minWork24h", maxKey: "maxWork24h" },
     allTime: { minKey: "minWork", maxKey: "maxWork" },
   },
   {
     label: "Speed",
     unit: "MH/s",
+    icon: <GaugeCircle className="h-4 w-4 text-muted-foreground" />,
     h24: { minKey: "minSpeed24h", maxKey: "maxSpeed24h" },
     allTime: { minKey: "minSpeed", maxKey: "maxSpeed" },
   },
   {
     label: "Efficiency",
     unit: "TH/GLM",
+    icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
     h24: { minKey: "minEfficiency24h", maxKey: "maxEfficiency24h" },
     allTime: { minKey: "minEfficiency", maxKey: "maxEfficiency" },
   },
   {
     label: "Total Cost",
     unit: "GLM",
+    icon: <CircleDollarSign className="h-4 w-4 text-muted-foreground" />,
     h24: { minKey: "minTotalCost24h", maxKey: "maxTotalCost24h" },
     allTime: { minKey: "minTotalCost", maxKey: "maxTotalCost" },
   },
   {
     label: "Number of Jobs",
     unit: "",
+    icon: <Hash className="h-4 w-4 text-muted-foreground" />,
     h24: { minKey: "minNumberOfJobs24h", maxKey: "maxNumberOfJobs24h" },
     allTime: { minKey: "minNumberOfJobs", maxKey: "maxNumberOfJobs" },
   },
@@ -74,9 +81,12 @@ export const ProviderFilters = ({ filters, onFilterChange }: ProviderFiltersProp
               <AccordionItem key={metric.label} value={metric.label}>
                 {/* The Trigger is now the metric name */}
                 <AccordionTrigger className="py-3">
-                  <span className="font-semibold text-sm">
-                    {metric.label} {metric.unit && `(${metric.unit})`}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {metric.icon}
+                    <span className="font-semibold text-sm">
+                      {metric.label} {metric.unit && `(${metric.unit})`}
+                    </span>
+                  </div>
                 </AccordionTrigger>
 
                 {/* The Content contains the familiar input layout */}
