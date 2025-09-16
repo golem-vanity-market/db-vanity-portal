@@ -1,6 +1,8 @@
-import { Routes, Route, Link } from "react-router-dom";
+import React, { useMemo, useCallback, useEffect } from "react";
+import { Routes, Route, Link, Outlet } from "react-router-dom";
+import { createROClient } from "golem-base-sdk";
 import Welcome from "./Welcome";
-import { assetsUrl } from "./utils";
+import ProvidersPage from "./providers/ProvidersPage";
 import { ModeToggle } from "./components/theme-toggle";
 import {
   NavigationMenu,
@@ -10,11 +12,9 @@ import {
   navigationMenuTriggerStyle,
 } from "./components/ui/navigation-menu";
 import { Separator } from "./components/ui/separator";
-import { createROClient } from "golem-base-sdk";
-import React, { useMemo, useCallback, useEffect } from "react";
 import { Badge } from "./components/ui/badge";
 import { Skeleton } from "./components/ui/skeleton";
-import ProvidersPage from "./providers/ProvidersPage";
+import { Footer } from "./Footer";
 
 const Dashboard = () => {
   const [current_block, setCurrentBlock] = React.useState<bigint | null>(null);
@@ -27,31 +27,31 @@ const Dashboard = () => {
       ),
     [],
   );
+
   const update_current_block = useCallback(async () => {
-    const blockNumber = await client.getRawClient().httpClient.getBlockNumber();
-    console.log("Current block number:", blockNumber);
-    setCurrentBlock(blockNumber);
+    try {
+      const blockNumber = await client.getRawClient().httpClient.getBlockNumber();
+      setCurrentBlock(blockNumber);
+    } catch (error) {
+      console.error("Failed to fetch block number:", error);
+    }
   }, [client]);
 
   useEffect(() => {
     update_current_block();
-    const interval = setInterval(() => {
-      update_current_block();
-    }, 15000); // Update every 15 seconds
+    const interval = setInterval(update_current_block, 15000);
     return () => clearInterval(interval);
-  }, [client, update_current_block]);
+  }, [update_current_block]);
 
   return (
-    <div className="min-h-screen">
-      <div className="">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between p-4">
-          {/* Logo + Title */}
-          <a href={assetsUrl()} className="flex items-center space-x-3 rtl:space-x-reverse">
-            <span className="hidden self-center whitespace-nowrap text-2xl font-semibold md:inline dark:text-white">
-              Vanity-Market stats
-            </span>
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto flex h-14 max-w-7xl items-center justify-between">
+          <a href="/" className="flex items-center space-x-3">
+            <span className="font-bold">Vanity-Market Stats</span>
           </a>
-          <div className="ml-auto flex space-x-2 items-stretch">
+
+          <div className="flex items-center space-x-4">
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
@@ -66,32 +66,31 @@ const Dashboard = () => {
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
-            <Separator orientation="vertical" className="h-9" />
-            {/* Current Block Number */}
-            {current_block !== null ? (
-              <Badge variant="outline" className="h-9">
-                Golem Base Block: {current_block.toString()}
-              </Badge>
-            ) : (
-              <Skeleton className="h-9 w-24" />
-            )}
-            <Separator orientation="vertical" className="h-9" />
-            {/* Dark mode toggle */}
-            <ModeToggle />
+
+            <Separator orientation="vertical" className="hidden sm:block h-6" />
+
+            <div className="hidden sm:flex items-center space-x-4">
+              {current_block !== null ? (
+                <Badge variant="outline">Block: {current_block.toString()}</Badge>
+              ) : (
+                <Skeleton className="h-8 w-24" />
+              )}
+              <ModeToggle />
+            </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="border-gray-200">
-        <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
+      <main className="flex-1">
+        <div className="container mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
           <Routes>
             <Route path="/" element={<Welcome />} />
-          </Routes>
-          <Routes>
             <Route path="/providers" element={<ProvidersPage />} />
           </Routes>
         </div>
-      </div>
+      </main>
+
+      <Footer />
     </div>
   );
 };
