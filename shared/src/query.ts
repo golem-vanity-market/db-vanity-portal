@@ -1,5 +1,5 @@
-import {deserializeProvider, type ProviderDataEntry} from "./provider.ts";
-import {type GolemBaseROClient, type Hex} from "golem-base-sdk";
+import { deserializeProvider, type ProviderDataEntry } from "./provider.ts";
+import { type GolemBaseROClient, type Hex } from "golem-base-sdk";
 
 export function numberToSortableString(
   num: number,
@@ -23,11 +23,7 @@ export function numberToSortableString(
   return `${intPadded}.${fracPadded}${unit}`;
 }
 
-
-export function mapValueForAnnotation(
-  val: number,
-  field: string,
-): string {
+export function mapValueForAnnotation(val: number, field: string): string {
   if (field === "totalWorkHours") {
     return numberToSortableString(val, {
       intWidth: 3,
@@ -124,10 +120,15 @@ export async function fetchAllEntitiesRaw(
   client: GolemBaseROClient,
   numberOfGroups: number,
   owner: string,
-): Promise<Record<string, {
-  entityKey: Hex;
-  storageValue: Uint8Array;
-}>> {
+): Promise<
+  Record<
+    string,
+    {
+      entityKey: Hex;
+      storageValue: Uint8Array;
+    }
+  >
+> {
   // Placeholder for actual implementation
   const proms = [];
   for (let groupNo = 1; groupNo <= numberOfGroups; groupNo++) {
@@ -135,10 +136,13 @@ export async function fetchAllEntitiesRaw(
       client.queryEntities(`group = ${groupNo} && $owner = "${owner}"`),
     );
   }
-  const byProviderId: Record<string, {
-    entityKey: Hex;
-    storageValue: Uint8Array;
-  }> = {};
+  const byProviderId: Record<
+    string,
+    {
+      entityKey: Hex;
+      storageValue: Uint8Array;
+    }
+  > = {};
 
   for (const prom of proms) {
     const entities = await prom;
@@ -180,6 +184,7 @@ export async function fetchAllEntities(
         console.error("Failed to deserialize provider data:", e);
         continue;
       }
+      data.key = entity.entityKey;
       byProviderId[data.providerId] = data;
     }
   }

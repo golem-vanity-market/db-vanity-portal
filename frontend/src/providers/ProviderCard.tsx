@@ -83,6 +83,16 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
               </a>
             </CardTitle>
             <CardDescription className="break-all pt-1 font-mono text-xs">{provider.providerId}</CardDescription>
+            <CardDescription className="break-all pt-1 font-mono text-xs">
+              <a
+                href={`https://explorer.ethwarsaw.holesky.golemdb.io/entity/${provider.key}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary flex items-center gap-1 text-xs underline"
+              >
+                {provider.key}
+              </a>
+            </CardDescription>
           </div>
           <div className="flex items-center gap-2">
             <Badge className={getScoreClassName(score)}>{score.toFixed(1)}% Score</Badge>

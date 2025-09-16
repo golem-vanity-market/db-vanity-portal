@@ -17,6 +17,7 @@ export interface ProviderDataEntry {
   speed24h: number; // jobs per hour in the last 24h (optional field)
   efficiency: number; // work units per cost (optional field)
   efficiency24h: number; // work units per cost in the last 24h (optional field)
+  key?: string;
 }
 
 export interface FilterCriteria {
@@ -81,6 +82,7 @@ export class ProviderData implements ProviderDataType {
         speed24h: 0,
         efficiency: 0,
         efficiency24h: 0,
+        key: value.key,
       }); // create a copy of each entry
     }
   }
