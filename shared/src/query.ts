@@ -25,96 +25,96 @@ export function numberToSortableString(
 
 
 export function mapValueForAnnotation(
-  prov: ProviderDataEntry,
+  val: number,
   field: string,
 ): string {
   if (field === "totalWorkHours") {
-    return numberToSortableString(prov.totalWorkHours, {
+    return numberToSortableString(val, {
       intWidth: 3,
       fracWidth: 3,
       unit: "h",
     });
   } else if (field === "totalWorkHours24h") {
-    return numberToSortableString(prov.totalWorkHours24h, {
+    return numberToSortableString(val, {
       intWidth: 3,
       fracWidth: 3,
       unit: "h",
     });
   } else if (field === "totalWork") {
-    return numberToSortableString(prov.totalWork / 1e9, {
+    return numberToSortableString(val / 1e9, {
       unit: "G",
       intWidth: 6,
       fracWidth: 2,
     });
   } else if (field === "totalWork24h") {
-    return numberToSortableString(prov.totalWork24h / 1e9, {
+    return numberToSortableString(val / 1e9, {
       unit: "G",
       intWidth: 6,
       fracWidth: 2,
     });
   } else if (field === "totalCost") {
-    return numberToSortableString(prov.totalCost, {
+    return numberToSortableString(val, {
       intWidth: 5,
       fracWidth: 5,
       unit: "GLM",
     });
   } else if (field === "totalCost24h") {
-    return numberToSortableString(prov.totalCost24h, {
+    return numberToSortableString(val, {
       intWidth: 5,
       fracWidth: 5,
       unit: "GLM",
     });
   } else if (field === "longestJob") {
-    return numberToSortableString(prov.longestJob, {
+    return numberToSortableString(val, {
       intWidth: 2,
       fracWidth: 3,
       unit: "h",
     });
   } else if (field === "longestJob24h") {
-    return numberToSortableString(prov.longestJob24h, {
+    return numberToSortableString(val, {
       intWidth: 2,
       fracWidth: 3,
       unit: "h",
     });
   } else if (field === "speed") {
-    return numberToSortableString(prov.speed / 1e9, {
+    return numberToSortableString(val / 1e9, {
       intWidth: 3,
       fracWidth: 2,
       unit: "G/s",
     });
   } else if (field === "speed24h") {
-    return numberToSortableString(prov.speed24h / 1e9, {
+    return numberToSortableString(val / 1e9, {
       intWidth: 3,
       fracWidth: 2,
       unit: "G/s",
     });
   } else if (field === "efficiency") {
-    return numberToSortableString(prov.efficiency / 1e12, {
+    return numberToSortableString(val / 1e12, {
       intWidth: 5,
       fracWidth: 2,
       unit: "TH/GLM",
     });
   } else if (field === "efficiency24h") {
-    return numberToSortableString(prov.efficiency24h / 1e12, {
+    return numberToSortableString(val / 1e12, {
       intWidth: 5,
       fracWidth: 2,
       unit: "TH/GLM",
     });
   } else if (field === "lastJobDate") {
-    return new Date(prov.lastJobDate).toISOString().slice(0, 19) + "Z";
+    return new Date(val).toISOString().slice(0, 19) + "Z";
   } else {
     throw new Error(`Unknown field: ${field}`);
   }
 }
 
 export function mapValueForNumberAnnotation(
-  prov: ProviderDataEntry,
+  val: number,
   field: string,
 ): number {
   if (field === "numberOfJobs") {
-    return prov.numberOfJobs + 1;
+    return val + 1;
   } else if (field === "numberOfJobs24h") {
-    return prov.numberOfJobs24h + 1;
+    return val + 1;
   } else {
     throw new Error(`Unknown field: ${field}`);
   }
