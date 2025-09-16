@@ -18,7 +18,11 @@ import {
 } from "../../shared/src/provider.ts";
 import dotenv from "dotenv";
 import { serializeProvider } from "../../shared/src/provider.ts";
-import { fetchAllEntitiesRaw } from "../../shared/src/query.ts";
+import {
+  fetchAllEntitiesRaw,
+  mapValueForAnnotation,
+  mapValueForNumberAnnotation,
+} from "../../shared/src/query.ts";
 
 dotenv.config();
 
@@ -46,28 +50,6 @@ function uint8ArraysEqual(a: Uint8Array, b: Uint8Array): boolean {
 }
 
 const BTL = parseInt(process.env.GOLEM_DB_TTL || "120") / 2; // default 2 minutes
-
-function numberToSortableString(
-  num: number,
-  {
-    intWidth = 10, // max digits for integer part
-    fracWidth = 8, // digits after decimal
-    unit = "",
-  } = {},
-) {
-  //const sign = num < 0 ? "-" : "+";
-  const abs = Math.abs(num);
-  const [intPart, fracPart = ""] = abs.toString().split(".");
-
-  if (num == Infinity) {
-    return `${"".padStart(intWidth, "9")}.${"".padEnd(fracWidth, "9")}${unit}`;
-  }
-
-  const intPadded = intPart.padStart(intWidth, "_");
-  const fracPadded = fracPart.padEnd(fracWidth, "0").slice(0, fracWidth);
-
-  return `${intPadded}.${fracPadded}${unit}`;
-}
 
 async function createEntitiesWithRetry(
   client: GolemBaseClient,
@@ -132,109 +114,47 @@ function getMetadata(prov: ProviderDataEntry, groupNo: number) {
       new Annotation("provId", getAddress(prov.providerId).toLowerCase()),
       new Annotation(
         "totalWorkHours",
-        numberToSortableString(prov.totalWorkHours, {
-          intWidth: 3,
-          fracWidth: 3,
-          unit: "h",
-        }),
+        mapValueForAnnotation(prov, "totalWorkHours"),
       ),
       new Annotation(
         "totalWorkHours24h",
-        numberToSortableString(prov.totalWorkHours24h, {
-          intWidth: 3,
-          fracWidth: 3,
-          unit: "h",
-        }),
+        mapValueForAnnotation(prov, "totalWorkHours24h"),
       ),
-      new Annotation(
-        "totalWork",
-        numberToSortableString(prov.totalWork / 1e9, {
-          unit: "G",
-          intWidth: 6,
-          fracWidth: 2,
-        }),
-      ),
+
+      new Annotation("totalWork", mapValueForAnnotation(prov, "totalWork")),
       new Annotation(
         "totalWork24h",
-        numberToSortableString(prov.totalWork24h / 1e9, {
-          unit: "G",
-          intWidth: 6,
-          fracWidth: 2,
-        }),
+        mapValueForAnnotation(prov, "totalWork24h"),
       ),
-      new Annotation(
-        "totalCost",
-        numberToSortableString(prov.totalCost, {
-          intWidth: 5,
-          fracWidth: 5,
-          unit: "GLM",
-        }),
-      ),
+      new Annotation("totalCost", mapValueForAnnotation(prov, "totalCost")),
       new Annotation(
         "totalCost24h",
-        numberToSortableString(prov.totalCost, {
-          intWidth: 5,
-          fracWidth: 5,
-          unit: "GLM",
-        }),
+        mapValueForAnnotation(prov, "totalCost24h"),
       ),
-      new Annotation(
-        "longestJob",
-        numberToSortableString(prov.longestJob, {
-          intWidth: 2,
-          fracWidth: 3,
-          unit: "h",
-        }),
-      ),
+      new Annotation("longestJob", mapValueForAnnotation(prov, "longestJob")),
       new Annotation(
         "longestJob24h",
-        numberToSortableString(prov.longestJob24h, {
-          intWidth: 2,
-          fracWidth: 3,
-          unit: "h",
-        }),
+        mapValueForAnnotation(prov, "longestJob24h"),
       ),
-      new Annotation(
-        "speed",
-        numberToSortableString(prov.speed / 1e9, {
-          intWidth: 3,
-          fracWidth: 2,
-          unit: "G/s",
-        }),
-      ),
-      new Annotation(
-        "speed24h",
-        numberToSortableString(prov.speed24h / 1e9, {
-          intWidth: 3,
-          fracWidth: 2,
-          unit: "G/s",
-        }),
-      ),
-      new Annotation(
-        "efficiency",
-        numberToSortableString(prov.efficiency / 1e12, {
-          intWidth: 5,
-          fracWidth: 2,
-          unit: "TH/GLM",
-        }),
-      ),
+      new Annotation("speed", mapValueForAnnotation(prov, "speed")),
+      new Annotation("speed24h", mapValueForAnnotation(prov, "speed24h")),
+      new Annotation("efficiency", mapValueForAnnotation(prov, "efficiency")),
       new Annotation(
         "efficiency24h",
-        numberToSortableString(prov.efficiency24h / 1e12, {
-          intWidth: 5,
-          fracWidth: 2,
-          unit: "TH/GLM",
-        }),
+        mapValueForAnnotation(prov, "efficiency24h"),
       ),
-      new Annotation(
-        "lastJobDate",
-        new Date(prov.lastJobDate).toISOString().slice(0, 19) + "Z",
-      ),
+      new Annotation("lastJobDate", mapValueForAnnotation(prov, "lastJobDate")),
     ],
     numericAnnotations: [
       new Annotation("group", groupNo),
-      new Annotation("numberOfJobs", prov.numberOfJobs + 1),
-      new Annotation("numberOfJobs24h", prov.numberOfJobs24h + 1),
+      new Annotation(
+        "numberOfJobs",
+        mapValueForNumberAnnotation(prov, "numberOfJobs"),
+      ),
+      new Annotation(
+        "numberOfJobs24h",
+        mapValueForNumberAnnotation(prov, "numberOfJobs24h"),
+      ),
     ],
   };
 }

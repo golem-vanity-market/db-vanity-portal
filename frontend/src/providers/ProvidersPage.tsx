@@ -133,6 +133,7 @@ function escapeForJS(str: string): string {
     .replace(/\t/g, "\\t"); // escape tabs
 }
 
+
 const ProvidersPage = () => {
   const [loading, setLoading] = useState(true);
   const [providerData, setProviderData] = useState<ProviderData | null>(null);
@@ -185,7 +186,10 @@ const ProvidersPage = () => {
 
     let qbuild = `$owner = "${import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}"`;
     if (filterCriteria.providerNameSearch) {
-      qbuild += ` & $providerName ~ "${escapeForJS(filterCriteria.providerNameSearch)}"`;
+      qbuild += ` && name = "${escapeForJS(filterCriteria.providerNameSearch)}"`;
+    }
+    if (filterCriteria.minWork !== null) {
+      qbuild += ` && totalWork >= ${filterCriteria.minWork * 1e9}`;
     }
 
     completeQuery = completeQuery.replace("%%QUERY%%", escapeForJS(qbuild));

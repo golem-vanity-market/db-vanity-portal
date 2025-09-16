@@ -1,6 +1,125 @@
 import {deserializeProvider, type ProviderDataEntry} from "./provider.ts";
 import {type GolemBaseROClient, type Hex} from "golem-base-sdk";
 
+export function numberToSortableString(
+  num: number,
+  {
+    intWidth = 10, // max digits for integer part
+    fracWidth = 8, // digits after decimal
+    unit = "",
+  } = {},
+) {
+  //const sign = num < 0 ? "-" : "+";
+  const abs = Math.abs(num);
+  const [intPart, fracPart = ""] = abs.toString().split(".");
+
+  if (num == Infinity) {
+    return `${"".padStart(intWidth, "9")}.${"".padEnd(fracWidth, "9")}${unit}`;
+  }
+
+  const intPadded = intPart.padStart(intWidth, "_");
+  const fracPadded = fracPart.padEnd(fracWidth, "0").slice(0, fracWidth);
+
+  return `${intPadded}.${fracPadded}${unit}`;
+}
+
+
+export function mapValueForAnnotation(
+  prov: ProviderDataEntry,
+  field: string,
+): string {
+  if (field === "totalWorkHours") {
+    return numberToSortableString(prov.totalWorkHours, {
+      intWidth: 3,
+      fracWidth: 3,
+      unit: "h",
+    });
+  } else if (field === "totalWorkHours24h") {
+    return numberToSortableString(prov.totalWorkHours24h, {
+      intWidth: 3,
+      fracWidth: 3,
+      unit: "h",
+    });
+  } else if (field === "totalWork") {
+    return numberToSortableString(prov.totalWork / 1e9, {
+      unit: "G",
+      intWidth: 6,
+      fracWidth: 2,
+    });
+  } else if (field === "totalWork24h") {
+    return numberToSortableString(prov.totalWork24h / 1e9, {
+      unit: "G",
+      intWidth: 6,
+      fracWidth: 2,
+    });
+  } else if (field === "totalCost") {
+    return numberToSortableString(prov.totalCost, {
+      intWidth: 5,
+      fracWidth: 5,
+      unit: "GLM",
+    });
+  } else if (field === "totalCost24h") {
+    return numberToSortableString(prov.totalCost24h, {
+      intWidth: 5,
+      fracWidth: 5,
+      unit: "GLM",
+    });
+  } else if (field === "longestJob") {
+    return numberToSortableString(prov.longestJob, {
+      intWidth: 2,
+      fracWidth: 3,
+      unit: "h",
+    });
+  } else if (field === "longestJob24h") {
+    return numberToSortableString(prov.longestJob24h, {
+      intWidth: 2,
+      fracWidth: 3,
+      unit: "h",
+    });
+  } else if (field === "speed") {
+    return numberToSortableString(prov.speed / 1e9, {
+      intWidth: 3,
+      fracWidth: 2,
+      unit: "G/s",
+    });
+  } else if (field === "speed24h") {
+    return numberToSortableString(prov.speed24h / 1e9, {
+      intWidth: 3,
+      fracWidth: 2,
+      unit: "G/s",
+    });
+  } else if (field === "efficiency") {
+    return numberToSortableString(prov.efficiency / 1e12, {
+      intWidth: 5,
+      fracWidth: 2,
+      unit: "TH/GLM",
+    });
+  } else if (field === "efficiency24h") {
+    return numberToSortableString(prov.efficiency24h / 1e12, {
+      intWidth: 5,
+      fracWidth: 2,
+      unit: "TH/GLM",
+    });
+  } else if (field === "lastJobDate") {
+    return new Date(prov.lastJobDate).toISOString().slice(0, 19) + "Z";
+  } else {
+    throw new Error(`Unknown field: ${field}`);
+  }
+}
+
+export function mapValueForNumberAnnotation(
+  prov: ProviderDataEntry,
+  field: string,
+): number {
+  if (field === "numberOfJobs") {
+    return prov.numberOfJobs + 1;
+  } else if (field === "numberOfJobs24h") {
+    return prov.numberOfJobs24h + 1;
+  } else {
+    throw new Error(`Unknown field: ${field}`);
+  }
+}
+
 export async function fetchAllEntitiesRaw(
   client: GolemBaseROClient,
   numberOfGroups: number,
