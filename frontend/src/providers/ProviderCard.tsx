@@ -7,10 +7,10 @@ import { displayDifficulty, displayHours } from "@/utils";
 import { getProviderScore } from "./provider-utils";
 import { CircleDollarSign, Cpu, GaugeCircle, Hash, Timer, TrendingUp } from "lucide-react";
 
-const getScoreVariant = (score: number) => {
-  if (score > 75) return "success";
-  if (score > 40) return "warning";
-  return "destructive";
+const getScoreClassName = (score: number) => {
+  if (score > 75) return "text-green-600 bg-green-100";
+  if (score > 40) return "text-yellow-600 bg-yellow-100";
+  return "text-red-600 bg-red-100";
 };
 
 interface ProviderCardProps {
@@ -75,8 +75,7 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
             </CardTitle>
             <CardDescription className="font-mono text-xs break-all pt-1">{provider.providerId}</CardDescription>
           </div>
-          <div className="flex flex-col items-end gap-2">
-            <Badge variant={getScoreVariant(score) as any}>{score.toFixed(1)}% Score</Badge>
+          <div className="flex items-center gap-2">
             <a
               href={`https://stats.golem.network/network/provider/${provider.providerId}`}
               target="_blank"
@@ -85,6 +84,7 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
             >
               Stats <ExternalLink className="h-3 w-3" />
             </a>
+            <Badge className={getScoreClassName(score)}>{score.toFixed(1)}% Score</Badge>
           </div>
         </div>
       </CardHeader>
