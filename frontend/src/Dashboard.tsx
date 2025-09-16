@@ -1,6 +1,5 @@
 import { Routes, Route, Link } from "react-router-dom";
 import Welcome from "./Welcome";
-import Providers from "./Providers";
 import { assetsUrl } from "./utils";
 import { ModeToggle } from "./components/theme-toggle";
 import {
@@ -15,6 +14,7 @@ import { createROClient } from "golem-base-sdk";
 import React, { useMemo, useCallback, useEffect } from "react";
 import { Badge } from "./components/ui/badge";
 import { Skeleton } from "./components/ui/skeleton";
+import ProvidersPage from "./providers/ProvidersPage";
 
 const Dashboard = () => {
   const [current_block, setCurrentBlock] = React.useState<bigint | null>(null);
@@ -89,7 +89,7 @@ const Dashboard = () => {
             <Route path="/" element={<Welcome />} />
           </Routes>
           <Routes>
-            <Route path="/providers" element={<Providers />} />
+            <Route path="/providers" element={<ProvidersPage />} />
           </Routes>
         </div>
       </div>
