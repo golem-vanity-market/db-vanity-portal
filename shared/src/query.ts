@@ -1,5 +1,5 @@
-import {deserializeProvider, ProviderDataEntry} from "./provider.ts";
-import {GolemBaseROClient, type Hex} from "golem-base-sdk";
+import {deserializeProvider, type ProviderDataEntry} from "./provider.ts";
+import {type GolemBaseROClient, type Hex} from "golem-base-sdk";
 
 export async function fetchAllEntitiesRaw(
   client: GolemBaseROClient,

@@ -12,10 +12,13 @@ import {
 } from "golem-base-sdk";
 import { startStatusServer } from "./server.ts";
 import { operations } from "./queries.ts";
-import { ProviderData } from "../../shared/src/provider.ts";
+import {
+  ProviderData,
+  type ProviderDataEntry,
+} from "../../shared/src/provider.ts";
 import dotenv from "dotenv";
 import { serializeProvider } from "../../shared/src/provider.ts";
-import { fetchAllEntitiesRaw } from "../../shared/src/query.js";
+import { fetchAllEntitiesRaw } from "../../shared/src/query.ts";
 
 dotenv.config();
 
@@ -43,6 +46,28 @@ function uint8ArraysEqual(a: Uint8Array, b: Uint8Array): boolean {
 }
 
 const BTL = parseInt(process.env.GOLEM_DB_TTL || "120") / 2; // default 2 minutes
+
+function numberToSortableString(
+  num: number,
+  {
+    intWidth = 10, // max digits for integer part
+    fracWidth = 8, // digits after decimal
+    unit = "",
+  } = {},
+) {
+  //const sign = num < 0 ? "-" : "+";
+  const abs = Math.abs(num);
+  const [intPart, fracPart = ""] = abs.toString().split(".");
+
+  if (num == Infinity) {
+    return `${"".padStart(intWidth, "9")}.${"".padEnd(fracWidth, "9")}${unit}`;
+  }
+
+  const intPadded = intPart.padStart(intWidth, "_");
+  const fracPadded = fracPart.padEnd(fracWidth, "0").slice(0, fracWidth);
+
+  return `${intPadded}.${fracPadded}${unit}`;
+}
 
 async function createEntitiesWithRetry(
   client: GolemBaseClient,
@@ -98,6 +123,120 @@ async function updateEntitiesWithRetry(
     }
   }
   return 0;
+}
+
+function getMetadata(prov: ProviderDataEntry, groupNo: number) {
+  return {
+    stringAnnotations: [
+      new Annotation("name", prov.providerName),
+      new Annotation("provId", getAddress(prov.providerId).toLowerCase()),
+      new Annotation(
+        "totalWorkHours",
+        numberToSortableString(prov.totalWorkHours, {
+          intWidth: 3,
+          fracWidth: 3,
+          unit: "h",
+        }),
+      ),
+      new Annotation(
+        "totalWorkHours24h",
+        numberToSortableString(prov.totalWorkHours24h, {
+          intWidth: 3,
+          fracWidth: 3,
+          unit: "h",
+        }),
+      ),
+      new Annotation(
+        "totalWork",
+        numberToSortableString(prov.totalWork / 1e9, {
+          unit: "G",
+          intWidth: 6,
+          fracWidth: 2,
+        }),
+      ),
+      new Annotation(
+        "totalWork24h",
+        numberToSortableString(prov.totalWork24h / 1e9, {
+          unit: "G",
+          intWidth: 6,
+          fracWidth: 2,
+        }),
+      ),
+      new Annotation(
+        "totalCost",
+        numberToSortableString(prov.totalCost, {
+          intWidth: 5,
+          fracWidth: 5,
+          unit: "GLM",
+        }),
+      ),
+      new Annotation(
+        "totalCost24h",
+        numberToSortableString(prov.totalCost, {
+          intWidth: 5,
+          fracWidth: 5,
+          unit: "GLM",
+        }),
+      ),
+      new Annotation(
+        "longestJob",
+        numberToSortableString(prov.longestJob, {
+          intWidth: 2,
+          fracWidth: 3,
+          unit: "h",
+        }),
+      ),
+      new Annotation(
+        "longestJob24h",
+        numberToSortableString(prov.longestJob24h, {
+          intWidth: 2,
+          fracWidth: 3,
+          unit: "h",
+        }),
+      ),
+      new Annotation(
+        "speed",
+        numberToSortableString(prov.speed / 1e9, {
+          intWidth: 3,
+          fracWidth: 2,
+          unit: "G/s",
+        }),
+      ),
+      new Annotation(
+        "speed24h",
+        numberToSortableString(prov.speed24h / 1e9, {
+          intWidth: 3,
+          fracWidth: 2,
+          unit: "G/s",
+        }),
+      ),
+      new Annotation(
+        "efficiency",
+        numberToSortableString(prov.efficiency / 1e12, {
+          intWidth: 5,
+          fracWidth: 2,
+          unit: "TH/GLM",
+        }),
+      ),
+      new Annotation(
+        "efficiency24h",
+        numberToSortableString(prov.efficiency24h / 1e12, {
+          intWidth: 5,
+          fracWidth: 2,
+          unit: "TH/GLM",
+        }),
+      ),
+      new Annotation(
+        "lastJobDate",
+        new Date(prov.lastJobDate).toISOString().slice(0, 19) + "Z",
+      ),
+    ],
+    numericAnnotations: [
+      new Annotation("group", groupNo),
+      new Annotation("numberOfJobs", prov.numberOfJobs),
+      new Annotation("numberOfJobs24h", prov.numberOfJobs24h),
+    ],
+  };
 }
 
 async function init() {
@@ -216,13 +355,7 @@ async function init() {
             entityKey: existing.entityKey,
             data: newData,
             btl: BTL,
-            stringAnnotations: [
-              new Annotation(
-                "provId",
-                getAddress(prov.providerId).toLowerCase(),
-              ),
-            ],
-            numericAnnotations: [new Annotation("group", (no % 10) + 1)],
+            ...getMetadata(prov, (no % 10) + 1),
           });
 
           continue;
@@ -232,10 +365,7 @@ async function init() {
         const entity: GolemBaseCreate = {
           data: newData,
           btl: BTL,
-          stringAnnotations: [
-            new Annotation("provId", getAddress(prov.providerId).toLowerCase()),
-          ],
-          numericAnnotations: [new Annotation("group", (no % 10) + 1)],
+          ...getMetadata(prov, (no % 10) + 1),
         };
         entitiesToInsert.push(entity);
         //const receipts = await client.createEntities([entity])
