@@ -1,48 +1,60 @@
-import React, { useEffect, useMemo, useCallback } from "react";
-import { createROClient } from "golem-base-sdk";
-import { Button } from "./components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { AlertCircle, ArrowRight, Database } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Welcome = () => {
+  const dbOwnerAddress = import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS;
+  const explorerUrl = `https://explorer.ethwarsaw.holesky.golemdb.io/address/${dbOwnerAddress}`;
+  const providersUrl = `${import.meta.env.BASE_URL}/providers`;
+
   return (
-    <div className="w-full">
-      <div className="m-2 rounded bg-blue-50 p-6 text-center shadow">
-        <h1 className="mb-2 text-2xl font-bold">Welcome</h1>
-        <p className="text-gray-700">
-          This project displays provider estimations and is currently{" "}
-          <span className="font-semibold text-orange-600">experimental</span>.
-          <Button variant="outline" className="mt-4">
-            Learn More
+    <div className="flex w-full items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-2xl">
+        <CardHeader>
+          <CardTitle className="text-2xl">Provider estimations</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <Alert variant="default">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>This project is still experimental</AlertTitle>
+            <AlertDescription>
+              The data displayed is based on the best available information but may not always be 100% accurate or
+              up-to-date. Please use it as a reference.
+            </AlertDescription>
+          </Alert>
+
+          <Separator />
+
+          <div className="flex items-start gap-4 rounded-md p-4 text-sm">
+            <Database className="mt-1 h-5 w-5 flex-shrink-0 text-muted-foreground" />
+            <div className="flex-grow">
+              <h3 className="font-semibold">Data Source</h3>
+              <p className="text-muted-foreground">Data is presented using aggregator on address:</p>
+              <a
+                href={explorerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1 inline-block break-all text-xs font-mono text-primary underline-offset-4 hover:underline"
+              >
+                {dbOwnerAddress}
+              </a>
+            </div>
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button asChild className="w-full sm:w-auto ml-auto">
+            <Link to={providersUrl}>
+              View Providers
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
           </Button>
-        </p>
-      </div>
-      <div className="m-2 rounded bg-blue-50 p-6 text-center shadow">
-        <p className="mt-2 text-gray-700">
-          Data is presented based on the best available information, <br />
-          but may not always be accurate or up-to-date.
-        </p>
-      </div>
-      <div className="m-2 rounded bg-blue-50 p-6 text-center shadow">
-        <p>
-          Data is presented using aggregator on address{" "}
-          <a
-            className="ml-1 font-semibold text-blue-600"
-            href={`https://explorer.ethwarsaw.holesky.golemdb.io/address/${
-              import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS
-            }`}
-          >
-            {import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS} &rarr;
-          </a>
-        </p>
-      </div>
-      <div className="m-2 rounded bg-blue-50 p-6 text-center shadow">
-        <p>
-          Go to the providers tab to see the list of providers and their estimations.
-          <a href={`${import.meta.env.BASE_URL}/providers`} className="ml-1 font-semibold text-blue-600">
-            Providers &rarr;
-          </a>
-        </p>
-      </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 };
+
 export default Welcome;
