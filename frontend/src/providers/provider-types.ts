@@ -42,7 +42,8 @@ export interface FilterCriteria {
     | "efficiency"
     | "efficiency24h"
     | "lastJobDate"
-    | "longestJob";
+    | "longestJob"
+    | "score";
   sortOrder: "asc" | "desc";
 
   displayLimit: DisplayLimit;

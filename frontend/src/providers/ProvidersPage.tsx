@@ -12,6 +12,7 @@ import { Filter, FilterX, Loader2, RefreshCw } from "lucide-react";
 import { DisplayLimit, FilterCriteria } from "./provider-types";
 import { ProviderFilters } from "./ProviderFilters";
 import { ProviderCard } from "./ProviderCard";
+import { getProviderScore } from "./provider-utils";
 
 const CACHE_KEY = "providerDataCache";
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
@@ -60,6 +61,7 @@ const sortOptions = [
   { value: "totalWorkHours", label: "Work Hours (All Time)" },
   { value: "totalCost", label: "Cost (All Time)" },
   { value: "numberOfJobs", label: "Jobs (All Time)" },
+  { value: "score", label: "Score" },
 ];
 
 const buildFilterFromLocalStorage = (
@@ -232,12 +234,25 @@ const ProvidersPage = () => {
       return true;
     });
 
-    // 2. Sorting Logic
     const sorted = filtered.sort((a, b) => {
-      const { sortBy, sortOrder } = fc;
-      const aVal = sortBy === "providerName" ? a.providerName.toLowerCase() : a[sortBy] ?? 0;
-      const bVal = sortBy === "providerName" ? b.providerName.toLowerCase() : b[sortBy] ?? 0;
+      const { sortBy, sortOrder } = filterCriteria;
+      let aVal, bVal;
 
+      // Handle special calculated cases first
+      if (sortBy === "score") {
+        aVal = getProviderScore(a);
+        bVal = getProviderScore(b);
+      } else if (sortBy === "providerName") {
+        // Handle string comparison
+        aVal = a.providerName.toLowerCase();
+        bVal = b.providerName.toLowerCase();
+      } else {
+        // Handle direct property lookup for all other numeric cases
+        aVal = (a as any)[sortBy] ?? 0;
+        bVal = (b as any)[sortBy] ?? 0;
+      }
+
+      // The actual comparison logic
       if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
       if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
       return 0;
@@ -245,11 +260,9 @@ const ProvidersPage = () => {
 
     return {
       totalMatches: sorted.length,
-      displayedProviders: sorted.slice(0, fc.displayLimit),
+      displayedProviders: sorted.slice(0, filterCriteria.displayLimit),
     };
   }, [providerData, filterCriteria]);
-
-  const displayOptions: DisplayLimit[] = [50, 100, 500, 1000];
 
   return (
     <div className="container mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
