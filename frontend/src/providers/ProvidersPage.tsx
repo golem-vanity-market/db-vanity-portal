@@ -183,10 +183,12 @@ const ProvidersPage = () => {
       import.meta.env.VITE_GOLEM_DB_RPC
     } -X POST -H "Content-Type: application/json" --data '{"method":"golembase_queryEntities","params":["%%QUERY%%"], "id": 1, "jsonrpc":"2.0"}' | jq`;
 
-    completeQuery = completeQuery.replace(
-      "%%QUERY%%",
-      escapeForJS(`$owner = "${import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}"`),
-    );
+    let qbuild = `$owner = "${import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}"`;
+    if (filterCriteria.providerNameSearch) {
+      qbuild += ` & $providerName ~ "${escapeForJS(filterCriteria.providerNameSearch)}"`;
+    }
+
+    completeQuery = completeQuery.replace("%%QUERY%%", escapeForJS(qbuild));
     setInternalQuery(completeQuery);
   }, [filterCriteria]);
 

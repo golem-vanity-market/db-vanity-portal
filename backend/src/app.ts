@@ -233,8 +233,8 @@ function getMetadata(prov: ProviderDataEntry, groupNo: number) {
     ],
     numericAnnotations: [
       new Annotation("group", groupNo),
-      new Annotation("numberOfJobs", prov.numberOfJobs),
-      new Annotation("numberOfJobs24h", prov.numberOfJobs24h),
+      new Annotation("numberOfJobs", prov.numberOfJobs + 1),
+      new Annotation("numberOfJobs24h", prov.numberOfJobs24h + 1),
     ],
   };
 }
