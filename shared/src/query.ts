@@ -53,13 +53,13 @@ export function mapValueForAnnotation(val: number, field: string): string {
     });
   } else if (field === "totalCost") {
     return numberToSortableString(val, {
-      intWidth: 3,
+      intWidth: 4,
       fracWidth: 5,
       unit: "GLM",
     });
   } else if (field === "totalCost24h") {
     return numberToSortableString(val, {
-      intWidth: 3,
+      intWidth: 4,
       fracWidth: 5,
       unit: "GLM",
     });
