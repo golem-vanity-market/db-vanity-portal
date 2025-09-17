@@ -1,0 +1,43 @@
+name: NPM - Check and build
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "cli/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "cli/**"
+
+jobs:
+  checks:
+    name: "Check CLI code - NPM"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+          cache-dependency-path: cli/package-lock.json
+      - working-directory: shared
+        run: | 
+          npm install
+          npm run lint
+          npm run build
+      - working-directory: backend
+        run: |
+          npm install
+          npm run lint
+          npm run build
+      - working-directory: frontend
+        run: |
+          npm install
+          npm run lint
+          npm run build
+
+
