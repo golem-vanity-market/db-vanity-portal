@@ -26,22 +26,25 @@ jobs:
         with:
           node-version: 24
 
-      - name: Install and build shared
+      - name: Install, lint and check shared
         working-directory: shared
         run: | 
           npm install
-          npm run build
+          npm run lint
+          npm run format:check
 
-      - name: Install and build backend
+      - name: Install, lint and check backend
         working-directory: backend
         run: |
           npm install
-          npm run build
+          npm run lint
+          npm run format:check
 
-      - name: Install and build frontend
+      - name: Install, lint and check frontend
         working-directory: frontend
         run: |
           npm install
-          npm run build
+          npm run lint
+          npm run format:check
 
 
