@@ -1,5 +1,3 @@
-export type DisplayLimit = 50 | 100 | 500 | 1000;
-
 export interface FilterCriteria {
   minWork: number | null;
   maxWork: number | null;
@@ -46,5 +44,5 @@ export interface FilterCriteria {
     | "score";
   sortOrder: "asc" | "desc";
 
-  displayLimit: DisplayLimit;
+  displayLimit: number;
 }

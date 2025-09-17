@@ -13,6 +13,7 @@ import { FilterCriteria } from "./provider-types";
 import { ProviderFilters } from "./ProviderFilters";
 import { ProviderCard } from "./ProviderCard";
 import { getProviderScore } from "./provider-utils";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const CACHE_KEY = "providerDataCache";
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
@@ -124,8 +125,8 @@ const FilterPanel = ({ filters, onFilterChange }: FilterPanelProps) => {
 function escapeForJS(str: string): string {
   return str
     .replace(/\\/g, "\\\\") // escape backslash
-    .replace(/"/g, '\\"') // escape double quotes
-    .replace(/'/g, "\\'") // escape single quotes
+    .replace(/"/g, '"') // escape double quotes
+    .replace(/'/g, "''") // escape single quotes
     .replace(/\n/g, "\\n") // escape newlines
     .replace(/\r/g, "\\r") // escape carriage returns
     .replace(/\t/g, "\\t"); // escape tabs
@@ -165,10 +166,19 @@ const ProvidersPage = () => {
   const handleFilterChange = useCallback(<K extends keyof FilterCriteria>(key: K, value: FilterCriteria[K]) => {
     setFilterCriteria((prev) => {
       const newFilters = { ...prev, [key]: value };
+      // if filters change, reset display limit to initial value and scroll back up
+      if (key !== "displayLimit") {
+        newFilters.displayLimit = 50;
+        window.scrollTo({ top: 0, behavior: "instant" });
+      }
       localStorage.setItem("providerFilterCriteria", JSON.stringify(newFilters));
       return newFilters;
     });
   }, []);
+
+  const fetchMoreData = () => {
+    handleFilterChange("displayLimit", filterCriteria.displayLimit + 50);
+  };
 
   const resetFilters = useCallback(() => {
     const defaults = defaultFilterCriteria();
@@ -408,7 +418,7 @@ const ProvidersPage = () => {
               <p className="text-muted-foreground">
                 {loading
                   ? "Searching for providers..."
-                  : `Displaying ${displayedProviders.length} of ${totalMatches} matching providers.`}
+                  : `${totalMatches} provider${totalMatches !== 1 ? "s" : ""} match your search criteria.`}
               </p>
             </div>
             <div className="flex flex-wrap items-end gap-4">
@@ -479,11 +489,27 @@ const ProvidersPage = () => {
               <Skeleton className="h-48 w-full rounded-lg" />
             </div>
           ) : displayedProviders.length > 0 ? (
-            <div className="space-y-4">
+            <InfiniteScroll
+              dataLength={displayedProviders.length}
+              next={fetchMoreData}
+              hasMore={displayedProviders.length < totalMatches}
+              loader={
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="mr-2 size-8 animate-spin" />
+                  <span>Loading more providers...</span>
+                </div>
+              }
+              endMessage={
+                <p className="py-4 text-center text-sm text-muted-foreground">
+                  <b>You have seen all {totalMatches} providers.</b>
+                </p>
+              }
+              className="space-y-4"
+            >
               {displayedProviders.map((provider, index) => (
                 <ProviderCard key={provider.providerId} provider={provider} rank={index + 1} />
               ))}
-            </div>
+            </InfiniteScroll>
           ) : (
             <div className="border-muted-foreground/30 flex flex-col items-center justify-center rounded-lg border-2 border-dashed py-24 text-center">
               <h3 className="text-xl font-semibold">No Providers Found</h3>

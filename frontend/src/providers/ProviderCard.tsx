@@ -110,8 +110,8 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>
-                    The score is calculated based on the provider's speed and efficiency. A high score indicates good
-                    overall performance and cost-effectiveness.
+                    {`The score is calculated based on the provider's speed and efficiency. A high score indicates good
+                      overall performance and cost-effectiveness.`}
                   </p>
                 </TooltipContent>
               </Tooltip>
