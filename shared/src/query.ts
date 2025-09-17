@@ -30,13 +30,13 @@ export function mapValueForAnnotation(val: number, field: string): string {
   if (field === "totalWorkHours") {
     return numberToSortableString(val, {
       intWidth: 3,
-      fracWidth: 3,
+      fracWidth: 2,
       unit: "h",
     });
   } else if (field === "totalWorkHours24h") {
     return numberToSortableString(val, {
       intWidth: 3,
-      fracWidth: 3,
+      fracWidth: 2,
       unit: "h",
     });
   } else if (field === "totalWork") {
@@ -66,37 +66,37 @@ export function mapValueForAnnotation(val: number, field: string): string {
   } else if (field === "longestJob") {
     return numberToSortableString(val, {
       intWidth: 2,
-      fracWidth: 3,
+      fracWidth: 2,
       unit: "h",
     });
   } else if (field === "longestJob24h") {
     return numberToSortableString(val, {
       intWidth: 2,
-      fracWidth: 3,
+      fracWidth: 2,
       unit: "h",
     });
   } else if (field === "speed") {
     return numberToSortableString(val / 1e6, {
       intWidth: 4,
-      fracWidth: 2,
+      fracWidth: 3,
       unit: "M/s",
     });
   } else if (field === "speed24h") {
     return numberToSortableString(val / 1e6, {
       intWidth: 4,
-      fracWidth: 2,
+      fracWidth: 3,
       unit: "M/s",
     });
   } else if (field === "efficiency") {
     return numberToSortableString(val / 1e12, {
       intWidth: 5,
-      fracWidth: 2,
+      fracWidth: 3,
       unit: "TH/GLM",
     });
   } else if (field === "efficiency24h") {
     return numberToSortableString(val / 1e12, {
       intWidth: 5,
-      fracWidth: 2,
+      fracWidth: 3,
       unit: "TH/GLM",
     });
   } else if (field === "lastJobDate") {
