@@ -1,4 +1,4 @@
-name: NPM - Check and build
+name: NPM - Check source code
 
 on:
   push:
