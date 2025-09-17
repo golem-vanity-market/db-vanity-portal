@@ -15,6 +15,7 @@ import { ProviderCard } from "./ProviderCard";
 import { getProviderScore } from "./provider-utils";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { escapeForJS } from "@/utils";
+import ExperimentalAlert from "@/components/ExperimentalAlert";
 
 const CACHE_KEY = "providerDataCache";
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
@@ -428,6 +429,7 @@ const ProvidersPage = () => {
 
   return (
     <div className="container mx-auto max-w-7xl pt-4 sm:pt-6 lg:pt-8">
+      <ExperimentalAlert />
       <div className="grid grid-cols-1 lg:grid-cols-4 lg:gap-8">
         <aside className="hidden lg:col-span-1 lg:block">
           <div className="sticky top-20 space-y-4">
