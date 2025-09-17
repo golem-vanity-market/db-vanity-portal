@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Filter, FilterX, Loader2, RefreshCw } from "lucide-react";
+import { ArrowUp, Filter, FilterX, Loader2, RefreshCw } from "lucide-react";
 import { FilterCriteria } from "./provider-types";
 import { ProviderFilters } from "./ProviderFilters";
 import { ProviderCard } from "./ProviderCard";
@@ -125,8 +125,8 @@ const FilterPanel = ({ filters, onFilterChange }: FilterPanelProps) => {
 function escapeForJS(str: string): string {
   return str
     .replace(/\\/g, "\\\\") // escape backslash
-    .replace(/"/g, '"') // escape double quotes
-    .replace(/'/g, "''") // escape single quotes
+    .replace(/"/g, '\"') // escape double quotes
+    .replace(/'/g, "'\'" ) // escape single quotes
     .replace(/\n/g, "\\n") // escape newlines
     .replace(/\r/g, "\\r") // escape carriage returns
     .replace(/\t/g, "\\t"); // escape tabs
@@ -135,6 +135,7 @@ function escapeForJS(str: string): string {
 const ProvidersPage = () => {
   const [loading, setLoading] = useState(true);
   const [providerData, setProviderData] = useState<ProviderData | null>(null);
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const [filterCriteria, setFilterCriteria] = useState<FilterCriteria>(() => {
     const defaults = defaultFilterCriteria();
     const cachedItem = localStorage.getItem("providerFilterCriteria");
@@ -189,9 +190,24 @@ const ProvidersPage = () => {
   const [internalQuery, setInternalQuery] = useState<string>("");
 
   useEffect(() => {
-    let completeQuery = `curl ${
-      import.meta.env.VITE_GOLEM_DB_RPC
-    } -X POST -H "Content-Type: application/json" --data '{"method":"golembase_queryEntities","params":["%%QUERY%%"], "id": 1, "jsonrpc":"2.0"}' | jq`;
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setShowBackToTop(true);
+      } else {
+        setShowBackToTop(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    let completeQuery = `curl ${import.meta.env.VITE_GOLEM_DB_RPC} -X POST -H "Content-Type: application/json" --data '{"method":"golembase_queryEntities","params":["%%QUERY%%"], "id": 1, "jsonrpc":"2.0"}' | jq`;
 
     let qbuild = `$owner = "${import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}"`;
     if (filterCriteria.providerNameSearch) {
@@ -523,6 +539,16 @@ const ProvidersPage = () => {
           )}
         </main>
       </div>
+      {showBackToTop && (
+        <Button
+          onClick={scrollToTop}
+          className="fixed bottom-4 right-4 z-50 h-12 w-12 rounded-full shadow-lg"
+          variant="outline"
+          size="icon"
+        >
+          <ArrowUp className="h-6 w-6" />
+        </Button>
+      )}
     </div>
   );
 };
