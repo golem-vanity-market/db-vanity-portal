@@ -90,7 +90,7 @@ export const ProviderFilters = ({ filters, onFilterChange }: ProviderFiltersProp
                 </AccordionTrigger>
 
                 {/* The Content contains the familiar input layout */}
-                <AccordionContent className="pb-4 pt-2">
+                <AccordionContent className="pt-2 pb-4">
                   <div className="space-y-4">
                     {/* Section for "Last 24h" */}
                     <div>

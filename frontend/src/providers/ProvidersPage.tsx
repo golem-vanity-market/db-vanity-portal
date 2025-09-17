@@ -71,7 +71,7 @@ const buildFilterFromLocalStorage = (
   if (!cached) {
     return defaults;
   }
-  const filter: FilterCriteria = {
+  return {
     providerNameSearch: cached.providerNameSearch ?? defaults.providerNameSearch,
     displayLimit: cached.displayLimit ?? defaults.displayLimit,
     sortBy: cached.sortBy ?? defaults.sortBy,
@@ -101,8 +101,6 @@ const buildFilterFromLocalStorage = (
     minNumberOfJobs24h: cached.minNumberOfJobs24h ?? defaults.minNumberOfJobs24h,
     maxNumberOfJobs24h: cached.maxNumberOfJobs24h ?? defaults.maxNumberOfJobs24h,
   };
-
-  return filter;
 };
 
 interface FilterPanelProps {
@@ -350,6 +348,7 @@ const ProvidersPage = () => {
       if (fc.maxNumberOfJobs !== null && p.numberOfJobs > fc.maxNumberOfJobs) return false;
       if (fc.minNumberOfJobs24h !== null && p.numberOfJobs24h < fc.minNumberOfJobs24h) return false;
       if (fc.maxNumberOfJobs24h !== null && p.numberOfJobs24h > fc.maxNumberOfJobs24h) return false;
+      // filter passed
       return true;
     });
 

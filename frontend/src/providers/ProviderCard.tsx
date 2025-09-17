@@ -82,8 +82,8 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
                 <ExternalLink className="size-4" />
               </a>
             </CardTitle>
-            <CardDescription className="break-all pt-1 font-mono text-xs">{provider.providerId}</CardDescription>
-            <CardDescription className="break-all pt-1 font-mono text-xs">
+            <CardDescription className="pt-1 font-mono text-xs break-all">{provider.providerId}</CardDescription>
+            <CardDescription className="pt-1 font-mono text-xs break-all">
               <a
                 href={`https://explorer.ethwarsaw.holesky.golemdb.io/entity/${provider.key}?tab=data`}
                 target="_blank"

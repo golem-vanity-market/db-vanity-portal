@@ -37,7 +37,7 @@ const Welcome = () => {
                 href={explorerUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary mt-1 inline-block break-all font-mono text-xs underline-offset-4 hover:underline"
+                className="text-primary mt-1 inline-block font-mono text-xs break-all underline-offset-4 hover:underline"
               >
                 {dbOwnerAddress}
               </a>

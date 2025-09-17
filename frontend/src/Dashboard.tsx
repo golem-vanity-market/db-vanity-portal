@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, useEffect } from "react";
-import { Routes, Route, Link, Outlet } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 import { createROClient } from "golem-base-sdk";
 import Welcome from "./Welcome";
 import ProvidersPage from "./providers/ProvidersPage";
