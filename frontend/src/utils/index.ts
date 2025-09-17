@@ -8,7 +8,6 @@ export function escapeForJS(str: string): string {
     .replace(/\t/g, "\\t"); // escape tabs
 }
 
-
 export function displayHours(totalHours: number): string {
   if (totalHours < 1) {
     const minutes = Math.round(totalHours * 60);
