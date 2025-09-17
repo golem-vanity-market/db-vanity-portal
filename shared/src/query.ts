@@ -73,16 +73,16 @@ export function mapValueForAnnotation(val: number, field: string): string {
       unit: "h",
     });
   } else if (field === "speed") {
-    return numberToSortableString(val / 1e9, {
-      intWidth: 3,
+    return numberToSortableString(val / 1e6, {
+      intWidth: 4,
       fracWidth: 2,
-      unit: "G/s",
+      unit: "M/s",
     });
   } else if (field === "speed24h") {
-    return numberToSortableString(val / 1e9, {
-      intWidth: 3,
+    return numberToSortableString(val / 1e6, {
+      intWidth: 4,
       fracWidth: 2,
-      unit: "G/s",
+      unit: "M/s",
     });
   } else if (field === "efficiency") {
     return numberToSortableString(val / 1e12, {

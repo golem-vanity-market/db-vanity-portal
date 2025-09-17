@@ -1,3 +1,14 @@
+export function escapeForJS(str: string): string {
+  return str
+    .replace(/\\/g, "\\\\") // escape backslash
+    .replace(/"/g, '\\"') // escape double quotes
+    .replace(/'/g, "\\'") // escape single quotes
+    .replace(/\n/g, "\\n") // escape newlines
+    .replace(/\r/g, "\\r") // escape carriage returns
+    .replace(/\t/g, "\\t"); // escape tabs
+}
+
+
 export function displayHours(totalHours: number): string {
   if (totalHours < 1) {
     const minutes = Math.round(totalHours * 60);
