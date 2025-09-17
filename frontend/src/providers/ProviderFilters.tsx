@@ -16,7 +16,7 @@ const filterableMetrics = [
     label: "Work Hours",
     unit: "h",
     description: "The total time the provider has been active and working.",
-    icon: <Timer className="text-muted-foreground size-4" />,
+    icon: <Timer className="size-4 text-muted-foreground" />,
     h24: { minKey: "minWorkHours24h", maxKey: "maxWorkHours24h" },
     allTime: { minKey: "minWorkHours", maxKey: "maxWorkHours" },
   },
@@ -24,7 +24,7 @@ const filterableMetrics = [
     label: "Work Done",
     unit: "GH",
     description: "The total number of addresses that the provider has searched.",
-    icon: <Cpu className="text-muted-foreground size-4" />,
+    icon: <Cpu className="size-4 text-muted-foreground" />,
     h24: { minKey: "minWork24h", maxKey: "maxWork24h" },
     allTime: { minKey: "minWork", maxKey: "maxWork" },
   },
@@ -32,7 +32,7 @@ const filterableMetrics = [
     label: "Speed",
     unit: "MH/s",
     description: "The provider's speed in terms of addresses searched per second.",
-    icon: <GaugeCircle className="text-muted-foreground size-4" />,
+    icon: <GaugeCircle className="size-4 text-muted-foreground" />,
     h24: { minKey: "minSpeed24h", maxKey: "maxSpeed24h" },
     allTime: { minKey: "minSpeed", maxKey: "maxSpeed" },
   },
@@ -40,7 +40,7 @@ const filterableMetrics = [
     label: "Efficiency",
     unit: "TH/GLM",
     description: "The provider's efficiency in terms of addresses searched per GLM.",
-    icon: <TrendingUp className="text-muted-foreground size-4" />,
+    icon: <TrendingUp className="size-4 text-muted-foreground" />,
     h24: { minKey: "minEfficiency24h", maxKey: "maxEfficiency24h" },
     allTime: { minKey: "minEfficiency", maxKey: "maxEfficiency" },
   },
@@ -48,7 +48,7 @@ const filterableMetrics = [
     label: "Total Cost",
     unit: "GLM",
     description: "The total cost of the work done by the provider.",
-    icon: <CircleDollarSign className="text-muted-foreground size-4" />,
+    icon: <CircleDollarSign className="size-4 text-muted-foreground" />,
     h24: { minKey: "minTotalCost24h", maxKey: "maxTotalCost24h" },
     allTime: { minKey: "minTotalCost", maxKey: "maxTotalCost" },
   },
@@ -56,7 +56,7 @@ const filterableMetrics = [
     label: "Number of Jobs",
     unit: "",
     description: "The total number of unique agreements that were made with this provider.",
-    icon: <Hash className="text-muted-foreground size-4" />,
+    icon: <Hash className="size-4 text-muted-foreground" />,
     h24: { minKey: "minNumberOfJobs24h", maxKey: "maxNumberOfJobs24h" },
     allTime: { minKey: "minNumberOfJobs", maxKey: "maxNumberOfJobs" },
   },
@@ -115,7 +115,7 @@ export const ProviderFilters = ({ filters, onFilterChange }: ProviderFiltersProp
                   <div className="space-y-4">
                     {/* Section for "Last 24h" */}
                     <div>
-                      <Label className="text-muted-foreground text-xs">Last 24h</Label>
+                      <Label className="text-xs text-muted-foreground">Last 24h</Label>
                       <div className="mt-1 grid grid-cols-2 gap-2">
                         <Input
                           type="number"
@@ -134,7 +134,7 @@ export const ProviderFilters = ({ filters, onFilterChange }: ProviderFiltersProp
 
                     {/* Section for "All Time" */}
                     <div>
-                      <Label className="text-muted-foreground text-xs">All Time</Label>
+                      <Label className="text-xs text-muted-foreground">All Time</Label>
                       <div className="mt-1 grid grid-cols-2 gap-2">
                         <Input
                           type="number"

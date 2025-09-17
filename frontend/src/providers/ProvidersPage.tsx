@@ -125,8 +125,8 @@ const FilterPanel = ({ filters, onFilterChange }: FilterPanelProps) => {
 function escapeForJS(str: string): string {
   return str
     .replace(/\\/g, "\\\\") // escape backslash
-    .replace(/"/g, '\"') // escape double quotes
-    .replace(/'/g, "'\'" ) // escape single quotes
+    .replace(/"/g, '"') // escape double quotes
+    .replace(/'/g, "''") // escape single quotes
     .replace(/\n/g, "\\n") // escape newlines
     .replace(/\r/g, "\\r") // escape carriage returns
     .replace(/\t/g, "\\t"); // escape tabs
@@ -207,7 +207,9 @@ const ProvidersPage = () => {
   };
 
   useEffect(() => {
-    let completeQuery = `curl ${import.meta.env.VITE_GOLEM_DB_RPC} -X POST -H "Content-Type: application/json" --data '{"method":"golembase_queryEntities","params":["%%QUERY%%"], "id": 1, "jsonrpc":"2.0"}' | jq`;
+    let completeQuery = `curl ${
+      import.meta.env.VITE_GOLEM_DB_RPC
+    } -X POST -H "Content-Type: application/json" --data '{"method":"golembase_queryEntities","params":["%%QUERY%%"], "id": 1, "jsonrpc":"2.0"}' | jq`;
 
     let qbuild = `$owner = "${import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}"`;
     if (filterCriteria.providerNameSearch) {
@@ -527,9 +529,9 @@ const ProvidersPage = () => {
               ))}
             </InfiniteScroll>
           ) : (
-            <div className="border-muted-foreground/30 flex flex-col items-center justify-center rounded-lg border-2 border-dashed py-24 text-center">
+            <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 py-24 text-center">
               <h3 className="text-xl font-semibold">No Providers Found</h3>
-              <p className="text-muted-foreground mt-2 text-sm">
+              <p className="mt-2 text-sm text-muted-foreground">
                 Try adjusting your filters or click &quot;Reset Filters&quot;.
               </p>
               <Button variant="secondary" className="mt-4" onClick={resetFilters}>
@@ -542,7 +544,7 @@ const ProvidersPage = () => {
       {showBackToTop && (
         <Button
           onClick={scrollToTop}
-          className="fixed bottom-4 right-4 z-50 h-12 w-12 rounded-full shadow-lg"
+          className="fixed right-4 bottom-4 z-50 h-12 w-12 rounded-full shadow-lg"
           variant="outline"
           size="icon"
         >

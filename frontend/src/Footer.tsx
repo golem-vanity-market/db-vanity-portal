@@ -5,7 +5,7 @@ const SocialLink = ({ href, icon, label }: { href: string; icon: React.ReactNode
     href={href}
     target="_blank"
     rel="noopener noreferrer"
-    className="text-muted-foreground hover:text-foreground flex items-center gap-2 transition-colors"
+    className="flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
   >
     {icon}
     <span className="hidden text-sm font-medium sm:inline">{label}</span>
@@ -32,13 +32,13 @@ export const Footer = () => {
   ];
 
   return (
-    <footer className="bg-muted/40 border-t">
+    <footer className="border-t bg-muted/40">
       <div className="container mx-auto flex flex-col items-center justify-between gap-4 p-6 sm:flex-row">
-        <p className="text-muted-foreground text-center text-sm sm:text-left">
+        <p className="text-center text-sm text-muted-foreground sm:text-left">
           &copy; {new Date().getFullYear()} Vanity Market Stats
         </p>
 
-        <div className="text-muted-foreground flex items-center gap-2 text-center text-xs sm:text-left">
+        <div className="flex items-center gap-2 text-center text-xs text-muted-foreground sm:text-left">
           <AlertTriangle className="size-4 flex-shrink-0" />
           <span>This project is still experimental. Data may not be fully accurate. Use only as reference.</span>
         </div>
