@@ -84,7 +84,7 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
                 href={`https://stats.golem.network/network/provider/${provider.providerId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary flex items-center gap-1 text-lg underline"
+                className="flex items-center gap-1 text-lg text-primary underline"
               >
                 {provider.providerName}
                 <ExternalLink className="size-4" />
@@ -96,7 +96,7 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
                 href={`https://explorer.ethwarsaw.holesky.golemdb.io/entity/${provider.key}?tab=data`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary flex items-center gap-1 text-xs underline"
+                className="flex items-center gap-1 text-xs text-primary underline"
               >
                 {provider.key}
               </a>
@@ -135,7 +135,7 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
                   <TooltipProvider delayDuration={200}>
                     <Tooltip>
                       <TooltipTrigger>
-                        <div className="text-muted-foreground flex items-center gap-2">
+                        <div className="flex items-center gap-2 text-muted-foreground">
                           {metric.icon}
                           <span className="text-card-foreground">{metric.label}</span>
                         </div>

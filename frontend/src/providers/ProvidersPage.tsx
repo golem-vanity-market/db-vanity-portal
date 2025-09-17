@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Filter, FilterX, Loader2, RefreshCw } from "lucide-react";
+import { ArrowUp, Filter, FilterX, Loader2, RefreshCw } from "lucide-react";
 import { FilterCriteria } from "./provider-types";
 import { ProviderFilters } from "./ProviderFilters";
 import { ProviderCard } from "./ProviderCard";
@@ -126,6 +126,7 @@ const FilterPanel = ({ filters, onFilterChange }: FilterPanelProps) => {
 const ProvidersPage = () => {
   const [loading, setLoading] = useState(true);
   const [providerData, setProviderData] = useState<ProviderData | null>(null);
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const [filterCriteria, setFilterCriteria] = useState<FilterCriteria>(() => {
     const defaults = defaultFilterCriteria();
     const cachedItem = localStorage.getItem("providerFilterCriteria");
@@ -178,6 +179,23 @@ const ProvidersPage = () => {
   }, []);
 
   const [internalQuery, setInternalQuery] = useState<string>("");
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setShowBackToTop(true);
+      } else {
+        setShowBackToTop(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   useEffect(() => {
     let completeQuery = `curl ${
@@ -530,9 +548,9 @@ const ProvidersPage = () => {
               ))}
             </InfiniteScroll>
           ) : (
-            <div className="border-muted-foreground/30 flex flex-col items-center justify-center rounded-lg border-2 border-dashed py-24 text-center">
+            <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 py-24 text-center">
               <h3 className="text-xl font-semibold">No Providers Found</h3>
-              <p className="text-muted-foreground mt-2 text-sm">
+              <p className="mt-2 text-sm text-muted-foreground">
                 Try adjusting your filters or click &quot;Reset Filters&quot;.
               </p>
               <Button variant="secondary" className="mt-4" onClick={resetFilters}>
@@ -542,6 +560,16 @@ const ProvidersPage = () => {
           )}
         </main>
       </div>
+      {showBackToTop && (
+        <Button
+          onClick={scrollToTop}
+          className="fixed right-4 bottom-4 z-50 h-12 w-12 rounded-full shadow-lg"
+          variant="outline"
+          size="icon"
+        >
+          <ArrowUp className="h-6 w-6" />
+        </Button>
+      )}
     </div>
   );
 };

@@ -11,7 +11,7 @@ const Welcome = () => {
   const providersUrl = `/providers`;
 
   return (
-    <div className="bg-background flex w-full items-center justify-center p-4">
+    <div className="flex w-full items-center justify-center bg-background p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader>
           <CardTitle className="text-2xl">Provider estimations</CardTitle>
@@ -29,7 +29,7 @@ const Welcome = () => {
           <Separator />
 
           <div className="flex items-start gap-4 rounded-md p-4 text-sm">
-            <Database className="text-muted-foreground mt-1 size-5 flex-shrink-0" />
+            <Database className="mt-1 size-5 flex-shrink-0 text-muted-foreground" />
             <div className="flex-grow">
               <h3 className="font-semibold">Data Source</h3>
               <p className="text-muted-foreground">Data is presented using aggregator on address:</p>
@@ -37,7 +37,7 @@ const Welcome = () => {
                 href={explorerUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary mt-1 inline-block font-mono text-xs break-all underline-offset-4 hover:underline"
+                className="mt-1 inline-block font-mono text-xs break-all text-primary underline-offset-4 hover:underline"
               >
                 {dbOwnerAddress}
               </a>
