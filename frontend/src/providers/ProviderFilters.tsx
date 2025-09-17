@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FilterCriteria } from "./provider-types";
 import { CircleDollarSign, Cpu, GaugeCircle, Hash, Timer, TrendingUp } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ProviderFiltersProps {
   filters: FilterCriteria;
@@ -14,6 +15,7 @@ const filterableMetrics = [
   {
     label: "Work Hours",
     unit: "h",
+    description: "The total time the provider has been active and working.",
     icon: <Timer className="text-muted-foreground size-4" />,
     h24: { minKey: "minWorkHours24h", maxKey: "maxWorkHours24h" },
     allTime: { minKey: "minWorkHours", maxKey: "maxWorkHours" },
@@ -21,6 +23,7 @@ const filterableMetrics = [
   {
     label: "Work Done",
     unit: "GH",
+    description: "The total number of addresses that the provider has searched.",
     icon: <Cpu className="text-muted-foreground size-4" />,
     h24: { minKey: "minWork24h", maxKey: "maxWork24h" },
     allTime: { minKey: "minWork", maxKey: "maxWork" },
@@ -28,6 +31,7 @@ const filterableMetrics = [
   {
     label: "Speed",
     unit: "MH/s",
+    description: "The provider's speed in terms of addresses searched per second.",
     icon: <GaugeCircle className="text-muted-foreground size-4" />,
     h24: { minKey: "minSpeed24h", maxKey: "maxSpeed24h" },
     allTime: { minKey: "minSpeed", maxKey: "maxSpeed" },
@@ -35,6 +39,7 @@ const filterableMetrics = [
   {
     label: "Efficiency",
     unit: "TH/GLM",
+    description: "The provider's efficiency in terms of addresses searched per GLM.",
     icon: <TrendingUp className="text-muted-foreground size-4" />,
     h24: { minKey: "minEfficiency24h", maxKey: "maxEfficiency24h" },
     allTime: { minKey: "minEfficiency", maxKey: "maxEfficiency" },
@@ -42,6 +47,7 @@ const filterableMetrics = [
   {
     label: "Total Cost",
     unit: "GLM",
+    description: "The total cost of the work done by the provider.",
     icon: <CircleDollarSign className="text-muted-foreground size-4" />,
     h24: { minKey: "minTotalCost24h", maxKey: "maxTotalCost24h" },
     allTime: { minKey: "minTotalCost", maxKey: "maxTotalCost" },
@@ -49,11 +55,19 @@ const filterableMetrics = [
   {
     label: "Number of Jobs",
     unit: "",
+    description: "The total number of unique agreements that were made with this provider.",
     icon: <Hash className="text-muted-foreground size-4" />,
     h24: { minKey: "minNumberOfJobs24h", maxKey: "maxNumberOfJobs24h" },
     allTime: { minKey: "minNumberOfJobs", maxKey: "maxNumberOfJobs" },
   },
-];
+] satisfies {
+  label: string;
+  unit: string;
+  description: string;
+  icon: React.ReactNode;
+  h24: { minKey: keyof FilterCriteria; maxKey: keyof FilterCriteria };
+  allTime: { minKey: keyof FilterCriteria; maxKey: keyof FilterCriteria };
+}[];
 
 export const ProviderFilters = ({ filters, onFilterChange }: ProviderFiltersProps) => {
   const handleNumericChange = (key: keyof FilterCriteria, value: string) => {
@@ -81,12 +95,19 @@ export const ProviderFilters = ({ filters, onFilterChange }: ProviderFiltersProp
               <AccordionItem key={metric.label} value={metric.label}>
                 {/* The Trigger is now the metric name */}
                 <AccordionTrigger className="py-3">
-                  <div className="flex items-center gap-2">
-                    {metric.icon}
-                    <span className="text-sm font-semibold">
-                      {metric.label} {metric.unit && `(${metric.unit})`}
-                    </span>
-                  </div>
+                  <TooltipProvider delayDuration={200}>
+                    <Tooltip>
+                      <TooltipTrigger className="flex items-center gap-2">
+                        {metric.icon}
+                        <span className="text-sm font-semibold">
+                          {metric.label} {metric.unit && `(${metric.unit})`}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{metric.description}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </AccordionTrigger>
 
                 {/* The Content contains the familiar input layout */}
@@ -100,13 +121,13 @@ export const ProviderFilters = ({ filters, onFilterChange }: ProviderFiltersProp
                           type="number"
                           placeholder="Min"
                           value={filters[metric.h24.minKey as keyof FilterCriteria] ?? ""}
-                          onChange={(e) => handleNumericChange(metric.h24.minKey as any, e.target.value)}
+                          onChange={(e) => handleNumericChange(metric.h24.minKey, e.target.value)}
                         />
                         <Input
                           type="number"
                           placeholder="Max"
                           value={filters[metric.h24.maxKey as keyof FilterCriteria] ?? ""}
-                          onChange={(e) => handleNumericChange(metric.h24.maxKey as any, e.target.value)}
+                          onChange={(e) => handleNumericChange(metric.h24.maxKey, e.target.value)}
                         />
                       </div>
                     </div>
@@ -119,13 +140,13 @@ export const ProviderFilters = ({ filters, onFilterChange }: ProviderFiltersProp
                           type="number"
                           placeholder="Min"
                           value={filters[metric.allTime.minKey as keyof FilterCriteria] ?? ""}
-                          onChange={(e) => handleNumericChange(metric.allTime.minKey as any, e.target.value)}
+                          onChange={(e) => handleNumericChange(metric.allTime.minKey, e.target.value)}
                         />
                         <Input
                           type="number"
                           placeholder="Max"
                           value={filters[metric.allTime.maxKey as keyof FilterCriteria] ?? ""}
-                          onChange={(e) => handleNumericChange(metric.allTime.maxKey as any, e.target.value)}
+                          onChange={(e) => handleNumericChange(metric.allTime.maxKey, e.target.value)}
                         />
                       </div>
                     </div>

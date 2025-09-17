@@ -366,8 +366,8 @@ const ProvidersPage = () => {
         bVal = b.providerName.toLowerCase();
       } else {
         // Handle direct property lookup for all other numeric cases
-        aVal = (a as any)[sortBy] ?? 0;
-        bVal = (b as any)[sortBy] ?? 0;
+        aVal = a[sortBy] ?? 0;
+        bVal = b[sortBy] ?? 0;
       }
 
       // The actual comparison logic
