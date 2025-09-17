@@ -47,7 +47,6 @@ const defaultFilterCriteria = (): FilterCriteria => ({
   maxNumberOfJobs24h: null,
   sortBy: "score",
   sortOrder: "desc",
-  displayLimit: 50,
 });
 
 const sortOptions = [
@@ -75,7 +74,6 @@ const buildFilterFromLocalStorage = (
   }
   return {
     providerNameSearch: cached.providerNameSearch ?? defaults.providerNameSearch,
-    displayLimit: cached.displayLimit ?? defaults.displayLimit,
     sortBy: cached.sortBy ?? defaults.sortBy,
     sortOrder: cached.sortOrder ?? defaults.sortOrder,
     minWork: cached.minWork ?? defaults.minWork,
@@ -126,6 +124,7 @@ const FilterPanel = ({ filters, onFilterChange }: FilterPanelProps) => {
 const ProvidersPage = () => {
   const [loading, setLoading] = useState(true);
   const [providerData, setProviderData] = useState<ProviderData | null>(null);
+  const [displayLimit, setDisplayLimit] = useState(50);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [filterCriteria, setFilterCriteria] = useState<FilterCriteria>(() => {
     const defaults = defaultFilterCriteria();
@@ -159,17 +158,15 @@ const ProvidersPage = () => {
     setFilterCriteria((prev) => {
       const newFilters = { ...prev, [key]: value };
       // if filters change, reset display limit to initial value and scroll back up
-      if (key !== "displayLimit") {
-        newFilters.displayLimit = 50;
-        window.scrollTo({ top: 0, behavior: "instant" });
-      }
+      setDisplayLimit(50);
+      window.scrollTo({ top: 0, behavior: "instant" });
       localStorage.setItem("providerFilterCriteria", JSON.stringify(newFilters));
       return newFilters;
     });
   }, []);
 
   const fetchMoreData = () => {
-    handleFilterChange("displayLimit", filterCriteria.displayLimit + 50);
+    setDisplayLimit((prev) => prev + 50);
   };
 
   const resetFilters = useCallback(() => {
@@ -425,9 +422,9 @@ const ProvidersPage = () => {
 
     return {
       totalMatches: sorted.length,
-      displayedProviders: sorted.slice(0, filterCriteria.displayLimit),
+      displayedProviders: sorted.slice(0, displayLimit),
     };
-  }, [providerData, filterCriteria]);
+  }, [providerData, filterCriteria, displayLimit]);
 
   return (
     <div className="container mx-auto max-w-7xl pt-4 sm:pt-6 lg:pt-8">

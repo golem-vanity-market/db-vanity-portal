@@ -43,6 +43,4 @@ export interface FilterCriteria {
     | "longestJob"
     | "score";
   sortOrder: "asc" | "desc";
-
-  displayLimit: number;
 }
