@@ -9,16 +9,19 @@ export function numberToSortableString(
     unit = "",
   } = {},
 ) {
-  //const sign = num < 0 ? "-" : "+";
-  const abs = Math.abs(num);
-  const [intPart, fracPart = ""] = abs.toString().split(".");
-
-  if (num == Infinity) {
-    return `${"".padStart(intWidth, "9")}.${"".padEnd(fracWidth, "9")}${unit}`;
+  if (!isFinite(num)) {
+    // Infinity → max sortable value
+    return `${"9".repeat(intWidth)}.${"9".repeat(fracWidth)}${unit}`;
   }
 
-  const intPadded = intPart.padStart(intWidth, "0");
-  const fracPadded = fracPart.padEnd(fracWidth, "0").slice(0, fracWidth);
+  // format with at least fracWidth digits, no scientific notation
+  const abs = Math.abs(num);
+  const fixed = abs.toFixed(fracWidth + 2); // a bit extra to avoid rounding loss
+  const [intPartRaw, fracPartRaw = ""] = fixed.split(".");
+
+  // Pad/truncate to requested widths
+  const intPadded = intPartRaw.padStart(intWidth, "0");
+  const fracPadded = fracPartRaw.padEnd(fracWidth, "0").slice(0, fracWidth);
 
   return `${intPadded}.${fracPadded}${unit}`;
 }
@@ -164,13 +167,20 @@ export async function fetchAllEntities(
   client: GolemBaseROClient,
   numberOfGroups: number,
   owner: string,
+  internalQuery: string | null,
 ): Promise<Record<string, ProviderDataEntry>> {
   // Placeholder for actual implementation
   const proms = [];
   for (let groupNo = 1; groupNo <= numberOfGroups; groupNo++) {
-    proms.push(
-      client.queryEntities(`group = ${groupNo} && $owner = "${owner}"`),
-    );
+    if (internalQuery) {
+      proms.push(
+        client.queryEntities(`(${internalQuery}) && group = ${groupNo}`),
+      );
+    } else {
+      proms.push(
+        client.queryEntities(`group = ${groupNo} && $owner = "${owner}"`),
+      );
+    }
   }
   const byProviderId: Record<string, ProviderDataEntry> = {};
 

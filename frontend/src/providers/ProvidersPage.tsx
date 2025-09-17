@@ -176,6 +176,7 @@ const ProvidersPage = () => {
   }, []);
 
   const [internalQuery, setInternalQuery] = useState<string>("");
+  const [curlQuery, setCurlQuery] = useState<string>("");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -197,7 +198,7 @@ const ProvidersPage = () => {
   useEffect(() => {
     let completeQuery = `curl ${
       import.meta.env.VITE_GOLEM_DB_RPC
-    } -X POST -H "Content-Type: application/json" --data '{"method":"golembase_queryEntities","params":["%%QUERY%%"], "id": 1, "jsonrpc":"2.0"}' | jq`;
+    } -X POST -H "Content-Type: application/json" --data '{"method":"golembase_queryEntities","params":["%%QUERY%%"], "id": 1, "jsonrpc":"2.0"}' | jq '.result[] | .value' | wc -l`;
 
     let numberOfParenthesis = 0;
     let qbuild = `$owner = "${import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}"`;
@@ -321,9 +322,9 @@ const ProvidersPage = () => {
     }
 
     qbuild = "(".repeat(numberOfParenthesis) + qbuild;
-
+    setInternalQuery(qbuild);
     completeQuery = completeQuery.replace("%%QUERY%%", escapeForJS(qbuild));
-    setInternalQuery(completeQuery);
+    setCurlQuery(completeQuery);
   }, [filterCriteria]);
 
   const fetchData = useCallback(
@@ -340,7 +341,7 @@ const ProvidersPage = () => {
       }
 
       try {
-        const entities = await fetchAllEntities(client, 10, import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS);
+        const entities = await fetchAllEntities(client, 10, import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS, internalQuery);
         const data = new ProviderData({ grouped: "all", byProviderId: entities });
         setProviderData(data);
         localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data }));
@@ -350,7 +351,7 @@ const ProvidersPage = () => {
         setLoading(false);
       }
     },
-    [client],
+    [client, internalQuery],
   );
 
   useEffect(() => {
@@ -437,7 +438,7 @@ const ProvidersPage = () => {
             </Button>
             <Button
               onClick={() => {
-                navigator.clipboard.writeText(internalQuery);
+                navigator.clipboard.writeText(curlQuery);
               }}
             >
               Copy curl query
