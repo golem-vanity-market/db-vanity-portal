@@ -20,22 +20,29 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      - name: Setup node 24
+        uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: "npm"
-          cache-dependency-path: cli/package-lock.json
-      - working-directory: shared
+
+      - name: Install, lint and build shared
+        working-directory: shared
         run: | 
           npm install
           npm run lint
           npm run build
-      - working-directory: backend
+
+      - name: Install, lint and build backend
+        working-directory: backend
         run: |
           npm install
           npm run lint
           npm run build
-      - working-directory: frontend
+
+      - name: Install, lint and build frontend
+        working-directory: frontend
         run: |
           npm install
           npm run lint
