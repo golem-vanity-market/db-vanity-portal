@@ -53,6 +53,7 @@ const ProvidersPage = () => {
     filterHistory,
     setStagedFilters,
     applyStagedFiltersWithoutHistory,
+    removeFromHistory,
   } = useFilterState();
 
   const client = useMemo(
@@ -89,7 +90,9 @@ const ProvidersPage = () => {
   };
 
   useEffect(() => {
-    let completeQuery = `curl ${import.meta.env.VITE_GOLEM_DB_RPC} -X POST -H "Content-Type: application/json" --data '{"method":"golembase_queryEntities","params":["%%QUERY%%"], "id": 1, "jsonrpc":"2.0"}' | jq '.result[] | .value' | wc -l`;
+    let completeQuery = `curl ${
+      import.meta.env.VITE_GOLEM_DB_RPC
+    } -X POST -H "Content-Type: application/json" --data '{"method":"golembase_queryEntities","params":["%%QUERY%%"], "id": 1, "jsonrpc":"2.0"}' | jq '.result[] | .value' | wc -l`;
 
     let numberOfParenthesis = 0;
     let qbuild = `$owner = "${import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}"`;
@@ -419,7 +422,11 @@ const ProvidersPage = () => {
               </div>
 
               <div className="flex items-center gap-2">
-                <FilterHistory filterHistory={filterHistory} applyHistoricalFilter={applyHistoricalFilter} />
+                <FilterHistory
+                  filterHistory={filterHistory}
+                  applyHistoricalFilter={applyHistoricalFilter}
+                  deleteHistoricalFilter={removeFromHistory}
+                />
                 <Sheet>
                   <SheetTrigger asChild>
                     <Button variant="outline" className="lg:hidden">

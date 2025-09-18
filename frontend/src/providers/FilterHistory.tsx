@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { History } from "lucide-react";
+import { History, Trash } from "lucide-react";
 import { useState } from "react";
 import { FilterCriteria } from "./provider-types";
 import { filterableMetrics } from "./ProviderFilters";
@@ -9,6 +9,7 @@ import { HistoricalFilter } from "./useFilterState";
 interface FilterHistoryProps {
   filterHistory: HistoricalFilter[];
   applyHistoricalFilter: (filter: FilterCriteria) => void;
+  deleteHistoricalFilter: (id: string) => void;
 }
 
 const formatFilter = (filter: FilterCriteria) => {
@@ -60,13 +61,20 @@ const formatDate = (date: Date) => {
   return date.toLocaleDateString();
 };
 
-export const FilterHistory = ({ filterHistory, applyHistoricalFilter }: FilterHistoryProps) => {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+export const FilterHistory = ({ filterHistory, applyHistoricalFilter, deleteHistoricalFilter }: FilterHistoryProps) => {
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   if (filterHistory.length === 0) {
     return null; // Don't show the button if there's no history
   }
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      setHoveredId(null);
+    }
+    setIsPopoverOpen(open);
+  };
 
   const handleSelect = (filter: FilterCriteria) => {
     applyHistoricalFilter(filter);
@@ -74,7 +82,7 @@ export const FilterHistory = ({ filterHistory, applyHistoricalFilter }: FilterHi
   };
 
   return (
-    <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+    <Popover open={isPopoverOpen} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button variant="outline">
           <History className="mr-2 size-4" /> History
@@ -86,21 +94,28 @@ export const FilterHistory = ({ filterHistory, applyHistoricalFilter }: FilterHi
           <p className="text-sm text-muted-foreground">Select a filter to apply it.</p>
         </div>
         <div className="mt-4 space-y-2">
-          {filterHistory.map((historicalFilter, index) => (
-            <div key={index} className="relative">
+          {filterHistory.map((historicalFilter) => (
+            <div key={historicalFilter.id} className="relative flex items-center justify-between">
               <Button
                 variant="ghost"
                 className="w-full justify-start text-left"
                 onClick={() => handleSelect(historicalFilter.filter)}
-                onMouseEnter={() => setHoveredIndex(index)}
-                onMouseLeave={() => setHoveredIndex(null)}
+                onMouseEnter={() => setHoveredId(historicalFilter.id)}
+                onMouseLeave={() => setHoveredId(null)}
               >
                 <div className="truncate">
                   {formatDate(historicalFilter.createdAt)} at{" "}
                   {historicalFilter.createdAt.toLocaleString([], { hour: "numeric", minute: "2-digit", hour12: true })}
                 </div>
               </Button>
-              {hoveredIndex === index && (
+              <Button
+                variant="ghost"
+                className="ml-2 text-red-500"
+                onClick={() => deleteHistoricalFilter(historicalFilter.id)}
+              >
+                <Trash className="size-4" />
+              </Button>
+              {hoveredId === historicalFilter.id && (
                 <div className="absolute top-0 right-full z-10 mr-2 w-80 rounded-lg border bg-background p-4 shadow-lg">
                   <div className="space-y-1">
                     {formatFilter(historicalFilter.filter).map((line, i) => (

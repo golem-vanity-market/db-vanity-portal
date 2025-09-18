@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { FilterCriteria } from "./provider-types";
 
 export interface HistoricalFilter {
+  id: string;
   filter: FilterCriteria;
   createdAt: Date;
 }
@@ -92,6 +93,7 @@ export function useFilterState() {
     const defaults = defaultFilterCriteria();
     return parsedArray.map((item) => ({
       ...item,
+      id: item.id ?? crypto.randomUUID(),
       createdAt: new Date(item.createdAt),
       filter: buildFilterFromLocalStorage(item.filter, defaults),
     }));
@@ -109,11 +111,20 @@ export function useFilterState() {
 
   const addToHistory = useCallback((newFilter: FilterCriteria) => {
     setFilterHistory((prev) => {
-      const newHistoricalFilter: HistoricalFilter = { filter: newFilter, createdAt: new Date() };
-      const updatedHistory = [
-        newHistoricalFilter,
-        ...prev.filter((f) => JSON.stringify(f.filter) !== JSON.stringify(newFilter)),
-      ].slice(0, 10);
+      const newHistoricalFilter: HistoricalFilter = {
+        id: crypto.randomUUID(),
+        filter: newFilter,
+        createdAt: new Date(),
+      };
+      const updatedHistory = [newHistoricalFilter, ...prev].slice(0, 10);
+      localStorage.setItem("providerFilterHistory", JSON.stringify(updatedHistory));
+      return updatedHistory;
+    });
+  }, []);
+
+  const removeFromHistory = useCallback((id: string) => {
+    setFilterHistory((prev) => {
+      const updatedHistory = prev.filter((f) => f.id !== id);
       localStorage.setItem("providerFilterHistory", JSON.stringify(updatedHistory));
       return updatedHistory;
     });
@@ -148,6 +159,7 @@ export function useFilterState() {
     applyFilters,
     setStagedFilters,
     applyStagedFiltersWithoutHistory,
+    removeFromHistory,
   };
 }
 
