@@ -54,6 +54,10 @@ const ProvidersPage = () => {
     setStagedFilters,
     applyStagedFiltersWithoutHistory,
     removeFromHistory,
+    promoteToFavorite,
+    favoriteFilters,
+    removeFromFavorites,
+    updateFavoriteName,
   } = useFilterState();
 
   const client = useMemo(
@@ -423,9 +427,13 @@ const ProvidersPage = () => {
 
               <div className="flex items-center gap-2">
                 <FilterHistory
+                  favoriteFilters={favoriteFilters}
                   filterHistory={filterHistory}
                   applyHistoricalFilter={applyHistoricalFilter}
                   deleteHistoricalFilter={removeFromHistory}
+                  promoteToFavorite={promoteToFavorite}
+                  deleteFavoriteFilter={removeFromFavorites}
+                  updateFavoriteName={updateFavoriteName}
                 />
                 <Sheet>
                   <SheetTrigger asChild>

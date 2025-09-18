@@ -5,6 +5,7 @@ export interface HistoricalFilter {
   id: string;
   filter: FilterCriteria;
   createdAt: Date;
+  customName?: string;
 }
 
 const buildFilterFromLocalStorage = (
@@ -109,6 +110,30 @@ export function useFilterState() {
 
   const [stagedFilters, setStagedFilters] = useState<FilterCriteria>(appliedFilters);
 
+  const [favoriteFilters, setFavoriteFilters] = useState<HistoricalFilter[]>(() => {
+    const cachedItem = localStorage.getItem("providerFavoriteFilters");
+    if (!cachedItem) return [];
+    let parsedArray = null;
+    try {
+      parsedArray = JSON.parse(cachedItem);
+      if (!Array.isArray(parsedArray)) {
+        throw new Error("Parsed value is not an array");
+      }
+    } catch {
+      // ignore parsing errors
+      localStorage.removeItem("providerFavoriteFilters");
+      return [];
+    }
+    const defaults = defaultFilterCriteria();
+    return parsedArray.map((item) => ({
+      ...item,
+      id: item.id ?? crypto.randomUUID(),
+      createdAt: new Date(item.createdAt),
+      customName: item.customName ?? "",
+      filter: buildFilterFromLocalStorage(item.filter, defaults),
+    }));
+  });
+
   const addToHistory = useCallback((newFilter: FilterCriteria) => {
     setFilterHistory((prev) => {
       const newHistoricalFilter: HistoricalFilter = {
@@ -127,6 +152,27 @@ export function useFilterState() {
       const updatedHistory = prev.filter((f) => f.id !== id);
       localStorage.setItem("providerFilterHistory", JSON.stringify(updatedHistory));
       return updatedHistory;
+    });
+  }, []);
+
+  const addToFavorites = useCallback((filter: FilterCriteria) => {
+    setFavoriteFilters((prev) => {
+      const newFavoriteFilter: HistoricalFilter = {
+        id: crypto.randomUUID(),
+        filter,
+        createdAt: new Date(),
+      };
+      const updatedFavorites = [newFavoriteFilter, ...prev].slice(0, 10);
+      localStorage.setItem("providerFavoriteFilters", JSON.stringify(updatedFavorites));
+      return updatedFavorites;
+    });
+  }, []);
+
+  const removeFromFavorites = useCallback((id: string) => {
+    setFavoriteFilters((prev) => {
+      const updatedFavorites = prev.filter((f) => f.id !== id);
+      localStorage.setItem("providerFavoriteFilters", JSON.stringify(updatedFavorites));
+      return updatedFavorites;
     });
   }, []);
 
@@ -149,6 +195,32 @@ export function useFilterState() {
     setAppliedFilters(defaults);
   }, []);
 
+  const promoteToFavorite = useCallback(
+    (id: string) => {
+      setFavoriteFilters((prev) => {
+        const entryToPromote = filterHistory.find((f) => f.id === id);
+        if (!entryToPromote) return prev;
+
+        const updatedFavorites = [entryToPromote, ...prev];
+        localStorage.setItem("providerFilterFavorites", JSON.stringify(updatedFavorites));
+
+        // Remove the promoted item from history
+        removeFromHistory(id);
+
+        return updatedFavorites;
+      });
+    },
+    [filterHistory, removeFromHistory],
+  );
+
+  const updateFavoriteName = useCallback((id: string, newName: string) => {
+    setFavoriteFilters((prev) => {
+      const updatedFavorites = prev.map((filter) => (filter.id === id ? { ...filter, customName: newName } : filter));
+      localStorage.setItem("providerFavoriteFilters", JSON.stringify(updatedFavorites));
+      return updatedFavorites;
+    });
+  }, []);
+
   return {
     stagedFilters,
     appliedFilters,
@@ -160,6 +232,11 @@ export function useFilterState() {
     setStagedFilters,
     applyStagedFiltersWithoutHistory,
     removeFromHistory,
+    favoriteFilters,
+    addToFavorites,
+    removeFromFavorites,
+    promoteToFavorite,
+    updateFavoriteName,
   };
 }
 
