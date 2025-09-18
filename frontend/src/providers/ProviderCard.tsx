@@ -7,6 +7,8 @@ import { ProviderDataEntry } from "../../../shared/src/provider";
 import { displayDifficulty, displayHours } from "@/utils";
 import { getProviderScore } from "./provider-utils";
 import { CircleDollarSign, Cpu, GaugeCircle, Hash, Timer, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
+import React from "react";
 
 const getScoreClassName = (score: number) => {
   if (score > 75) return "text-green-600 bg-green-100";
@@ -21,6 +23,7 @@ interface ProviderCardProps {
 
 export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
   const score = getProviderScore(provider);
+
   const metrics = [
     {
       label: "Work Hours",
@@ -91,15 +94,9 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
               </a>
             </CardTitle>
             <CardDescription className="pt-1 font-mono text-xs break-all">
-              {provider.providerId}{" "}
-              <a
-                rel="noopener noreferrer"
-                target="_blank"
-                href={`${import.meta.env.BASE_URL}provider?providerId=${provider.providerId}`}
-              >
-                {" "}
-                Details
-              </a>
+              <Link target={"_blank"} to={`/provider?providerId=${provider.providerId}`}>
+                {provider.providerId} Details
+              </Link>
             </CardDescription>
             <CardDescription className="pt-1 font-mono text-xs break-all">
               <a
