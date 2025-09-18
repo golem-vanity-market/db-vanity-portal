@@ -351,8 +351,17 @@ const ProvidersPage = () => {
         <aside className="hidden lg:col-span-1 lg:block">
           <div className="sticky top-20 space-y-4">
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Filters</CardTitle>
+                <FilterHistory
+                  favoriteFilters={favoriteFilters}
+                  filterHistory={filterHistory}
+                  applyHistoricalFilter={applyHistoricalFilter}
+                  deleteHistoricalFilter={removeFromHistory}
+                  promoteToFavorite={promoteToFavorite}
+                  deleteFavoriteFilter={removeFromFavorites}
+                  updateFavoriteName={updateFavoriteName}
+                />
               </CardHeader>
               <CardContent>
                 <ProviderFilters
@@ -426,15 +435,6 @@ const ProvidersPage = () => {
               </div>
 
               <div className="flex items-center gap-2">
-                <FilterHistory
-                  favoriteFilters={favoriteFilters}
-                  filterHistory={filterHistory}
-                  applyHistoricalFilter={applyHistoricalFilter}
-                  deleteHistoricalFilter={removeFromHistory}
-                  promoteToFavorite={promoteToFavorite}
-                  deleteFavoriteFilter={removeFromFavorites}
-                  updateFavoriteName={updateFavoriteName}
-                />
                 <Sheet>
                   <SheetTrigger asChild>
                     <Button variant="outline" className="lg:hidden">
@@ -450,6 +450,17 @@ const ProvidersPage = () => {
                     />
                   </SheetContent>
                 </Sheet>
+                <div className="lg:hidden">
+                  <FilterHistory
+                    favoriteFilters={favoriteFilters}
+                    filterHistory={filterHistory}
+                    applyHistoricalFilter={applyHistoricalFilter}
+                    deleteHistoricalFilter={removeFromHistory}
+                    promoteToFavorite={promoteToFavorite}
+                    deleteFavoriteFilter={removeFromFavorites}
+                    updateFavoriteName={updateFavoriteName}
+                  />
+                </div>
                 <Button onClick={() => fetchData(true)} disabled={loading}>
                   {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : <RefreshCw className="mr-2 size-4" />}
                   Refresh

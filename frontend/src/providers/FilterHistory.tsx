@@ -122,8 +122,8 @@ export const FilterHistory = ({
   return (
     <Popover open={isPopoverOpen} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <Button variant="outline">
-          <History className="mr-2 size-4" /> History
+        <Button variant="outline" size="icon">
+          <History className="size-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80">
