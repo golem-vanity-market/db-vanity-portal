@@ -42,7 +42,7 @@ const ProvidersPage = () => {
   const [providerData, setProviderData] = useState<ProviderData | null>(null);
   const [displayLimit, setDisplayLimit] = useState(50);
   const [showBackToTop, setShowBackToTop] = useState(false);
-  const { filter, changeFilterField, resetFilters } = useFilterState();
+  const { stagedFilters, appliedFilters, changeStagedFilterField, resetFilters, applyFilters } = useFilterState();
 
   const client = useMemo(
     () =>
@@ -78,118 +78,134 @@ const ProvidersPage = () => {
   };
 
   useEffect(() => {
-    let completeQuery = `curl ${
-      import.meta.env.VITE_GOLEM_DB_RPC
-    } -X POST -H "Content-Type: application/json" --data '{"method":"golembase_queryEntities","params":["%%QUERY%%"], "id": 1, "jsonrpc":"2.0"}' | jq '.result[] | .value' | wc -l`;
+    let completeQuery = `curl ${import.meta.env.VITE_GOLEM_DB_RPC} -X POST -H "Content-Type: application/json" --data '{"method":"golembase_queryEntities","params":["%%QUERY%%"], "id": 1, "jsonrpc":"2.0"}' | jq '.result[] | .value' | wc -l`;
 
     let numberOfParenthesis = 0;
     let qbuild = `$owner = "${import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}"`;
-    if (filter.providerNameSearch) {
+    if (appliedFilters.providerNameSearch) {
       numberOfParenthesis += 1;
-      qbuild += ` && name = "${escapeForJS(filter.providerNameSearch)}")`;
+      qbuild += ` && name = "${escapeForJS(appliedFilters.providerNameSearch)}")`;
     }
-    if (filter.minWork !== null) {
+    if (appliedFilters.minWork !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalWork >= "${mapValueForAnnotation(filter.minWork * 1e9, "totalWork")}")`;
+      qbuild += ` && totalWork >= "${mapValueForAnnotation(appliedFilters.minWork * 1e9, "totalWork")}")`;
     }
-    if (filter.maxWork !== null) {
+    if (appliedFilters.maxWork !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalWork <= "${mapValueForAnnotation(filter.maxWork * 1e9, "totalWork")}")`;
+      qbuild += ` && totalWork <= "${mapValueForAnnotation(appliedFilters.maxWork * 1e9, "totalWork")}")`;
     }
-    if (filter.minWork24h !== null) {
+    if (appliedFilters.minWork24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalWork24h >= "${mapValueForAnnotation(filter.minWork24h * 1e9, "totalWork24h")}")`;
+      qbuild += ` && totalWork24h >= "${mapValueForAnnotation(appliedFilters.minWork24h * 1e9, "totalWork24h")}")`;
     }
-    if (filter.maxWork24h !== null) {
+    if (appliedFilters.maxWork24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalWork24h <= "${mapValueForAnnotation(filter.maxWork24h * 1e9, "totalWork24h")}")`;
+      qbuild += ` && totalWork24h <= "${mapValueForAnnotation(appliedFilters.maxWork24h * 1e9, "totalWork24h")}")`;
     }
-    if (filter.minSpeed !== null) {
+    if (appliedFilters.minSpeed !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && speed >= "${mapValueForAnnotation(filter.minSpeed * 1e6, "speed")}")`;
+      qbuild += ` && speed >= "${mapValueForAnnotation(appliedFilters.minSpeed * 1e6, "speed")}")`;
     }
-    if (filter.maxSpeed !== null) {
+    if (appliedFilters.maxSpeed !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && speed <= "${mapValueForAnnotation(filter.maxSpeed * 1e6, "speed")}")`;
+      qbuild += ` && speed <= "${mapValueForAnnotation(appliedFilters.maxSpeed * 1e6, "speed")}")`;
     }
-    if (filter.minSpeed24h !== null) {
+    if (appliedFilters.minSpeed24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && speed24h >= "${mapValueForAnnotation(filter.minSpeed24h * 1e6, "speed24h")}")`;
+      qbuild += ` && speed24h >= "${mapValueForAnnotation(appliedFilters.minSpeed24h * 1e6, "speed24h")}")`;
     }
-    if (filter.maxSpeed24h !== null) {
+    if (appliedFilters.maxSpeed24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && speed24h <= "${mapValueForAnnotation(filter.maxSpeed24h * 1e6, "speed24h")}")`;
+      qbuild += ` && speed24h <= "${mapValueForAnnotation(appliedFilters.maxSpeed24h * 1e6, "speed24h")}")`;
     }
-    if (filter.minEfficiency !== null) {
+    if (appliedFilters.minEfficiency !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && efficiency >= "${mapValueForAnnotation(filter.minEfficiency * 1e12, "efficiency")}")`;
+      qbuild += ` && efficiency >= "${mapValueForAnnotation(appliedFilters.minEfficiency * 1e12, "efficiency")}")`;
     }
-    if (filter.maxEfficiency !== null) {
+    if (appliedFilters.maxEfficiency !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && efficiency <= "${mapValueForAnnotation(filter.maxEfficiency * 1e12, "efficiency")}")`;
+      qbuild += ` && efficiency <= "${mapValueForAnnotation(appliedFilters.maxEfficiency * 1e12, "efficiency")}")`;
     }
-    if (filter.minEfficiency24h !== null) {
+    if (appliedFilters.minEfficiency24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && efficiency24h >= "${mapValueForAnnotation(filter.minEfficiency24h * 1e12, "efficiency24h")}")`;
+      qbuild += ` && efficiency24h >= "${mapValueForAnnotation(
+        appliedFilters.minEfficiency24h * 1e12,
+        "efficiency24h",
+      )}")`;
     }
-    if (filter.maxEfficiency24h !== null) {
+    if (appliedFilters.maxEfficiency24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && efficiency24h <= "${mapValueForAnnotation(filter.maxEfficiency24h * 1e12, "efficiency24h")}")`;
+      qbuild += ` && efficiency24h <= "${mapValueForAnnotation(
+        appliedFilters.maxEfficiency24h * 1e12,
+        "efficiency24h",
+      )}")`;
     }
-    if (filter.minTotalCost !== null) {
+    if (appliedFilters.minTotalCost !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalCost >= "${mapValueForAnnotation(filter.minTotalCost, "totalCost")}")`;
+      qbuild += ` && totalCost >= "${mapValueForAnnotation(appliedFilters.minTotalCost, "totalCost")}")`;
     }
-    if (filter.maxTotalCost !== null) {
+    if (appliedFilters.maxTotalCost !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalCost <= "${mapValueForAnnotation(filter.maxTotalCost, "totalCost")}")`;
+      qbuild += ` && totalCost <= "${mapValueForAnnotation(appliedFilters.maxTotalCost, "totalCost")}")`;
     }
-    if (filter.minTotalCost24h !== null) {
+    if (appliedFilters.minTotalCost24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalCost24h >= "${mapValueForAnnotation(filter.minTotalCost24h, "totalCost24h")}")`;
+      qbuild += ` && totalCost24h >= "${mapValueForAnnotation(appliedFilters.minTotalCost24h, "totalCost24h")}")`;
     }
-    if (filter.maxTotalCost24h !== null) {
+    if (appliedFilters.maxTotalCost24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalCost24h <= "${mapValueForAnnotation(filter.maxTotalCost24h, "totalCost24h")}")`;
+      qbuild += ` && totalCost24h <= "${mapValueForAnnotation(appliedFilters.maxTotalCost24h, "totalCost24h")}")`;
     }
-    if (filter.minWorkHours !== null) {
+    if (appliedFilters.minWorkHours !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalWorkHours >= "${mapValueForAnnotation(filter.minWorkHours, "totalWorkHours")}")`;
+      qbuild += ` && totalWorkHours >= "${mapValueForAnnotation(appliedFilters.minWorkHours, "totalWorkHours")}")`;
     }
-    if (filter.maxWorkHours !== null) {
+    if (appliedFilters.maxWorkHours !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalWorkHours <= "${mapValueForAnnotation(filter.maxWorkHours, "totalWorkHours")}")`;
+      qbuild += ` && totalWorkHours <= "${mapValueForAnnotation(appliedFilters.maxWorkHours, "totalWorkHours")}")`;
     }
-    if (filter.minWorkHours24h !== null) {
+    if (appliedFilters.minWorkHours24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalWorkHours24h >= "${mapValueForAnnotation(filter.minWorkHours24h, "totalWorkHours24h")}")`;
+      qbuild += ` && totalWorkHours24h >= "${mapValueForAnnotation(
+        appliedFilters.minWorkHours24h,
+        "totalWorkHours24h",
+      )}")`;
     }
-    if (filter.maxWorkHours24h !== null) {
+    if (appliedFilters.maxWorkHours24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalWorkHours24h <= "${mapValueForAnnotation(filter.maxWorkHours24h, "totalWorkHours24h")}")`;
+      qbuild += ` && totalWorkHours24h <= "${mapValueForAnnotation(
+        appliedFilters.maxWorkHours24h,
+        "totalWorkHours24h",
+      )}")`;
     }
-    if (filter.minNumberOfJobs !== null) {
+    if (appliedFilters.minNumberOfJobs !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && numberOfJobs >= ${mapValueForNumberAnnotation(filter.minNumberOfJobs, "numberOfJobs")})`;
+      qbuild += ` && numberOfJobs >= ${mapValueForNumberAnnotation(appliedFilters.minNumberOfJobs, "numberOfJobs")}`;
     }
-    if (filter.maxNumberOfJobs !== null) {
+    if (appliedFilters.maxNumberOfJobs !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && numberOfJobs <= ${mapValueForNumberAnnotation(filter.maxNumberOfJobs, "numberOfJobs")})`;
+      qbuild += ` && numberOfJobs <= ${mapValueForNumberAnnotation(appliedFilters.maxNumberOfJobs, "numberOfJobs")}`;
     }
-    if (filter.minNumberOfJobs24h !== null) {
+    if (appliedFilters.minNumberOfJobs24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && numberOfJobs24h >= ${mapValueForNumberAnnotation(filter.minNumberOfJobs24h, "numberOfJobs24h")})`;
+      qbuild += ` && numberOfJobs24h >= ${mapValueForNumberAnnotation(
+        appliedFilters.minNumberOfJobs24h,
+        "numberOfJobs24h",
+      )}`;
     }
-    if (filter.maxNumberOfJobs24h !== null) {
+    if (appliedFilters.maxNumberOfJobs24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && numberOfJobs24h <= ${mapValueForNumberAnnotation(filter.maxNumberOfJobs24h, "numberOfJobs24h")})`;
+      qbuild += ` && numberOfJobs24h <= ${mapValueForNumberAnnotation(
+        appliedFilters.maxNumberOfJobs24h,
+        "numberOfJobs24h",
+      )}`;
     }
 
     qbuild = "(".repeat(numberOfParenthesis) + qbuild;
     setInternalQuery(qbuild);
     completeQuery = completeQuery.replace("%%QUERY%%", escapeForJS(qbuild));
     setCurlQuery(completeQuery);
-  }, [filter]);
+  }, [appliedFilters]);
 
   const fetchData = useCallback(
     async (forceRefresh = false) => {
@@ -228,7 +244,7 @@ const ProvidersPage = () => {
     }
 
     const providers = Object.values(providerData.byProviderId);
-    const fc = filter;
+    const fc = appliedFilters;
 
     const filtered = providers.filter((p) => {
       if (fc.providerNameSearch && !p.providerName.toLowerCase().includes(fc.providerNameSearch.toLowerCase()))
@@ -262,7 +278,7 @@ const ProvidersPage = () => {
     });
 
     const sorted = filtered.sort((a, b) => {
-      const { sortBy, sortOrder } = filter;
+      const { sortBy, sortOrder } = appliedFilters;
       let aVal, bVal;
 
       // Handle special calculated cases first
@@ -289,12 +305,18 @@ const ProvidersPage = () => {
       totalMatches: sorted.length,
       displayedProviders: sorted.slice(0, displayLimit),
     };
-  }, [providerData, filter, displayLimit]);
+  }, [providerData, appliedFilters, displayLimit]);
 
-  const changeFilterFieldAndResetList = (key: keyof FilterCriteria, value: string | number | null) => {
-    changeFilterField(key, value);
+  const applyFiltersAndResetList = () => {
+    applyFilters();
     window.scrollTo({ top: 0, behavior: "instant" });
-    setDisplayLimit(50); // Reset display limit on filter change
+    setDisplayLimit(50);
+  };
+
+  const resetFiltersAndResetList = () => {
+    resetFilters();
+    window.scrollTo({ top: 0, behavior: "instant" });
+    setDisplayLimit(50);
   };
 
   return (
@@ -308,12 +330,14 @@ const ProvidersPage = () => {
                 <CardTitle>Filters</CardTitle>
               </CardHeader>
               <CardContent>
-                <ProviderFilters filter={filter} changeFilterField={changeFilterFieldAndResetList} />
+                <ProviderFilters
+                  filter={stagedFilters}
+                  changeFilterField={changeStagedFilterField}
+                  applyFilters={applyFiltersAndResetList}
+                  resetFilters={resetFiltersAndResetList}
+                />
               </CardContent>
             </Card>
-            <Button variant="outline" className="w-full" onClick={resetFilters}>
-              <FilterX className="mr-2 size-4" /> Reset Filters
-            </Button>
             <Button
               onClick={() => {
                 navigator.clipboard.writeText(curlQuery);
@@ -341,8 +365,8 @@ const ProvidersPage = () => {
                   Sort By
                 </Label>
                 <Select
-                  value={filter.sortBy}
-                  onValueChange={(value) => changeFilterFieldAndResetList("sortBy", value as FilterCriteria["sortBy"])}
+                  value={stagedFilters.sortBy}
+                  onValueChange={(value) => changeStagedFilterField("sortBy", value as FilterCriteria["sortBy"])}
                 >
                   <SelectTrigger id="sort-by" className="mt-1 w-full sm:w-[180px]">
                     <SelectValue placeholder="Select sorting" />
@@ -363,8 +387,8 @@ const ProvidersPage = () => {
                   Order
                 </Label>
                 <Select
-                  value={filter.sortOrder}
-                  onValueChange={(value) => changeFilterFieldAndResetList("sortOrder", value as "asc" | "desc")}
+                  value={stagedFilters.sortOrder}
+                  onValueChange={(value) => changeStagedFilterField("sortOrder", value as "asc" | "desc")}
                 >
                   <SelectTrigger id="sort-order" className="mt-1 w-full sm:w-[120px]">
                     <SelectValue placeholder="Select order" />
@@ -384,7 +408,12 @@ const ProvidersPage = () => {
                     </Button>
                   </SheetTrigger>
                   <SheetContent>
-                    <ProviderFilters filter={filter} changeFilterField={changeFilterFieldAndResetList} />
+                    <ProviderFilters
+                      filter={stagedFilters}
+                      changeFilterField={changeStagedFilterField}
+                      applyFilters={applyFiltersAndResetList}
+                      resetFilters={resetFiltersAndResetList}
+                    />
                   </SheetContent>
                 </Sheet>
                 <Button onClick={() => fetchData(true)} disabled={loading}>
@@ -429,7 +458,7 @@ const ProvidersPage = () => {
               <p className="mt-2 text-sm text-muted-foreground">
                 Try adjusting your filters or click &quot;Reset Filters&quot;.
               </p>
-              <Button variant="secondary" className="mt-4" onClick={resetFilters}>
+              <Button variant="secondary" className="mt-4" onClick={resetFiltersAndResetList}>
                 <FilterX className="mr-2 size-4" /> Reset Filters
               </Button>
             </div>

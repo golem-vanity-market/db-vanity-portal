@@ -1,14 +1,17 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { FilterCriteria } from "./provider-types";
-import { CircleDollarSign, Cpu, GaugeCircle, Hash, Timer, TrendingUp } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { CircleDollarSign, Cpu, FilterX, GaugeCircle, Hash, Timer, TrendingUp } from "lucide-react";
+import { FilterCriteria } from "./provider-types";
 
 interface ProviderFiltersProps {
   filter: FilterCriteria;
   changeFilterField: (key: keyof FilterCriteria, value: string | number | null) => void;
+  applyFilters: () => void;
+  resetFilters: () => void;
 }
 
 const filterableMetrics = [
@@ -69,7 +72,7 @@ const filterableMetrics = [
   allTime: { minKey: keyof FilterCriteria; maxKey: keyof FilterCriteria };
 }[];
 
-export const ProviderFilters = ({ filter, changeFilterField }: ProviderFiltersProps) => {
+export const ProviderFilters = ({ filter, changeFilterField, applyFilters, resetFilters }: ProviderFiltersProps) => {
   const handleNumericChange = (key: keyof FilterCriteria, value: string) => {
     const numericValue = value === "" ? null : Number(value);
     changeFilterField(key, numericValue);
@@ -157,6 +160,14 @@ export const ProviderFilters = ({ filter, changeFilterField }: ProviderFiltersPr
             ))}
           </Accordion>
         </ScrollArea>
+        <div className="grid grid-cols-2 gap-2">
+          <Button onClick={applyFilters} className="w-full">
+            Apply Filters
+          </Button>
+          <Button variant="outline" className="w-full" onClick={resetFilters}>
+            <FilterX className="mr-2 size-4" /> Reset
+          </Button>
+        </div>
       </div>
     </div>
   );

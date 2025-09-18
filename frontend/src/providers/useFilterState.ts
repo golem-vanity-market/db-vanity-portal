@@ -70,7 +70,7 @@ const defaultFilterCriteria = (): FilterCriteria => ({
 });
 
 export function useFilterState() {
-  const [filter, setFilterCriteria] = useState<FilterCriteria>(() => {
+  const [appliedFilters, setAppliedFilters] = useState<FilterCriteria>(() => {
     const defaults = defaultFilterCriteria();
     const cachedItem = localStorage.getItem("providerFilterCriteria");
 
@@ -87,6 +87,9 @@ export function useFilterState() {
     localStorage.setItem("providerFilterCriteria", JSON.stringify(cachedFilters));
     return cachedFilters;
   });
+
+  const [stagedFilters, setStagedFilters] = useState<FilterCriteria>(appliedFilters);
+
   const [filterHistory, setFilterHistory] = useState<FilterCriteria[]>(() => {
     const cachedItem = localStorage.getItem("providerFilterHistory");
     if (!cachedItem) return [];
@@ -116,21 +119,32 @@ export function useFilterState() {
     });
   }, []);
 
-  const changeFilterField = useCallback(<K extends keyof FilterCriteria>(key: K, value: FilterCriteria[K]) => {
-    setFilterCriteria((prev) => {
-      const newFilters = { ...prev, [key]: value };
-      localStorage.setItem("providerFilterCriteria", JSON.stringify(newFilters));
-      return newFilters;
-    });
+  const applyFilters = useCallback(() => {
+    setAppliedFilters(stagedFilters);
+    addToHistory(stagedFilters);
+    localStorage.setItem("providerFilterCriteria", JSON.stringify(stagedFilters));
+  }, [stagedFilters, addToHistory]);
+
+  const changeStagedFilterField = useCallback(<K extends keyof FilterCriteria>(key: K, value: FilterCriteria[K]) => {
+    setStagedFilters((prev) => ({ ...prev, [key]: value }));
   }, []);
 
   const resetFilters = useCallback(() => {
     const defaults = defaultFilterCriteria();
-    setFilterCriteria(defaults);
+    setStagedFilters(defaults);
+    setAppliedFilters(defaults);
     localStorage.setItem("providerFilterCriteria", JSON.stringify(defaults));
   }, []);
 
-  return { filter, changeFilterField, resetFilters, filterHistory, addToHistory };
+  return {
+    stagedFilters,
+    appliedFilters,
+    changeStagedFilterField,
+    resetFilters,
+    filterHistory,
+    addToHistory,
+    applyFilters,
+  };
 }
 
 export type FilterState = ReturnType<typeof useFilterState>;
