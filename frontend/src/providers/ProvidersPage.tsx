@@ -24,17 +24,18 @@ const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 
 const sortOptions = [
   { value: "providerName", label: "Provider Name" },
-  { value: "speed24h", label: "Speed (24h)" },
-  { value: "efficiency24h", label: "Efficiency (24h)" },
-  { value: "totalWorkHours24h", label: "Work Hours (24h)" },
-  { value: "totalCost24h", label: "Cost (24h)" },
-  { value: "numberOfJobs24h", label: "Jobs (24h)" },
   { value: "longestJob", label: "Longest Job (All Time)" },
+  { value: "longestJob24h", label: "Longest Job (24h)" },
   { value: "speed", label: "Speed (All Time)" },
+  { value: "speed24h", label: "Speed (24h)" },
   { value: "efficiency", label: "Efficiency (All Time)" },
+  { value: "efficiency24h", label: "Efficiency (24h)" },
   { value: "totalWorkHours", label: "Work Hours (All Time)" },
+  { value: "totalWorkHours24h", label: "Work Hours (24h)" },
   { value: "totalCost", label: "Cost (All Time)" },
+  { value: "totalCost24h", label: "Cost (24h)" },
   { value: "numberOfJobs", label: "Jobs (All Time)" },
+  { value: "numberOfJobs24h", label: "Jobs (24h)" },
   { value: "score", label: "Score" },
 ];
 
