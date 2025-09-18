@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gold Fancy Font + Ethereum Address</title>
+
+  <!-- Google Font for a fancy serif style -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg: #0f1115;
+      --accent: #ffd966;
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      background: radial-gradient(1200px 600px at 10% 10%, #111219 0%, #0f1115 25%, #08090b 100%);
+      color: #f5f5f5;
+      font-family: "Cinzel", serif;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:36px;
+      box-sizing:border-box;
+    }
+
+    .card{
+      width:100%;
+      max-width:920px;
+      text-align:center;
+      padding:48px;
+      border-radius:18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      box-shadow: 0 10px 40px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+
+    /* GOLD FANCY HEADING */
+    .gold-title{
+      font-size: clamp(36px, 8vw, 86px);
+      line-height: 0.95;
+      margin: 0 0 12px 0;
+      letter-spacing: -1px;
+
+      /* gold gradient fill */
+      background: linear-gradient(90deg,
+      #f9e2a6 0%,
+      #ffd96a 15%,
+      #ffcf3a 30%,
+      #d09b2f 55%,
+      #b68726 70%,
+      #7a5216 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+
+      /* subtle emboss / shadow layers for depth */
+      text-shadow:
+        0 1px 0 rgba(0,0,0,0.55),
+        0 6px 18px rgba(10,8,6,0.65),
+        0 1px 0 rgba(255,255,255,0.06) inset;
+      position: relative;
+      display:inline-block;
+      padding: 6px 12px;
+    }
+
+    /* thin dark outline behind text for contrast */
+    .gold-title::before{
+      content: attr(data-text);
+      position:absolute;
+      left:4px;
+      top:4px;
+      z-index:-1;
+      -webkit-text-stroke: 2px rgba(0,0,0,0.45);
+      color: rgba(0,0,0,0.45);
+      filter: blur(6px);
+      opacity:0.4;
+    }
+
+    /* Glossy top highlight using pseudo-element */
+    .gold-title::after{
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 10%;
+      height: 30%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.45), rgba(255,255,255,0.06));
+      mix-blend-mode: overlay;
+      border-radius: 12px;
+      pointer-events: none;
+      transform: skewY(-6deg);
+    }
+
+    /* Ethereum address block */
+    .address {
+      margin-top: 22px;
+      display:inline-flex;
+      align-items:center;
+      gap:12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding:12px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.03);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 8px 22px rgba(0,0,0,0.55);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+      font-size:16px;
+      color: #eae6d9;
+    }
+
+    .address .addr-text{
+      letter-spacing:0.6px;
+      font-weight:600;
+      user-select: all;
+    }
+
+    .btn{
+      appearance:none;
+      border:0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      color:var(--accent);
+      padding:8px 12px;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:700;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.02);
+      transition: transform .14s ease, box-shadow .14s ease;
+    }
+    .btn:active{ transform: translateY(1px) scale(.997); }
+    .btn:focus{ outline: 2px solid rgba(255,210,120,0.14); }
+
+    .muted{
+      margin-top:10px;
+      font-size:13px;
+      color: rgba(255,255,255,0.55);
+    }
+
+    /* small responsive tweaks */
+    @media (max-width:520px){
+      .address{ font-size:14px; padding:10px; gap:8px }
+      .gold-title::after{ display:none; }
+    }
+  </style>
+</head>
+<body>
+<div class="card" role="main" aria-labelledby="main-title">
+  <h1 id="main-title" class="gold-title" data-text="Golden Ledger">Golden Address</h1>
+
+  <div class="address" aria-live="polite">
+    <div class="addr-text" id="eth-address">0xB333813333703333666220aaa3509994fA744811</div>
+    <button class="btn" id="copy-btn" title="Copy address">Copy</button>
+  </div>
+
+  <div class="muted">This Ethereum address is randomly generated for demo purposes only — do not send real funds to it.</div>
+</div>
+
+<script>
+  // Copy-to-clipboard for the address
+  const copyBtn = document.getElementById('copy-btn');
+  const addrEl = document.getElementById('eth-address');
+
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(addrEl.textContent.trim());
+      copyBtn.textContent = 'Copied ✓';
+      setTimeout(()=> copyBtn.textContent = 'Copy', 1600);
+    } catch (err) {
+      // fallback
+      const range = document.createRange();
+      range.selectNode(addrEl);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      try {
+        document.execCommand('copy');
+        copyBtn.textContent = 'Copied ✓';
+        setTimeout(()=> copyBtn.textContent = 'Copy', 1600);
+      } catch (e) {
+        alert('Could not copy — select and copy manually.');
+      }
+      sel.removeAllRanges();
+    }
+  });
+
+  // If you want to programmatically generate a different random example address,
+  // uncomment the following block (simple random hex generator):
+  /*
+  (function generateRandomAddress() {
+    function rndHex(len) {
+      let s = '';
+      const hex = '0123456789abcdef';
+      for(let i=0;i<len;i++) s += hex[Math.floor(Math.random()*16)];
+      return s;
+    }
+    const addr = '0x' + rndHex(40);
+    addrEl.textContent = addr;
+  })();
+  */
+</script>
+</body>
+</html>
