@@ -90,7 +90,17 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
                 <ExternalLink className="size-4" />
               </a>
             </CardTitle>
-            <CardDescription className="pt-1 font-mono text-xs break-all">{provider.providerId}</CardDescription>
+            <CardDescription className="pt-1 font-mono text-xs break-all">
+              {provider.providerId}{" "}
+              <a
+                rel="noopener noreferrer"
+                target="_blank"
+                href={`${import.meta.env.BASE_URL}provider?providerId=${provider.providerId}`}
+              >
+                {" "}
+                Details
+              </a>
+            </CardDescription>
             <CardDescription className="pt-1 font-mono text-xs break-all">
               <a
                 href={`https://explorer.ethwarsaw.holesky.golemdb.io/entity/${provider.key}?tab=data`}

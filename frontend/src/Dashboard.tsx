@@ -15,6 +15,7 @@ import { Separator } from "./components/ui/separator";
 import { Badge } from "./components/ui/badge";
 import { Skeleton } from "./components/ui/skeleton";
 import { Footer } from "./Footer";
+import DetailsPage from "@/provider/DetailsPage.tsx";
 
 const Dashboard = () => {
   const [current_block, setCurrentBlock] = React.useState<bigint | null>(null);
@@ -85,6 +86,7 @@ const Dashboard = () => {
           <Routes>
             <Route path="/" element={<Welcome />} />
             <Route path="/providers" element={<ProvidersPage />} />
+            <Route path="/provider" element={<DetailsPage />} />
           </Routes>
         </div>
       </main>

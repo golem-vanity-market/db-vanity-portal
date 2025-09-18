@@ -20,7 +20,7 @@ export function numberToSortableString(
     num = 0; // negative → 0
   }
   //big numbers → max representable, can happen with e.g. efficiency
-  num = Math.min(num, 0.9999 * (10 ** intWidth)); // clamp to max representable
+  num = Math.min(num, 0.9999 * 10 ** intWidth); // clamp to max representable
   if (!isFinite(num)) {
     // Infinity → max sortable value
     return `${"9".repeat(intWidth)}.${"9".repeat(fracWidth)}${unit}`;
