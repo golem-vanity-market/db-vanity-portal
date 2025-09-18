@@ -7,8 +7,8 @@ import { CircleDollarSign, Cpu, GaugeCircle, Hash, Timer, TrendingUp } from "luc
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ProviderFiltersProps {
-  filters: FilterCriteria;
-  onFilterChange: <K extends keyof FilterCriteria>(key: K, value: FilterCriteria[K]) => void;
+  filter: FilterCriteria;
+  changeFilterField: (key: keyof FilterCriteria, value: string | number | null) => void;
 }
 
 const filterableMetrics = [
@@ -69,9 +69,10 @@ const filterableMetrics = [
   allTime: { minKey: keyof FilterCriteria; maxKey: keyof FilterCriteria };
 }[];
 
-export const ProviderFilters = ({ filters, onFilterChange }: ProviderFiltersProps) => {
+export const ProviderFilters = ({ filter, changeFilterField }: ProviderFiltersProps) => {
   const handleNumericChange = (key: keyof FilterCriteria, value: string) => {
-    onFilterChange(key, value ? Number(value) : null);
+    const numericValue = value === "" ? null : Number(value);
+    changeFilterField(key, numericValue);
   };
 
   return (
@@ -81,8 +82,8 @@ export const ProviderFilters = ({ filters, onFilterChange }: ProviderFiltersProp
         <Input
           id="providerNameSearch"
           placeholder="Search by name..."
-          value={filters.providerNameSearch}
-          onChange={(e) => onFilterChange("providerNameSearch", e.target.value)}
+          value={filter.providerNameSearch}
+          onChange={(e) => changeFilterField("providerNameSearch", e.target.value)}
         />
       </div>
 
@@ -120,13 +121,13 @@ export const ProviderFilters = ({ filters, onFilterChange }: ProviderFiltersProp
                         <Input
                           type="number"
                           placeholder="Min"
-                          value={filters[metric.h24.minKey as keyof FilterCriteria] ?? ""}
+                          value={filter[metric.h24.minKey] ?? ""}
                           onChange={(e) => handleNumericChange(metric.h24.minKey, e.target.value)}
                         />
                         <Input
                           type="number"
                           placeholder="Max"
-                          value={filters[metric.h24.maxKey as keyof FilterCriteria] ?? ""}
+                          value={filter[metric.h24.maxKey] ?? ""}
                           onChange={(e) => handleNumericChange(metric.h24.maxKey, e.target.value)}
                         />
                       </div>
@@ -139,13 +140,13 @@ export const ProviderFilters = ({ filters, onFilterChange }: ProviderFiltersProp
                         <Input
                           type="number"
                           placeholder="Min"
-                          value={filters[metric.allTime.minKey as keyof FilterCriteria] ?? ""}
+                          value={filter[metric.allTime.minKey] ?? ""}
                           onChange={(e) => handleNumericChange(metric.allTime.minKey, e.target.value)}
                         />
                         <Input
                           type="number"
                           placeholder="Max"
-                          value={filters[metric.allTime.maxKey as keyof FilterCriteria] ?? ""}
+                          value={filter[metric.allTime.maxKey] ?? ""}
                           onChange={(e) => handleNumericChange(metric.allTime.maxKey, e.target.value)}
                         />
                       </div>

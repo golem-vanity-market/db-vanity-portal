@@ -9,46 +9,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowUp, Filter, FilterX, Loader2, RefreshCw } from "lucide-react";
-import { FilterCriteria } from "./provider-types";
 import { ProviderFilters } from "./ProviderFilters";
 import { ProviderCard } from "./ProviderCard";
 import { getProviderScore } from "./provider-utils";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { escapeForJS } from "@/utils";
 import ExperimentalAlert from "@/components/ExperimentalAlert";
+import { useFilterState } from "./useFilterState";
+import { FilterCriteria } from "./provider-types";
 
 const CACHE_KEY = "providerDataCache";
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
-
-const defaultFilterCriteria = (): FilterCriteria => ({
-  providerNameSearch: "",
-  minWork: null,
-  maxWork: null,
-  minWork24h: null,
-  maxWork24h: null,
-  minSpeed: null,
-  maxSpeed: null,
-  minSpeed24h: null,
-  maxSpeed24h: null,
-  minEfficiency: null,
-  maxEfficiency: null,
-  minEfficiency24h: null,
-  maxEfficiency24h: null,
-  minWorkHours: null,
-  maxWorkHours: null,
-  minWorkHours24h: 1,
-  maxWorkHours24h: null,
-  minTotalCost: null,
-  maxTotalCost: null,
-  minTotalCost24h: null,
-  maxTotalCost24h: null,
-  minNumberOfJobs: null,
-  maxNumberOfJobs: null,
-  minNumberOfJobs24h: 1,
-  maxNumberOfJobs24h: null,
-  sortBy: "score",
-  sortOrder: "desc",
-});
 
 const sortOptions = [
   { value: "providerName", label: "Provider Name" },
@@ -66,84 +37,12 @@ const sortOptions = [
   { value: "score", label: "Score" },
 ];
 
-const buildFilterFromLocalStorage = (
-  cached: Partial<FilterCriteria> | null,
-  defaults: FilterCriteria,
-): FilterCriteria => {
-  if (!cached) {
-    return defaults;
-  }
-  return {
-    providerNameSearch: cached.providerNameSearch ?? defaults.providerNameSearch,
-    sortBy: cached.sortBy ?? defaults.sortBy,
-    sortOrder: cached.sortOrder ?? defaults.sortOrder,
-    minWork: cached.minWork ?? defaults.minWork,
-    maxWork: cached.maxWork ?? defaults.maxWork,
-    minWork24h: cached.minWork24h ?? defaults.minWork24h,
-    maxWork24h: cached.maxWork24h ?? defaults.maxWork24h,
-    minSpeed: cached.minSpeed ?? defaults.minSpeed,
-    maxSpeed: cached.maxSpeed ?? defaults.maxSpeed,
-    minSpeed24h: cached.minSpeed24h ?? defaults.minSpeed24h,
-    maxSpeed24h: cached.maxSpeed24h ?? defaults.maxSpeed24h,
-    minEfficiency: cached.minEfficiency ?? defaults.minEfficiency,
-    maxEfficiency: cached.maxEfficiency ?? defaults.maxEfficiency,
-    minEfficiency24h: cached.minEfficiency24h ?? defaults.minEfficiency24h,
-    maxEfficiency24h: cached.maxEfficiency24h ?? defaults.maxEfficiency24h,
-    minWorkHours: cached.minWorkHours ?? defaults.minWorkHours,
-    maxWorkHours: cached.maxWorkHours ?? defaults.maxWorkHours,
-    minWorkHours24h: cached.minWorkHours24h ?? defaults.minWorkHours24h,
-    maxWorkHours24h: cached.maxWorkHours24h ?? defaults.maxWorkHours24h,
-    minTotalCost: cached.minTotalCost ?? defaults.minTotalCost,
-    maxTotalCost: cached.maxTotalCost ?? defaults.maxTotalCost,
-    minTotalCost24h: cached.minTotalCost24h ?? defaults.minTotalCost24h,
-    maxTotalCost24h: cached.maxTotalCost24h ?? defaults.maxTotalCost24h,
-    minNumberOfJobs: cached.minNumberOfJobs ?? defaults.minNumberOfJobs,
-    maxNumberOfJobs: cached.maxNumberOfJobs ?? defaults.maxNumberOfJobs,
-    minNumberOfJobs24h: cached.minNumberOfJobs24h ?? defaults.minNumberOfJobs24h,
-    maxNumberOfJobs24h: cached.maxNumberOfJobs24h ?? defaults.maxNumberOfJobs24h,
-  };
-};
-
-interface FilterPanelProps {
-  filters: FilterCriteria;
-  onFilterChange: <K extends keyof FilterCriteria>(key: K, value: FilterCriteria[K]) => void;
-}
-
-const FilterPanel = ({ filters, onFilterChange }: FilterPanelProps) => {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Filters</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ProviderFilters filters={filters} onFilterChange={onFilterChange} />
-      </CardContent>
-    </Card>
-  );
-};
-
 const ProvidersPage = () => {
   const [loading, setLoading] = useState(true);
   const [providerData, setProviderData] = useState<ProviderData | null>(null);
   const [displayLimit, setDisplayLimit] = useState(50);
   const [showBackToTop, setShowBackToTop] = useState(false);
-  const [filterCriteria, setFilterCriteria] = useState<FilterCriteria>(() => {
-    const defaults = defaultFilterCriteria();
-    const cachedItem = localStorage.getItem("providerFilterCriteria");
-
-    let parsedCache = null;
-    if (cachedItem) {
-      try {
-        parsedCache = JSON.parse(cachedItem);
-      } catch {
-        // ignore parsing errors
-      }
-    }
-
-    const cachedFilters = buildFilterFromLocalStorage(parsedCache, defaults);
-    localStorage.setItem("providerFilterCriteria", JSON.stringify(cachedFilters));
-    return cachedFilters;
-  });
+  const { filter, changeFilterField, resetFilters } = useFilterState();
 
   const client = useMemo(
     () =>
@@ -154,27 +53,9 @@ const ProvidersPage = () => {
       ),
     [],
   );
-
-  const handleFilterChange = useCallback(<K extends keyof FilterCriteria>(key: K, value: FilterCriteria[K]) => {
-    setFilterCriteria((prev) => {
-      const newFilters = { ...prev, [key]: value };
-      // if filters change, reset display limit to initial value and scroll back up
-      setDisplayLimit(50);
-      window.scrollTo({ top: 0, behavior: "instant" });
-      localStorage.setItem("providerFilterCriteria", JSON.stringify(newFilters));
-      return newFilters;
-    });
-  }, []);
-
   const fetchMoreData = () => {
     setDisplayLimit((prev) => prev + 50);
   };
-
-  const resetFilters = useCallback(() => {
-    const defaults = defaultFilterCriteria();
-    setFilterCriteria(defaults);
-    localStorage.setItem("providerFilterCriteria", JSON.stringify(defaults));
-  }, []);
 
   const [internalQuery, setInternalQuery] = useState<string>("");
   const [curlQuery, setCurlQuery] = useState<string>("");
@@ -203,130 +84,112 @@ const ProvidersPage = () => {
 
     let numberOfParenthesis = 0;
     let qbuild = `$owner = "${import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}"`;
-    if (filterCriteria.providerNameSearch) {
+    if (filter.providerNameSearch) {
       numberOfParenthesis += 1;
-      qbuild += ` && name = "${escapeForJS(filterCriteria.providerNameSearch)}")`;
+      qbuild += ` && name = "${escapeForJS(filter.providerNameSearch)}")`;
     }
-    if (filterCriteria.minWork !== null) {
+    if (filter.minWork !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalWork >= "${mapValueForAnnotation(filterCriteria.minWork * 1e9, "totalWork")}")`;
+      qbuild += ` && totalWork >= "${mapValueForAnnotation(filter.minWork * 1e9, "totalWork")}")`;
     }
-    if (filterCriteria.maxWork !== null) {
+    if (filter.maxWork !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalWork <= "${mapValueForAnnotation(filterCriteria.maxWork * 1e9, "totalWork")}")`;
+      qbuild += ` && totalWork <= "${mapValueForAnnotation(filter.maxWork * 1e9, "totalWork")}")`;
     }
-    if (filterCriteria.minWork24h !== null) {
+    if (filter.minWork24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalWork24h >= "${mapValueForAnnotation(filterCriteria.minWork24h * 1e9, "totalWork24h")}")`;
+      qbuild += ` && totalWork24h >= "${mapValueForAnnotation(filter.minWork24h * 1e9, "totalWork24h")}")`;
     }
-    if (filterCriteria.maxWork24h !== null) {
+    if (filter.maxWork24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalWork24h <= "${mapValueForAnnotation(filterCriteria.maxWork24h * 1e9, "totalWork24h")}")`;
+      qbuild += ` && totalWork24h <= "${mapValueForAnnotation(filter.maxWork24h * 1e9, "totalWork24h")}")`;
     }
-    if (filterCriteria.minSpeed !== null) {
+    if (filter.minSpeed !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && speed >= "${mapValueForAnnotation(filterCriteria.minSpeed * 1e6, "speed")}")`;
+      qbuild += ` && speed >= "${mapValueForAnnotation(filter.minSpeed * 1e6, "speed")}")`;
     }
-    if (filterCriteria.maxSpeed !== null) {
+    if (filter.maxSpeed !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && speed <= "${mapValueForAnnotation(filterCriteria.maxSpeed * 1e6, "speed")}")`;
+      qbuild += ` && speed <= "${mapValueForAnnotation(filter.maxSpeed * 1e6, "speed")}")`;
     }
-    if (filterCriteria.minSpeed24h !== null) {
+    if (filter.minSpeed24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && speed24h >= "${mapValueForAnnotation(filterCriteria.minSpeed24h * 1e6, "speed24h")}")`;
+      qbuild += ` && speed24h >= "${mapValueForAnnotation(filter.minSpeed24h * 1e6, "speed24h")}")`;
     }
-    if (filterCriteria.maxSpeed24h !== null) {
+    if (filter.maxSpeed24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && speed24h <= "${mapValueForAnnotation(filterCriteria.maxSpeed24h * 1e6, "speed24h")}")`;
+      qbuild += ` && speed24h <= "${mapValueForAnnotation(filter.maxSpeed24h * 1e6, "speed24h")}")`;
     }
-    if (filterCriteria.minEfficiency !== null) {
+    if (filter.minEfficiency !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && efficiency >= "${mapValueForAnnotation(filterCriteria.minEfficiency * 1e12, "efficiency")}")`;
+      qbuild += ` && efficiency >= "${mapValueForAnnotation(filter.minEfficiency * 1e12, "efficiency")}")`;
     }
-    if (filterCriteria.maxEfficiency !== null) {
+    if (filter.maxEfficiency !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && efficiency <= "${mapValueForAnnotation(filterCriteria.maxEfficiency * 1e12, "efficiency")}")`;
+      qbuild += ` && efficiency <= "${mapValueForAnnotation(filter.maxEfficiency * 1e12, "efficiency")}")`;
     }
-    if (filterCriteria.minEfficiency24h !== null) {
+    if (filter.minEfficiency24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && efficiency24h >= "${mapValueForAnnotation(
-        filterCriteria.minEfficiency24h * 1e12,
-        "efficiency24h",
-      )}")`;
+      qbuild += ` && efficiency24h >= "${mapValueForAnnotation(filter.minEfficiency24h * 1e12, "efficiency24h")}")`;
     }
-    if (filterCriteria.maxEfficiency24h !== null) {
+    if (filter.maxEfficiency24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && efficiency24h <= "${mapValueForAnnotation(
-        filterCriteria.maxEfficiency24h * 1e12,
-        "efficiency24h",
-      )}")`;
+      qbuild += ` && efficiency24h <= "${mapValueForAnnotation(filter.maxEfficiency24h * 1e12, "efficiency24h")}")`;
     }
-    if (filterCriteria.minTotalCost !== null) {
+    if (filter.minTotalCost !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalCost >= "${mapValueForAnnotation(filterCriteria.minTotalCost, "totalCost")}")`;
+      qbuild += ` && totalCost >= "${mapValueForAnnotation(filter.minTotalCost, "totalCost")}")`;
     }
-    if (filterCriteria.maxTotalCost !== null) {
+    if (filter.maxTotalCost !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalCost <= "${mapValueForAnnotation(filterCriteria.maxTotalCost, "totalCost")}")`;
+      qbuild += ` && totalCost <= "${mapValueForAnnotation(filter.maxTotalCost, "totalCost")}")`;
     }
-    if (filterCriteria.minTotalCost24h !== null) {
+    if (filter.minTotalCost24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalCost24h >= "${mapValueForAnnotation(filterCriteria.minTotalCost24h, "totalCost24h")}")`;
+      qbuild += ` && totalCost24h >= "${mapValueForAnnotation(filter.minTotalCost24h, "totalCost24h")}")`;
     }
-    if (filterCriteria.maxTotalCost24h !== null) {
+    if (filter.maxTotalCost24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalCost24h <= "${mapValueForAnnotation(filterCriteria.maxTotalCost24h, "totalCost24h")}")`;
+      qbuild += ` && totalCost24h <= "${mapValueForAnnotation(filter.maxTotalCost24h, "totalCost24h")}")`;
     }
-    if (filterCriteria.minWorkHours !== null) {
+    if (filter.minWorkHours !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalWorkHours >= "${mapValueForAnnotation(filterCriteria.minWorkHours, "totalWorkHours")}")`;
+      qbuild += ` && totalWorkHours >= "${mapValueForAnnotation(filter.minWorkHours, "totalWorkHours")}")`;
     }
-    if (filterCriteria.maxWorkHours !== null) {
+    if (filter.maxWorkHours !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalWorkHours <= "${mapValueForAnnotation(filterCriteria.maxWorkHours, "totalWorkHours")}")`;
+      qbuild += ` && totalWorkHours <= "${mapValueForAnnotation(filter.maxWorkHours, "totalWorkHours")}")`;
     }
-    if (filterCriteria.minWorkHours24h !== null) {
+    if (filter.minWorkHours24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalWorkHours24h >= "${mapValueForAnnotation(
-        filterCriteria.minWorkHours24h,
-        "totalWorkHours24h",
-      )}")`;
+      qbuild += ` && totalWorkHours24h >= "${mapValueForAnnotation(filter.minWorkHours24h, "totalWorkHours24h")}")`;
     }
-    if (filterCriteria.maxWorkHours24h !== null) {
+    if (filter.maxWorkHours24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && totalWorkHours24h <= "${mapValueForAnnotation(
-        filterCriteria.maxWorkHours24h,
-        "totalWorkHours24h",
-      )}")`;
+      qbuild += ` && totalWorkHours24h <= "${mapValueForAnnotation(filter.maxWorkHours24h, "totalWorkHours24h")}")`;
     }
-    if (filterCriteria.minNumberOfJobs !== null) {
+    if (filter.minNumberOfJobs !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && numberOfJobs >= ${mapValueForNumberAnnotation(filterCriteria.minNumberOfJobs, "numberOfJobs")})`;
+      qbuild += ` && numberOfJobs >= ${mapValueForNumberAnnotation(filter.minNumberOfJobs, "numberOfJobs")})`;
     }
-    if (filterCriteria.maxNumberOfJobs !== null) {
+    if (filter.maxNumberOfJobs !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && numberOfJobs <= ${mapValueForNumberAnnotation(filterCriteria.maxNumberOfJobs, "numberOfJobs")})`;
+      qbuild += ` && numberOfJobs <= ${mapValueForNumberAnnotation(filter.maxNumberOfJobs, "numberOfJobs")})`;
     }
-    if (filterCriteria.minNumberOfJobs24h !== null) {
+    if (filter.minNumberOfJobs24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && numberOfJobs24h >= ${mapValueForNumberAnnotation(
-        filterCriteria.minNumberOfJobs24h,
-        "numberOfJobs24h",
-      )})`;
+      qbuild += ` && numberOfJobs24h >= ${mapValueForNumberAnnotation(filter.minNumberOfJobs24h, "numberOfJobs24h")})`;
     }
-    if (filterCriteria.maxNumberOfJobs24h !== null) {
+    if (filter.maxNumberOfJobs24h !== null) {
       numberOfParenthesis += 1;
-      qbuild += ` && numberOfJobs24h <= ${mapValueForNumberAnnotation(
-        filterCriteria.maxNumberOfJobs24h,
-        "numberOfJobs24h",
-      )})`;
+      qbuild += ` && numberOfJobs24h <= ${mapValueForNumberAnnotation(filter.maxNumberOfJobs24h, "numberOfJobs24h")})`;
     }
 
     qbuild = "(".repeat(numberOfParenthesis) + qbuild;
     setInternalQuery(qbuild);
     completeQuery = completeQuery.replace("%%QUERY%%", escapeForJS(qbuild));
     setCurlQuery(completeQuery);
-  }, [filterCriteria]);
+  }, [filter]);
 
   const fetchData = useCallback(
     async (forceRefresh = false) => {
@@ -365,7 +228,7 @@ const ProvidersPage = () => {
     }
 
     const providers = Object.values(providerData.byProviderId);
-    const fc = filterCriteria;
+    const fc = filter;
 
     const filtered = providers.filter((p) => {
       if (fc.providerNameSearch && !p.providerName.toLowerCase().includes(fc.providerNameSearch.toLowerCase()))
@@ -399,7 +262,7 @@ const ProvidersPage = () => {
     });
 
     const sorted = filtered.sort((a, b) => {
-      const { sortBy, sortOrder } = filterCriteria;
+      const { sortBy, sortOrder } = filter;
       let aVal, bVal;
 
       // Handle special calculated cases first
@@ -426,7 +289,13 @@ const ProvidersPage = () => {
       totalMatches: sorted.length,
       displayedProviders: sorted.slice(0, displayLimit),
     };
-  }, [providerData, filterCriteria, displayLimit]);
+  }, [providerData, filter, displayLimit]);
+
+  const changeFilterFieldAndResetList = (key: keyof FilterCriteria, value: string | number | null) => {
+    changeFilterField(key, value);
+    window.scrollTo({ top: 0, behavior: "instant" });
+    setDisplayLimit(50); // Reset display limit on filter change
+  };
 
   return (
     <div className="container mx-auto max-w-7xl pt-4 sm:pt-6 lg:pt-8">
@@ -434,7 +303,14 @@ const ProvidersPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 lg:gap-8">
         <aside className="hidden lg:col-span-1 lg:block">
           <div className="sticky top-20 space-y-4">
-            <FilterPanel filters={filterCriteria} onFilterChange={handleFilterChange} />
+            <Card>
+              <CardHeader>
+                <CardTitle>Filters</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ProviderFilters filter={filter} changeFilterField={changeFilterFieldAndResetList} />
+              </CardContent>
+            </Card>
             <Button variant="outline" className="w-full" onClick={resetFilters}>
               <FilterX className="mr-2 size-4" /> Reset Filters
             </Button>
@@ -465,8 +341,8 @@ const ProvidersPage = () => {
                   Sort By
                 </Label>
                 <Select
-                  value={filterCriteria.sortBy}
-                  onValueChange={(value) => handleFilterChange("sortBy", value as FilterCriteria["sortBy"])}
+                  value={filter.sortBy}
+                  onValueChange={(value) => changeFilterFieldAndResetList("sortBy", value as FilterCriteria["sortBy"])}
                 >
                   <SelectTrigger id="sort-by" className="mt-1 w-full sm:w-[180px]">
                     <SelectValue placeholder="Select sorting" />
@@ -487,8 +363,8 @@ const ProvidersPage = () => {
                   Order
                 </Label>
                 <Select
-                  value={filterCriteria.sortOrder}
-                  onValueChange={(value) => handleFilterChange("sortOrder", value as "asc" | "desc")}
+                  value={filter.sortOrder}
+                  onValueChange={(value) => changeFilterFieldAndResetList("sortOrder", value as "asc" | "desc")}
                 >
                   <SelectTrigger id="sort-order" className="mt-1 w-full sm:w-[120px]">
                     <SelectValue placeholder="Select order" />
@@ -508,7 +384,7 @@ const ProvidersPage = () => {
                     </Button>
                   </SheetTrigger>
                   <SheetContent>
-                    <FilterPanel filters={filterCriteria} onFilterChange={handleFilterChange} />
+                    <ProviderFilters filter={filter} changeFilterField={changeFilterFieldAndResetList} />
                   </SheetContent>
                 </Sheet>
                 <Button onClick={() => fetchData(true)} disabled={loading}>
