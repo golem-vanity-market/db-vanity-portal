@@ -47,10 +47,13 @@ const DetailsPage = () => {
 
   return (
     <div>
-      <h1>Provider Details</h1>
-      <p>Provider ID: {providerId}</p>
+      <div className={"mb-4 rounded border border-gray-300 bg-yellow-50 p-4"}>
+        This part is not finished yet !<br />
+        Do not give feedback based on this page.
+      </div>
 
-      <h2>Fancies</h2>
+      <h1 className={"mb-4 text-lg font-bold"}>Fancies for Provider {providerId}</h1>
+
       {fancies.length === 0 ? (
         <p>Loading fancies...</p>
       ) : (
