@@ -17,6 +17,7 @@ import { escapeForJS } from "@/utils";
 import ExperimentalAlert from "@/components/ExperimentalAlert";
 import { useFilterState } from "./useFilterState";
 import { FilterCriteria } from "./provider-types";
+import { FilterHistory } from "./FilterHistory";
 
 const CACHE_KEY = "providerDataCache";
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
@@ -42,7 +43,16 @@ const ProvidersPage = () => {
   const [providerData, setProviderData] = useState<ProviderData | null>(null);
   const [displayLimit, setDisplayLimit] = useState(50);
   const [showBackToTop, setShowBackToTop] = useState(false);
-  const { stagedFilters, appliedFilters, changeStagedFilterField, resetFilters, applyFilters } = useFilterState();
+  const {
+    stagedFilters,
+    appliedFilters,
+    changeStagedFilterField,
+    resetFilters,
+    applyFilters,
+    filterHistory,
+    setStagedFilters,
+    applyStagedFiltersWithoutHistory,
+  } = useFilterState();
 
   const client = useMemo(
     () =>
@@ -313,6 +323,13 @@ const ProvidersPage = () => {
     setDisplayLimit(50);
   };
 
+  const applyHistoricalFilter = (filter: FilterCriteria) => {
+    setStagedFilters(filter);
+    applyStagedFiltersWithoutHistory(filter);
+    window.scrollTo({ top: 0, behavior: "instant" });
+    setDisplayLimit(50);
+  };
+
   const resetFiltersAndResetList = () => {
     resetFilters();
     window.scrollTo({ top: 0, behavior: "instant" });
@@ -401,6 +418,7 @@ const ProvidersPage = () => {
               </div>
 
               <div className="flex items-center gap-2">
+                <FilterHistory filterHistory={filterHistory} applyHistoricalFilter={applyHistoricalFilter} />
                 <Sheet>
                   <SheetTrigger asChild>
                     <Button variant="outline" className="lg:hidden">

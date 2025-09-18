@@ -1,6 +1,11 @@
 import { useCallback, useState } from "react";
 import { FilterCriteria } from "./provider-types";
 
+export interface HistoricalFilter {
+  filter: FilterCriteria;
+  createdAt: Date;
+}
+
 const buildFilterFromLocalStorage = (
   cached: Partial<FilterCriteria> | null,
   defaults: FilterCriteria,
@@ -70,27 +75,7 @@ const defaultFilterCriteria = (): FilterCriteria => ({
 });
 
 export function useFilterState() {
-  const [appliedFilters, setAppliedFilters] = useState<FilterCriteria>(() => {
-    const defaults = defaultFilterCriteria();
-    const cachedItem = localStorage.getItem("providerFilterCriteria");
-
-    let parsedCache = null;
-    if (cachedItem) {
-      try {
-        parsedCache = JSON.parse(cachedItem);
-      } catch {
-        // ignore parsing errors
-      }
-    }
-
-    const cachedFilters = buildFilterFromLocalStorage(parsedCache, defaults);
-    localStorage.setItem("providerFilterCriteria", JSON.stringify(cachedFilters));
-    return cachedFilters;
-  });
-
-  const [stagedFilters, setStagedFilters] = useState<FilterCriteria>(appliedFilters);
-
-  const [filterHistory, setFilterHistory] = useState<FilterCriteria[]>(() => {
+  const [filterHistory, setFilterHistory] = useState<HistoricalFilter[]>(() => {
     const cachedItem = localStorage.getItem("providerFilterHistory");
     if (!cachedItem) return [];
     let parsedArray = null;
@@ -105,25 +90,43 @@ export function useFilterState() {
       return [];
     }
     const defaults = defaultFilterCriteria();
-    return parsedArray.map((item) => buildFilterFromLocalStorage(item, defaults));
+    return parsedArray.map((item) => ({
+      ...item,
+      createdAt: new Date(item.createdAt),
+      filter: buildFilterFromLocalStorage(item.filter, defaults),
+    }));
   });
+
+  const [appliedFilters, setAppliedFilters] = useState<FilterCriteria>(() => {
+    const defaults = defaultFilterCriteria();
+    if (filterHistory.length > 0) {
+      return filterHistory[0].filter;
+    }
+    return defaults;
+  });
+
+  const [stagedFilters, setStagedFilters] = useState<FilterCriteria>(appliedFilters);
 
   const addToHistory = useCallback((newFilter: FilterCriteria) => {
     setFilterHistory((prev) => {
-      const updatedHistory = [newFilter, ...prev.filter((f) => JSON.stringify(f) !== JSON.stringify(newFilter))].slice(
-        0,
-        10,
-      );
+      const newHistoricalFilter: HistoricalFilter = { filter: newFilter, createdAt: new Date() };
+      const updatedHistory = [
+        newHistoricalFilter,
+        ...prev.filter((f) => JSON.stringify(f.filter) !== JSON.stringify(newFilter)),
+      ].slice(0, 10);
       localStorage.setItem("providerFilterHistory", JSON.stringify(updatedHistory));
       return updatedHistory;
     });
   }, []);
 
+  const applyStagedFiltersWithoutHistory = useCallback((filter: FilterCriteria) => {
+    setAppliedFilters(filter);
+  }, []);
+
   const applyFilters = useCallback(() => {
-    setAppliedFilters(stagedFilters);
+    applyStagedFiltersWithoutHistory(stagedFilters);
     addToHistory(stagedFilters);
-    localStorage.setItem("providerFilterCriteria", JSON.stringify(stagedFilters));
-  }, [stagedFilters, addToHistory]);
+  }, [applyStagedFiltersWithoutHistory, addToHistory, stagedFilters]);
 
   const changeStagedFilterField = useCallback(<K extends keyof FilterCriteria>(key: K, value: FilterCriteria[K]) => {
     setStagedFilters((prev) => ({ ...prev, [key]: value }));
@@ -133,7 +136,6 @@ export function useFilterState() {
     const defaults = defaultFilterCriteria();
     setStagedFilters(defaults);
     setAppliedFilters(defaults);
-    localStorage.setItem("providerFilterCriteria", JSON.stringify(defaults));
   }, []);
 
   return {
@@ -144,6 +146,8 @@ export function useFilterState() {
     filterHistory,
     addToHistory,
     applyFilters,
+    setStagedFilters,
+    applyStagedFiltersWithoutHistory,
   };
 }
 

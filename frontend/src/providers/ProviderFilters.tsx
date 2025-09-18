@@ -14,7 +14,7 @@ interface ProviderFiltersProps {
   resetFilters: () => void;
 }
 
-const filterableMetrics = [
+export const filterableMetrics = [
   {
     label: "Work Hours",
     unit: "h",

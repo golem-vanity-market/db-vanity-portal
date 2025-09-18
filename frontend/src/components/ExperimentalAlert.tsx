@@ -31,12 +31,8 @@ const ExperimentalAlert = () => {
           This page is experimental. Information may not always be accurate or up to date. Please use as reference only.
         </AlertDescription>
         <div className="flex justify-end">
-          <Button
-            variant="destructive"
-            className="mt-4"
-            onClick={handleDismiss}
-          >
-            Don't show again
+          <Button variant="destructive" className="mt-4" onClick={handleDismiss}>
+            {`Don't show again`}
           </Button>
         </div>
       </Alert>
