@@ -67,7 +67,7 @@ const formatDate = (date: Date) => {
 
 const FilterDetails = ({ filter }: { filter: FilterCriteria }) => {
   return (
-    <div className="absolute top-0 right-full z-10 mr-2 w-80 rounded-lg border bg-background p-4 shadow-lg">
+    <div className="absolute top-0 left-full z-10 w-80 rounded-lg border bg-background p-4 shadow-lg">
       <div className="space-y-1">
         {formatFilter(filter).map((line, i) => (
           <div key={i} className="flex justify-between">
@@ -108,6 +108,11 @@ export const FilterHistory = ({
   };
 
   const handleEditClick = (id: string, currentName: string) => {
+    // clicking edit on the same item closes the edit mode
+    if (editingId === id) {
+      setEditingId(null);
+      return;
+    }
     setEditingId(id);
     setNewName(currentName);
   };
@@ -135,34 +140,36 @@ export const FilterHistory = ({
             <p className="text-sm text-muted-foreground">No filter history yet.</p>
           ) : (
             filterHistory.map((historicalFilter) => (
-              <div key={historicalFilter.id} className="relative flex items-center justify-between">
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start text-left"
-                  onClick={() => handleSelect(historicalFilter.filter)}
-                  onMouseEnter={() => setHoveredId(historicalFilter.id)}
-                  onMouseLeave={() => setHoveredId(null)}
-                >
-                  <div className="truncate">
-                    {formatDate(historicalFilter.createdAt)} at{" "}
-                    {historicalFilter.createdAt.toLocaleString([], {
-                      hour: "numeric",
-                      minute: "2-digit",
-                      hour12: true,
-                    })}
-                  </div>
-                </Button>
-                <Button variant="ghost" className="ml-2" onClick={() => promoteToFavorite(historicalFilter.id)}>
+              <div key={historicalFilter.id} className="flex items-center justify-between">
+                <div className="relative flex-1">
+                  <Button
+                    variant="ghost"
+                    className="justify-start text-left"
+                    onClick={() => handleSelect(historicalFilter.filter)}
+                    onMouseEnter={() => setHoveredId(historicalFilter.id)}
+                    onMouseLeave={() => setHoveredId(null)}
+                  >
+                    <div className="truncate">
+                      {formatDate(historicalFilter.createdAt)} at{" "}
+                      {historicalFilter.createdAt.toLocaleString([], {
+                        hour: "numeric",
+                        minute: "2-digit",
+                        hour12: true,
+                      })}
+                    </div>
+                  </Button>
+                  {hoveredId === historicalFilter.id && <FilterDetails filter={historicalFilter.filter} />}
+                </div>
+                <Button variant="ghost" onClick={() => promoteToFavorite(historicalFilter.id)}>
                   <Heart className="size-4" />
                 </Button>
                 <Button
                   variant="ghost"
-                  className="ml-2 text-red-500"
+                  className="text-destructive"
                   onClick={() => deleteHistoricalFilter(historicalFilter.id)}
                 >
                   <Trash className="size-4" />
                 </Button>
-                {hoveredId === historicalFilter.id && <FilterDetails filter={historicalFilter.filter} />}
               </div>
             ))
           )}
@@ -174,55 +181,56 @@ export const FilterHistory = ({
             <p className="text-sm text-muted-foreground">No favorite filters yet.</p>
           ) : (
             favoriteFilters.map((favoriteFilter) => (
-              <div key={favoriteFilter.id} className="relative flex items-center justify-between">
+              <div key={favoriteFilter.id} className="flex items-center justify-between">
+                <div className="relative flex-1">
+                  <Button
+                    variant="ghost"
+                    className="flex-1 justify-start text-left"
+                    onClick={() => handleSelect(favoriteFilter.filter)}
+                    onMouseEnter={() => setHoveredId(favoriteFilter.id)}
+                    onMouseLeave={() => setHoveredId(null)}
+                  >
+                    <div className="truncate">
+                      {favoriteFilter.customName ||
+                        `${formatDate(favoriteFilter.createdAt)} at ${favoriteFilter.createdAt.toLocaleString([], {
+                          hour: "numeric",
+                          minute: "2-digit",
+                          hour12: true,
+                        })}`}
+                    </div>
+                  </Button>
+                  {hoveredId === favoriteFilter.id && <FilterDetails filter={favoriteFilter.filter} />}
+                  {editingId === favoriteFilter.id && (
+                    <div className="absolute top-full z-10 w-80 rounded-lg border bg-background p-4 shadow-lg">
+                      <input
+                        type="text"
+                        value={newName}
+                        onChange={(e) => setNewName(e.target.value)}
+                        className="w-full rounded border p-2"
+                        placeholder="Enter custom name"
+                      />
+                      <div className="mt-2 flex justify-end space-x-2">
+                        <Button variant="destructive" onClick={() => setEditingId(null)}>
+                          Cancel
+                        </Button>
+                        <Button onClick={handleSaveName}>Save</Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start text-left"
-                  onClick={() => handleSelect(favoriteFilter.filter)}
-                  onMouseEnter={() => setHoveredId(favoriteFilter.id)}
-                  onMouseLeave={() => setHoveredId(null)}
-                >
-                  <div className="truncate">
-                    {favoriteFilter.customName ||
-                      `${formatDate(favoriteFilter.createdAt)} at ${favoriteFilter.createdAt.toLocaleString([], {
-                        hour: "numeric",
-                        minute: "2-digit",
-                        hour12: true,
-                      })}`}
-                  </div>
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="ml-2"
                   onClick={() => handleEditClick(favoriteFilter.id, favoriteFilter.customName || "")}
                 >
                   <Edit className="size-4" />
                 </Button>
                 <Button
                   variant="ghost"
-                  className="ml-2 text-red-500"
+                  className="text-destructive"
                   onClick={() => deleteFavoriteFilter(favoriteFilter.id)}
                 >
                   <Trash className="size-4" />
                 </Button>
-                {hoveredId === favoriteFilter.id && <FilterDetails filter={favoriteFilter.filter} />}
-                {editingId === favoriteFilter.id && (
-                  <div className="absolute top-full z-10 w-80 rounded-lg border bg-background p-4 shadow-lg">
-                    <input
-                      type="text"
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                      className="w-full rounded border p-2"
-                      placeholder="Enter custom name"
-                    />
-                    <div className="mt-2 flex justify-end space-x-2">
-                      <Button variant="secondary" onClick={() => setEditingId(null)}>
-                        Cancel
-                      </Button>
-                      <Button onClick={handleSaveName}>Save</Button>
-                    </div>
-                  </div>
-                )}
               </div>
             ))
           )}
