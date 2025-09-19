@@ -53,7 +53,7 @@ const Dashboard = () => {
           </a>
 
           <div className="flex items-center space-x-4">
-            <NavigationMenu>
+            <NavigationMenu className="font-heading">
               <NavigationMenuList>
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
