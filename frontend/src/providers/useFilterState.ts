@@ -43,6 +43,10 @@ const buildFilterFromLocalStorage = (
     maxNumberOfJobs: cached.maxNumberOfJobs ?? defaults.maxNumberOfJobs,
     minNumberOfJobs24h: cached.minNumberOfJobs24h ?? defaults.minNumberOfJobs24h,
     maxNumberOfJobs24h: cached.maxNumberOfJobs24h ?? defaults.maxNumberOfJobs24h,
+    minLongestJob: cached.minLongestJob ?? defaults.minLongestJob,
+    maxLongestJob: cached.maxLongestJob ?? defaults.maxLongestJob,
+    minLongestJob24h: cached.minLongestJob24h ?? defaults.minLongestJob24h,
+    maxLongestJob24h: cached.maxLongestJob24h ?? defaults.maxLongestJob24h,
   };
 };
 
@@ -72,6 +76,10 @@ const defaultFilterCriteria = (): FilterCriteria => ({
   maxNumberOfJobs: null,
   minNumberOfJobs24h: 1,
   maxNumberOfJobs24h: null,
+  maxLongestJob: null,
+  minLongestJob: null,
+  maxLongestJob24h: null,
+  minLongestJob24h: null,
   sortBy: "score",
   sortOrder: "desc",
 });
