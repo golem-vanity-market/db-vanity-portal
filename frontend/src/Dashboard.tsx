@@ -16,6 +16,8 @@ import { Badge } from "./components/ui/badge";
 import { Skeleton } from "./components/ui/skeleton";
 import { Footer } from "./Footer";
 import DetailsPage from "@/provider/DetailsPage.tsx";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { AccountPage } from "./Account";
 
 const Dashboard = () => {
   const [current_block, setCurrentBlock] = React.useState<bigint | null>(null);
@@ -65,6 +67,11 @@ const Dashboard = () => {
                     <Link to="/providers">Providers</Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                    <Link to="/account">Account</Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
             <Separator orientation="vertical" className="h-9" />
@@ -75,6 +82,8 @@ const Dashboard = () => {
             ) : (
               <Skeleton className="h-9 w-24" />
             )}
+            <Separator orientation="vertical" className="h-9" />
+            <ConnectButton showBalance />
             <Separator orientation="vertical" className="h-9" />
             <ModeToggle />
           </div>
@@ -87,6 +96,7 @@ const Dashboard = () => {
             <Route path="/" element={<Welcome />} />
             <Route path="/providers" element={<ProvidersPage />} />
             <Route path="/provider" element={<DetailsPage />} />
+            <Route path="/account" element={<AccountPage />} />
           </Routes>
         </div>
       </main>
