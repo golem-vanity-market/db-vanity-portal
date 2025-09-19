@@ -120,10 +120,10 @@ export const ProviderFilters = ({ filter, changeFilterField, applyFilters, reset
               });
               return (
                 <AccordionItem key={metric.label} value={metric.label}>
-                  <AccordionTrigger className="py-3">
+                  <AccordionTrigger className="cursor-pointer py-3">
                     <TooltipProvider delayDuration={200}>
                       <Tooltip>
-                        <TooltipTrigger className="flex items-center gap-2">
+                        <TooltipTrigger className="flex cursor-pointer items-center gap-2 ">
                           {icon}
                           <span className="text-sm font-semibold">
                             {metric.label} {metric.unit && `(${metric.unit})`}
