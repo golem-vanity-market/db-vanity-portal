@@ -17,7 +17,24 @@ const queryClient = new QueryClient();
 const config = getDefaultConfig({
   appName: "Vanity Market",
   projectId: "3ceb790c9f98b79ce035389f303abd69",
-  chains: [polygon],
+  chains: [
+    {
+      blockTime: 2000,
+      id: parseInt(import.meta.env.VITE_GOLEM_DB_CHAIN_ID),
+      name: "Golem DB",
+      nativeCurrency: {
+        name: "Golem",
+        decimals: 18,
+        symbol: "GLM",
+      },
+      rpcUrls: {
+        default: {
+          http: [import.meta.env.VITE_GOLEM_DB_RPC],
+          webSocket: undefined,
+        },
+      },
+    },
+  ],
   ssr: false,
 });
 
