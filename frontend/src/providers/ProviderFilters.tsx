@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { CircleDollarSign, Cpu, FilterX, GaugeCircle, Hash, Timer, TrendingUp } from "lucide-react";
+import React from "react";
 import { FilterCriteria } from "./provider-types";
 
 interface ProviderFiltersProps {
@@ -78,6 +79,15 @@ export const ProviderFilters = ({ filter, changeFilterField, applyFilters, reset
     changeFilterField(key, numericValue);
   };
 
+  const isMetricActive = (metric: (typeof filterableMetrics)[number]) => {
+    return (
+      filter[metric.h24.minKey] != null ||
+      filter[metric.h24.maxKey] != null ||
+      filter[metric.allTime.minKey] != null ||
+      filter[metric.allTime.maxKey] != null
+    );
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -95,69 +105,71 @@ export const ProviderFilters = ({ filter, changeFilterField, applyFilters, reset
         <ScrollArea className="rounded-md border pr-4">
           {/* type="multiple" allows opening multiple sections at once */}
           <Accordion type="multiple" className="w-full px-3">
-            {filterableMetrics.map((metric) => (
-              <AccordionItem key={metric.label} value={metric.label}>
-                {/* The Trigger is now the metric name */}
-                <AccordionTrigger className="py-3">
-                  <TooltipProvider delayDuration={200}>
-                    <Tooltip>
-                      <TooltipTrigger className="flex items-center gap-2">
-                        {metric.icon}
-                        <span className="text-sm font-semibold">
-                          {metric.label} {metric.unit && `(${metric.unit})`}
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{metric.description}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </AccordionTrigger>
+            {filterableMetrics.map((metric) => {
+              const active = isMetricActive(metric);
+              const icon = React.cloneElement(metric.icon, {
+                className: `size-4 ${active ? "text-primary" : "text-muted-foreground"}`,
+              });
+              return (
+                <AccordionItem key={metric.label} value={metric.label}>
+                  <AccordionTrigger className="py-3">
+                    <TooltipProvider delayDuration={200}>
+                      <Tooltip>
+                        <TooltipTrigger className="flex items-center gap-2">
+                          {icon}
+                          <span className="text-sm font-semibold">
+                            {metric.label} {metric.unit && `(${metric.unit})`}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{metric.description}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </AccordionTrigger>
 
-                {/* The Content contains the familiar input layout */}
-                <AccordionContent className="pt-2 pb-4">
-                  <div className="space-y-4">
-                    {/* Section for "Last 24h" */}
-                    <div>
-                      <Label className="text-xs text-muted-foreground">Last 24h</Label>
-                      <div className="mt-1 grid grid-cols-2 gap-2">
-                        <Input
-                          type="number"
-                          placeholder="Min"
-                          value={filter[metric.h24.minKey] ?? ""}
-                          onChange={(e) => handleNumericChange(metric.h24.minKey, e.target.value)}
-                        />
-                        <Input
-                          type="number"
-                          placeholder="Max"
-                          value={filter[metric.h24.maxKey] ?? ""}
-                          onChange={(e) => handleNumericChange(metric.h24.maxKey, e.target.value)}
-                        />
+                  <AccordionContent className="pt-2 pb-4">
+                    <div className="space-y-4">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Last 24h</Label>
+                        <div className="mt-1 grid grid-cols-2 gap-2">
+                          <Input
+                            type="number"
+                            placeholder="Min"
+                            value={filter[metric.h24.minKey] ?? ""}
+                            onChange={(e) => handleNumericChange(metric.h24.minKey, e.target.value)}
+                          />
+                          <Input
+                            type="number"
+                            placeholder="Max"
+                            value={filter[metric.h24.maxKey] ?? ""}
+                            onChange={(e) => handleNumericChange(metric.h24.maxKey, e.target.value)}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label className="text-xs text-muted-foreground">All Time</Label>
+                        <div className="mt-1 grid grid-cols-2 gap-2">
+                          <Input
+                            type="number"
+                            placeholder="Min"
+                            value={filter[metric.allTime.minKey] ?? ""}
+                            onChange={(e) => handleNumericChange(metric.allTime.minKey, e.target.value)}
+                          />
+                          <Input
+                            type="number"
+                            placeholder="Max"
+                            value={filter[metric.allTime.maxKey] ?? ""}
+                            onChange={(e) => handleNumericChange(metric.allTime.maxKey, e.target.value)}
+                          />
+                        </div>
                       </div>
                     </div>
-
-                    {/* Section for "All Time" */}
-                    <div>
-                      <Label className="text-xs text-muted-foreground">All Time</Label>
-                      <div className="mt-1 grid grid-cols-2 gap-2">
-                        <Input
-                          type="number"
-                          placeholder="Min"
-                          value={filter[metric.allTime.minKey] ?? ""}
-                          onChange={(e) => handleNumericChange(metric.allTime.minKey, e.target.value)}
-                        />
-                        <Input
-                          type="number"
-                          placeholder="Max"
-                          value={filter[metric.allTime.maxKey] ?? ""}
-                          onChange={(e) => handleNumericChange(metric.allTime.maxKey, e.target.value)}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
+                  </AccordionContent>
+                </AccordionItem>
+              );
+            })}
           </Accordion>
         </ScrollArea>
         <div className="grid grid-cols-2 gap-2">
