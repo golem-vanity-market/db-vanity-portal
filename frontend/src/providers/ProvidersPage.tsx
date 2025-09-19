@@ -444,7 +444,7 @@ const ProvidersPage = () => {
                   value={stagedFilters.sortOrder}
                   onValueChange={(value) => changeStagedFilterField("sortOrder", value as "asc" | "desc")}
                 >
-                  <SelectTrigger id="sort-order" className="mt-1 w-full sm:w-[120px]">
+                  <SelectTrigger id="sort-order" className="mt-1 sm:w-[150px]">
                     <SelectValue placeholder="Select order" />
                   </SelectTrigger>
                   <SelectContent>
