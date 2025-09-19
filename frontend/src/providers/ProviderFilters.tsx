@@ -64,6 +64,14 @@ export const filterableMetrics = [
     h24: { minKey: "minNumberOfJobs24h", maxKey: "maxNumberOfJobs24h" },
     allTime: { minKey: "minNumberOfJobs", maxKey: "maxNumberOfJobs" },
   },
+  {
+    label: "Longest Job",
+    unit: "h",
+    description: "The duration of the longest agreement made with this provider.",
+    icon: <Timer className="size-4 text-muted-foreground" />,
+    h24: { minKey: "minLongestJob24h", maxKey: "maxLongestJob24h" },
+    allTime: { minKey: "minLongestJob", maxKey: "maxLongestJob" },
+  },
 ] satisfies {
   label: string;
   unit: string;

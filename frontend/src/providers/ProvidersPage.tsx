@@ -218,6 +218,22 @@ const ProvidersPage = () => {
         "numberOfJobs24h",
       )}`;
     }
+    if (appliedFilters.minLongestJob !== null) {
+      numberOfParenthesis += 1;
+      qbuild += ` && longestJob >= "${mapValueForAnnotation(appliedFilters.minLongestJob, "longestJob")}")`;
+    }
+    if (appliedFilters.maxLongestJob !== null) {
+      numberOfParenthesis += 1;
+      qbuild += ` && longestJob <= "${mapValueForAnnotation(appliedFilters.maxLongestJob, "longestJob")}")`;
+    }
+    if (appliedFilters.minLongestJob24h !== null) {
+      numberOfParenthesis += 1;
+      qbuild += ` && longestJob24h >= "${mapValueForAnnotation(appliedFilters.minLongestJob24h, "longestJob24h")}")`;
+    }
+    if (appliedFilters.maxLongestJob24h !== null) {
+      numberOfParenthesis += 1;
+      qbuild += ` && longestJob24h <= "${mapValueForAnnotation(appliedFilters.maxLongestJob24h, "longestJob24h")}")`;
+    }
 
     qbuild = "(".repeat(numberOfParenthesis) + qbuild;
     setInternalQuery(qbuild);
@@ -291,6 +307,10 @@ const ProvidersPage = () => {
       if (fc.maxNumberOfJobs !== null && p.numberOfJobs > fc.maxNumberOfJobs) return false;
       if (fc.minNumberOfJobs24h !== null && p.numberOfJobs24h < fc.minNumberOfJobs24h) return false;
       if (fc.maxNumberOfJobs24h !== null && p.numberOfJobs24h > fc.maxNumberOfJobs24h) return false;
+      if (fc.minLongestJob !== null && p.longestJob < fc.minLongestJob) return false;
+      if (fc.maxLongestJob !== null && p.longestJob > fc.maxLongestJob) return false;
+      if (fc.minLongestJob24h !== null && p.longestJob24h < fc.minLongestJob24h) return false;
+      if (fc.maxLongestJob24h !== null && p.longestJob24h > fc.maxLongestJob24h) return false;
       // filter passed
       return true;
     });

@@ -23,6 +23,10 @@ export interface FilterCriteria {
   maxNumberOfJobs: number | null;
   minNumberOfJobs24h: number | null;
   maxNumberOfJobs24h: number | null;
+  minLongestJob: number | null;
+  maxLongestJob: number | null;
+  minLongestJob24h: number | null;
+  maxLongestJob24h: number | null;
   providerNameSearch: string;
 
   sortBy:
