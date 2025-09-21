@@ -14,10 +14,10 @@ export default defineConfig({
     react(),
     tailwindcss(),
     compression(),
-    nodePolyfills({
+/*    nodePolyfills({
       // Whether to polyfill `node:` protocol imports.
       protocolImports: true,
-    }),
+    }),*/
   ],
   base: process.env.VITE_BASE || "/",
   define: {
