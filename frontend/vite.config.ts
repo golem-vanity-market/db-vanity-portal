@@ -24,6 +24,7 @@ export default defineConfig({
     // Provide a minimal `process` object so code like process.env.NODE_ENV works
     process: null,
   },
+  /*
   build: {
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
@@ -35,7 +36,7 @@ export default defineConfig({
         },
       },
     },
-  },
+  },*/
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
