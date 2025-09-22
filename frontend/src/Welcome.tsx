@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Check, CheckCircle2, Copy, Database, Github, LayoutGrid, Lock, Terminal } from "lucide-react";
 import { Link } from "react-router-dom";
+import { assetsUrl } from "./utils";
 
 const CodeBlock = ({ title, code }: { title: string; code: string }) => {
   const [hasCopied, setHasCopied] = useState(false);
@@ -53,11 +54,20 @@ const Welcome = () => {
 
   const difficulty = (16 ** prefix.length).toLocaleString("en-US");
 
+  const lightLogo = assetsUrl() + "logo_light.svg";
+  const darkLogo = assetsUrl() + "logo_dark.svg";
+
   return (
     <main className="container mx-auto px-4 py-12 md:py-20">
       <section className="relative mb-24 text-center">
         <div className="absolute inset-0 -z-10 h-full w-full bg-background bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"></div>
-        <h1 className="font-heading text-5xl font-bold tracking-tight md:text-6xl lg:text-7xl">Vanity Market</h1>
+        <div className="flex flex-col items-center justify-center md:flex-row">
+          <img src={lightLogo} alt="Logo" className="hidden h-32 w-32 lg:h-48 lg:w-48 dark:block" />
+          <img src={darkLogo} alt="Logo" className="block h-32 w-32 lg:h-48 lg:w-48 dark:hidden" />
+          <h1 className="font-heading text-5xl font-bold tracking-tight md:text-6xl lg:text-7xl">
+            Vanity <br /> Market
+          </h1>
+        </div>
         <p className="mx-auto mt-6 max-w-3xl text-lg text-muted-foreground md:text-xl">
           A decentralized solution for generating personalized Ethereum vanity addresses using the Golem Network.
         </p>
