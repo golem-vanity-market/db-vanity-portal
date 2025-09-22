@@ -16,7 +16,7 @@ export default defineConfig({
     compression(),
     nodePolyfills({
       // Whether to polyfill `node:` protocol imports.
-      include: ["buffer"]
+      include: ["buffer"],
     }),
   ],
   base: process.env.VITE_BASE || "/",
@@ -29,7 +29,9 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          return "global"
+          if (id.includes("node_modules")) {
+            return id.toString().split("node_modules/")[1].split("/")[0].toString();
+          }
         },
       },
     },

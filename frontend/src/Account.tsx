@@ -1,20 +1,16 @@
-import { useAccount, useBalance, usePublicClient, useSwitchChain, useWalletClient } from "wagmi";
-import { parseEther } from "viem";
-import {
-  Annotation,
-  createClient,
-  createROClient,
-  EntityMetaData,
-  GolemBaseClient,
-  GolemBaseCreate,
-  GolemBaseROClient,
-  Tagged,
-} from "golem-base-sdk";
+import { Annotation, createClient, GolemBaseClient, GolemBaseCreate, Tagged } from "golem-base-sdk";
 import React, { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label.tsx";
 import { Input } from "@/components/ui/input.tsx";
 
 const utf8Decode = new TextDecoder();
+
+const getEthereumGlobal = () => {
+  if (typeof window !== "undefined" && (window as any).ethereum) {
+    return (window as any).ethereum;
+  }
+  return null;
+};
 
 function decodeCreate(entity: GolemBaseCreate | undefined | null) {
   try {
@@ -55,18 +51,20 @@ function jsonEntityToString(entity: GolemBaseCreate | undefined | null) {
 }
 
 export const AccountPage = () => {
-  const [publicClient, setPublicClient] = useState<GolemBaseROClient | null>(
+  /*const [publicClient, setPublicClient] = useState<GolemBaseROClient | null>(
     createROClient(
       parseInt(import.meta.env.VITE_GOLEM_DB_CHAIN_ID),
       import.meta.env.VITE_GOLEM_DB_RPC,
       import.meta.env.VITE_GOLEM_DB_RPC_WS,
     ),
-  );
+  );*/
 
   const [signingMessage, setSigningMessage] = useState<boolean>(false);
   const [client, setClient] = useState<GolemBaseClient | null>(null);
 
-  const [publicKey, setPublicKey] = useState<string>("0x04d4a96d675423cc05f60409c48b084a53d3fa0ac59957939f526505c43f975b77fabab74decd66d80396308db9cb4db13b0c273811d51a1773d6d9e2dbcac1d28");
+  const [publicKey, setPublicKey] = useState<string>(
+    "0x04d4a96d675423cc05f60409c48b084a53d3fa0ac59957939f526505c43f975b77fabab74decd66d80396308db9cb4db13b0c273811d51a1773d6d9e2dbcac1d28",
+  );
   const [prefix, setPrefix] = useState<string>("");
 
   const [entity, setEntity] = useState<GolemBaseCreate | null>(null);
@@ -100,12 +98,12 @@ export const AccountPage = () => {
 
       const golemClient = await createClient(
         parseInt(import.meta.env.VITE_GOLEM_DB_CHAIN_ID),
-        new Tagged("ethereumprovider", window.ethereum),
+        new Tagged("ethereumprovider", getEthereumGlobal()),
         import.meta.env.VITE_GOLEM_DB_RPC,
         import.meta.env.VITE_GOLEM_DB_RPC_WS,
       );
       setClient(golemClient);
-      const [receipt] = await golemClient.createEntities([
+      const [_receipt] = await golemClient.createEntities([
         {
           data: utf8Encode.encode("foo"),
           btl: 25,
@@ -123,14 +121,14 @@ export const AccountPage = () => {
   }
 
   useEffect(() => {
-    if (!window.ethereum) {
+    if (!getEthereumGlobal()) {
       console.error("MetaMask is not installed");
       return;
     }
 
     createClient(
       parseInt(import.meta.env.VITE_GOLEM_DB_CHAIN_ID),
-      new Tagged("ethereumprovider", window.ethereum),
+      new Tagged("ethereumprovider", getEthereumGlobal()),
       import.meta.env.VITE_GOLEM_DB_RPC,
       import.meta.env.VITE_GOLEM_DB_RPC_WS,
     )
@@ -170,12 +168,14 @@ export const AccountPage = () => {
           />
         </div>
 
-        <div>
-          Following entity will be created and sent to Golem DB:
-        </div>
+        <div>Following entity will be created and sent to Golem DB:</div>
 
         <div className={"mb-4 bg-white p-4"}>
-          <textarea style={{textWrap: "nowrap"}} className={"w-full font-mono h-80"} value={jsonEntityToString(entity)}></textarea>
+          <textarea
+            style={{ textWrap: "nowrap" }}
+            className={"h-80 w-full font-mono"}
+            value={jsonEntityToString(entity)}
+          ></textarea>
         </div>
         {signingMessage ? (
           <div className={"mb-4 rounded border border-gray-300 bg-blue-50 p-4"}>Signing message...</div>
