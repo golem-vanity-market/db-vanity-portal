@@ -50,6 +50,8 @@ const Dashboard = () => {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-14 max-w-7xl items-center justify-between">
           <Link to="/" className="flex items-center space-x-3">
+            <img src="/assets/logo_light.svg" alt="Logo" className="hidden h-8 w-8 dark:block" />
+            <img src="/assets/logo_dark.svg" alt="Logo" className="block h-8 w-8 dark:hidden" />
             <span className="font-heading font-bold">Vanity Market</span>
           </Link>
 
