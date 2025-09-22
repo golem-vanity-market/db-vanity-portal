@@ -1,6 +1,6 @@
 import React from "react";
 import { useSearchParams } from "react-router-dom";
-import { getAddress } from "ethers";
+import { getAddress } from "viem";
 
 interface FancyEntry {
   address: string;
