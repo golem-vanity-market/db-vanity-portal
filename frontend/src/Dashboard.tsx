@@ -17,6 +17,7 @@ import { Skeleton } from "./components/ui/skeleton";
 import { Footer } from "./Footer";
 import DetailsPage from "@/provider/DetailsPage.tsx";
 import { AccountPage } from "./Account";
+import { assetsUrl } from "./utils";
 
 const Dashboard = () => {
   const [current_block, setCurrentBlock] = React.useState<bigint | null>(null);
@@ -45,8 +46,8 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, [update_current_block]);
 
-  const lightLogo = import.meta.env.BASE_URL + "assets/logo_light.svg";
-  const darkLogo = import.meta.env.BASE_URL + "assets/logo_dark.svg";
+  const lightLogo = assetsUrl() + "logo_light.svg";
+  const darkLogo = assetsUrl() + "logo_dark.svg";
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
