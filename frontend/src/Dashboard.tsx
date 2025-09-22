@@ -1,8 +1,6 @@
 import React, { useMemo, useCallback, useEffect } from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import { createROClient } from "golem-base-sdk";
-import Welcome from "./Welcome";
-import ProvidersPage from "./providers/ProvidersPage";
 import { ModeToggle } from "./components/theme-toggle";
 import {
   NavigationMenu,
@@ -15,8 +13,6 @@ import { Separator } from "./components/ui/separator";
 import { Badge } from "./components/ui/badge";
 import { Skeleton } from "./components/ui/skeleton";
 import { Footer } from "./Footer";
-import DetailsPage from "@/provider/DetailsPage.tsx";
-import { AccountPage } from "./Account";
 import { assetsUrl } from "./utils";
 
 const Dashboard = () => {
@@ -96,12 +92,7 @@ const Dashboard = () => {
 
       <main className="flex-1">
         <div className="container mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
-          <Routes>
-            <Route path="/" element={<Welcome />} />
-            <Route path="/providers" element={<ProvidersPage />} />
-            <Route path="/provider" element={<DetailsPage />} />
-            <Route path="/account" element={<AccountPage />} />
-          </Routes>
+          <Outlet />
         </div>
       </main>
 
