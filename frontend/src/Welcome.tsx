@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -30,13 +30,6 @@ const CodeBlock = ({ title, code }: { title: string; code: string }) => {
 };
 
 const Welcome = () => {
-  const [prefix, setPrefix] = useState("CAFE");
-
-  const handlePrefixChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const sanitizedValue = e.target.value.replace(/[^0-9a-fA-F]/g, "").slice(0, 12);
-    setPrefix(sanitizedValue);
-  };
-
   const generateMockAddress = (p: string) => {
     const cleanPrefix = p.toUpperCase();
     const remaining = 40 - cleanPrefix.length;
@@ -51,8 +44,25 @@ const Welcome = () => {
       </span>
     );
   };
+  const [state, setState] = useState<{ prefix: string; address: React.ReactNode }>(() => ({
+    prefix: "CAFE",
+    address: generateMockAddress("CAFE"),
+  }));
 
-  const difficulty = (16 ** prefix.length).toLocaleString("en-US");
+  const handlePrefixChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitizedValue = e.target.value.replace(/[^0-9a-fA-F]/g, "").slice(0, 12);
+    setState((prev) => {
+      if (sanitizedValue === prev.prefix) {
+        return prev;
+      }
+      return {
+        prefix: sanitizedValue,
+        address: generateMockAddress(sanitizedValue),
+      };
+    });
+  };
+
+  const difficulty = (16 ** state.prefix.length).toLocaleString("en-US");
 
   const lightLogo = assetsUrl() + "logo_light.svg";
   const darkLogo = assetsUrl() + "logo_dark.svg";
@@ -93,7 +103,7 @@ const Welcome = () => {
               <div className="flex items-center gap-2">
                 <span className="font-mono text-muted-foreground">0x</span>
                 <Input
-                  value={prefix}
+                  value={state.prefix}
                   onChange={handlePrefixChange}
                   placeholder="CAFE"
                   className="w-40 font-mono text-lg"
@@ -101,7 +111,7 @@ const Welcome = () => {
                 />
               </div>
               <div className="mt-4 rounded-md bg-muted p-4">
-                <p className="font-mono text-sm break-all md:text-base">{generateMockAddress(prefix)}</p>
+                <p className="font-mono text-sm break-all md:text-base">{generateMockAddress(state.prefix)}</p>
               </div>
               <div className="mt-4">
                 <p className="text-sm text-muted-foreground">
