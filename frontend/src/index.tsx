@@ -15,30 +15,33 @@ import DetailsPage from "./provider/DetailsPage";
 
 const queryClient = new QueryClient();
 
-const router = createBrowserRouter([
-  {
-    element: <Dashboard />,
-    children: [
-      {
-        path: "/",
-        index: true,
-        element: <Welcome />,
-      },
-      {
-        path: "/providers",
-        element: <ProvidersPage />,
-      },
-      {
-        path: "/provider",
-        element: <DetailsPage />,
-      },
-      {
-        path: "/account",
-        element: <AccountPage />,
-      },
-    ],
-  },
-]);
+const router = createBrowserRouter(
+  [
+    {
+      element: <Dashboard />,
+      children: [
+        {
+          path: "/",
+          index: true,
+          element: <Welcome />,
+        },
+        {
+          path: "/providers",
+          element: <ProvidersPage />,
+        },
+        {
+          path: "/provider",
+          element: <DetailsPage />,
+        },
+        {
+          path: "/account",
+          element: <AccountPage />,
+        },
+      ],
+    },
+  ],
+  { basename: import.meta.env.BASE_URL },
+);
 
 root.render(
   <React.StrictMode>
