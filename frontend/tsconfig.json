@@ -19,7 +19,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": ["vite/client", "@testing-library/jest-dom"]
+    "types": ["vite/client"]
   },
   "include": ["src", "../shared/**/*"],
   "exclude": ["node_modules"]
