@@ -15,7 +15,7 @@ interface FilterStateShape {
   favoriteFilters: HistoricalFilter[];
 }
 
-type FilterAction = 
+type FilterAction =
   | { type: "CHANGE_STAGED_FILTER_FIELD"; payload: { key: keyof FilterCriteria; value: any } }
   | { type: "APPLY_FILTERS" }
   | { type: "SET_AND_APPLY_STAGED_FILTERS"; payload: Partial<FilterCriteria> }
@@ -68,7 +68,11 @@ const filterReducer = (state: FilterStateShape, action: FilterAction): FilterSta
         stagedFilters: { ...state.stagedFilters, [action.payload.key]: action.payload.value },
       };
     case "APPLY_FILTERS": {
-      const newHistoryEntry: HistoricalFilter = { id: crypto.randomUUID(), filter: state.stagedFilters, createdAt: new Date() };
+      const newHistoryEntry: HistoricalFilter = {
+        id: crypto.randomUUID(),
+        filter: state.stagedFilters,
+        createdAt: new Date(),
+      };
       const newHistory = [newHistoryEntry, ...state.filterHistory].slice(0, 10);
       return {
         ...state,
@@ -216,11 +220,11 @@ const initializer = (): FilterStateShape => {
     console.error("Failed to load filters from local storage", e);
     // In case of error, return default state
     return {
-        stagedFilters: defaultFilterCriteria(),
-        appliedFilters: defaultFilterCriteria(),
-        filterHistory: [],
-        favoriteFilters: [],
-      };
+      stagedFilters: defaultFilterCriteria(),
+      appliedFilters: defaultFilterCriteria(),
+      filterHistory: [],
+      favoriteFilters: [],
+    };
   }
 
   return initialState;
