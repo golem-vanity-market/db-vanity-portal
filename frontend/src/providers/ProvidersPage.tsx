@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { createROClient } from "golem-base-sdk";
 import { ProviderData } from "../../../shared/src/provider";
 import { fetchAllEntities, mapValueForAnnotation, mapValueForNumberAnnotation } from "../../../shared/src/query";
@@ -19,8 +19,129 @@ import { useFilterState } from "./useFilterState";
 import { FilterCriteria, sortOptions } from "./provider-types";
 import { FilterHistory } from "./FilterHistory";
 
-const CACHE_KEY = "providerDataCache";
-const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+const buildQuery = (appliedFilters: FilterCriteria) => {
+  let numberOfParenthesis = 0;
+  let qbuild = `$owner = "${import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}"`;
+  if (appliedFilters.providerNameSearch) {
+    numberOfParenthesis += 1;
+    qbuild += ` && name = "${escapeForJS(appliedFilters.providerNameSearch)}")`;
+  }
+  if (appliedFilters.minWork !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && totalWork >= "${mapValueForAnnotation(appliedFilters.minWork * 1e9, "totalWork")}")`;
+  }
+  if (appliedFilters.maxWork !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && totalWork <= "${mapValueForAnnotation(appliedFilters.maxWork * 1e9, "totalWork")}")`;
+  }
+  if (appliedFilters.minWork24h !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && totalWork24h >= "${mapValueForAnnotation(appliedFilters.minWork24h * 1e9, "totalWork24h")}")`;
+  }
+  if (appliedFilters.maxWork24h !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && totalWork24h <= "${mapValueForAnnotation(appliedFilters.maxWork24h * 1e9, "totalWork24h")}")`;
+  }
+  if (appliedFilters.minSpeed !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && speed >= "${mapValueForAnnotation(appliedFilters.minSpeed * 1e6, "speed")}")`;
+  }
+  if (appliedFilters.maxSpeed !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && speed <= "${mapValueForAnnotation(appliedFilters.maxSpeed * 1e6, "speed")}")`;
+  }
+  if (appliedFilters.minSpeed24h !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && speed24h >= "${mapValueForAnnotation(appliedFilters.minSpeed24h * 1e6, "speed24h")}")`;
+  }
+  if (appliedFilters.maxSpeed24h !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && speed24h <= "${mapValueForAnnotation(appliedFilters.maxSpeed24h * 1e6, "speed24h")}")`;
+  }
+  if (appliedFilters.minEfficiency !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && efficiency >= "${mapValueForAnnotation(appliedFilters.minEfficiency * 1e12, "efficiency")}")`;
+  }
+  if (appliedFilters.maxEfficiency !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && efficiency <= "${mapValueForAnnotation(appliedFilters.maxEfficiency * 1e12, "efficiency")}")`;
+  }
+  if (appliedFilters.minEfficiency24h !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && efficiency24h >= "${mapValueForAnnotation(appliedFilters.minEfficiency24h * 1e12, "efficiency24h")}")`;
+  }
+  if (appliedFilters.maxEfficiency24h !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && efficiency24h <= "${mapValueForAnnotation(appliedFilters.maxEfficiency24h * 1e12, "efficiency24h")}")`;
+  }
+  if (appliedFilters.minTotalCost !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && totalCost >= "${mapValueForAnnotation(appliedFilters.minTotalCost, "totalCost")}")`;
+  }
+  if (appliedFilters.maxTotalCost !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && totalCost <= "${mapValueForAnnotation(appliedFilters.maxTotalCost, "totalCost")}")`;
+  }
+  if (appliedFilters.minTotalCost24h !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && totalCost24h >= "${mapValueForAnnotation(appliedFilters.minTotalCost24h, "totalCost24h")}")`;
+  }
+  if (appliedFilters.maxTotalCost24h !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && totalCost24h <= "${mapValueForAnnotation(appliedFilters.maxTotalCost24h, "totalCost24h")}")`;
+  }
+  if (appliedFilters.minWorkHours !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && totalWorkHours >= "${mapValueForAnnotation(appliedFilters.minWorkHours, "totalWorkHours")}")`;
+  }
+  if (appliedFilters.maxWorkHours !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && totalWorkHours <= "${mapValueForAnnotation(appliedFilters.maxWorkHours, "totalWorkHours")}")`;
+  }
+  if (appliedFilters.minWorkHours24h !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && totalWorkHours24h >= "${mapValueForAnnotation(appliedFilters.minWorkHours24h, "totalWorkHours24h")}")`;
+  }
+  if (appliedFilters.maxWorkHours24h !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && totalWorkHours24h <= "${mapValueForAnnotation(appliedFilters.maxWorkHours24h, "totalWorkHours24h")}")`;
+  }
+  if (appliedFilters.minNumberOfJobs !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && numberOfJobs >= ${mapValueForNumberAnnotation(appliedFilters.minNumberOfJobs, "numberOfJobs")})`;
+  }
+  if (appliedFilters.maxNumberOfJobs !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && numberOfJobs <= ${mapValueForNumberAnnotation(appliedFilters.maxNumberOfJobs, "numberOfJobs")})`;
+  }
+  if (appliedFilters.minNumberOfJobs24h !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && numberOfJobs24h >= ${mapValueForNumberAnnotation(appliedFilters.minNumberOfJobs24h, "numberOfJobs24h")})`;
+  }
+  if (appliedFilters.maxNumberOfJobs24h !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && numberOfJobs24h <= ${mapValueForNumberAnnotation(appliedFilters.maxNumberOfJobs24h, "numberOfJobs24h")})`;
+  }
+  if (appliedFilters.minLongestJob !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && longestJob >= "${mapValueForAnnotation(appliedFilters.minLongestJob, "longestJob")}")`;
+  }
+  if (appliedFilters.maxLongestJob !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && longestJob <= "${mapValueForAnnotation(appliedFilters.maxLongestJob, "longestJob")}")`;
+  }
+  if (appliedFilters.minLongestJob24h !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && longestJob24h >= "${mapValueForAnnotation(appliedFilters.minLongestJob24h, "longestJob24h")}")`;
+  }
+  if (appliedFilters.maxLongestJob24h !== null) {
+    numberOfParenthesis += 1;
+    qbuild += ` && longestJob24h <= "${mapValueForAnnotation(appliedFilters.maxLongestJob24h, "longestJob24h")}")`;
+  }
+
+  qbuild = "(".repeat(numberOfParenthesis) + qbuild;
+  return qbuild;
+};
 
 const ProvidersPage = () => {
   const [loading, setLoading] = useState(true);
@@ -56,9 +177,6 @@ const ProvidersPage = () => {
     setDisplayLimit((prev) => prev + 50);
   };
 
-  const [internalQuery, setInternalQuery] = useState<string>("");
-  const [curlQuery, setCurlQuery] = useState<string>("");
-
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 300) {
@@ -76,184 +194,34 @@ const ProvidersPage = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  useEffect(() => {
+  const fetchData = async () => {
+    const filters = appliedFilters;
+    const qbuild = buildQuery(filters);
+    setLoading(true);
+    try {
+      const entities = await fetchAllEntities(client, 10, import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS, qbuild);
+      const data = new ProviderData({ grouped: "all", byProviderId: entities });
+      setProviderData(data);
+    } catch (error) {
+      console.error("Error fetching provider data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const copyCurlQuery = () => {
+    const qbuild = buildQuery(appliedFilters);
     let completeQuery = `curl ${
       import.meta.env.VITE_GOLEM_DB_RPC
     } -X POST -H "Content-Type: application/json" --data '{"method":"golembase_queryEntities","params":["%%QUERY%%"], "id": 1, "jsonrpc":"2.0"}' | jq '.result[] | .value' | wc -l`;
-
-    let numberOfParenthesis = 0;
-    let qbuild = `$owner = "${import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}"`;
-    if (appliedFilters.providerNameSearch) {
-      numberOfParenthesis += 1;
-      qbuild += ` && name = "${escapeForJS(appliedFilters.providerNameSearch)}")`;
-    }
-    if (appliedFilters.minWork !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && totalWork >= "${mapValueForAnnotation(appliedFilters.minWork * 1e9, "totalWork")}")`;
-    }
-    if (appliedFilters.maxWork !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && totalWork <= "${mapValueForAnnotation(appliedFilters.maxWork * 1e9, "totalWork")}")`;
-    }
-    if (appliedFilters.minWork24h !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && totalWork24h >= "${mapValueForAnnotation(appliedFilters.minWork24h * 1e9, "totalWork24h")}")`;
-    }
-    if (appliedFilters.maxWork24h !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && totalWork24h <= "${mapValueForAnnotation(appliedFilters.maxWork24h * 1e9, "totalWork24h")}")`;
-    }
-    if (appliedFilters.minSpeed !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && speed >= "${mapValueForAnnotation(appliedFilters.minSpeed * 1e6, "speed")}")`;
-    }
-    if (appliedFilters.maxSpeed !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && speed <= "${mapValueForAnnotation(appliedFilters.maxSpeed * 1e6, "speed")}")`;
-    }
-    if (appliedFilters.minSpeed24h !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && speed24h >= "${mapValueForAnnotation(appliedFilters.minSpeed24h * 1e6, "speed24h")}")`;
-    }
-    if (appliedFilters.maxSpeed24h !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && speed24h <= "${mapValueForAnnotation(appliedFilters.maxSpeed24h * 1e6, "speed24h")}")`;
-    }
-    if (appliedFilters.minEfficiency !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && efficiency >= "${mapValueForAnnotation(appliedFilters.minEfficiency * 1e12, "efficiency")}")`;
-    }
-    if (appliedFilters.maxEfficiency !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && efficiency <= "${mapValueForAnnotation(appliedFilters.maxEfficiency * 1e12, "efficiency")}")`;
-    }
-    if (appliedFilters.minEfficiency24h !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && efficiency24h >= "${mapValueForAnnotation(
-        appliedFilters.minEfficiency24h * 1e12,
-        "efficiency24h",
-      )}")`;
-    }
-    if (appliedFilters.maxEfficiency24h !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && efficiency24h <= "${mapValueForAnnotation(
-        appliedFilters.maxEfficiency24h * 1e12,
-        "efficiency24h",
-      )}")`;
-    }
-    if (appliedFilters.minTotalCost !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && totalCost >= "${mapValueForAnnotation(appliedFilters.minTotalCost, "totalCost")}")`;
-    }
-    if (appliedFilters.maxTotalCost !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && totalCost <= "${mapValueForAnnotation(appliedFilters.maxTotalCost, "totalCost")}")`;
-    }
-    if (appliedFilters.minTotalCost24h !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && totalCost24h >= "${mapValueForAnnotation(appliedFilters.minTotalCost24h, "totalCost24h")}")`;
-    }
-    if (appliedFilters.maxTotalCost24h !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && totalCost24h <= "${mapValueForAnnotation(appliedFilters.maxTotalCost24h, "totalCost24h")}")`;
-    }
-    if (appliedFilters.minWorkHours !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && totalWorkHours >= "${mapValueForAnnotation(appliedFilters.minWorkHours, "totalWorkHours")}")`;
-    }
-    if (appliedFilters.maxWorkHours !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && totalWorkHours <= "${mapValueForAnnotation(appliedFilters.maxWorkHours, "totalWorkHours")}")`;
-    }
-    if (appliedFilters.minWorkHours24h !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && totalWorkHours24h >= "${mapValueForAnnotation(
-        appliedFilters.minWorkHours24h,
-        "totalWorkHours24h",
-      )}")`;
-    }
-    if (appliedFilters.maxWorkHours24h !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && totalWorkHours24h <= "${mapValueForAnnotation(
-        appliedFilters.maxWorkHours24h,
-        "totalWorkHours24h",
-      )}")`;
-    }
-    if (appliedFilters.minNumberOfJobs !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && numberOfJobs >= ${mapValueForNumberAnnotation(appliedFilters.minNumberOfJobs, "numberOfJobs")}`;
-    }
-    if (appliedFilters.maxNumberOfJobs !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && numberOfJobs <= ${mapValueForNumberAnnotation(appliedFilters.maxNumberOfJobs, "numberOfJobs")}`;
-    }
-    if (appliedFilters.minNumberOfJobs24h !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && numberOfJobs24h >= ${mapValueForNumberAnnotation(
-        appliedFilters.minNumberOfJobs24h,
-        "numberOfJobs24h",
-      )}`;
-    }
-    if (appliedFilters.maxNumberOfJobs24h !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && numberOfJobs24h <= ${mapValueForNumberAnnotation(
-        appliedFilters.maxNumberOfJobs24h,
-        "numberOfJobs24h",
-      )}`;
-    }
-    if (appliedFilters.minLongestJob !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && longestJob >= "${mapValueForAnnotation(appliedFilters.minLongestJob, "longestJob")}")`;
-    }
-    if (appliedFilters.maxLongestJob !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && longestJob <= "${mapValueForAnnotation(appliedFilters.maxLongestJob, "longestJob")}")`;
-    }
-    if (appliedFilters.minLongestJob24h !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && longestJob24h >= "${mapValueForAnnotation(appliedFilters.minLongestJob24h, "longestJob24h")}")`;
-    }
-    if (appliedFilters.maxLongestJob24h !== null) {
-      numberOfParenthesis += 1;
-      qbuild += ` && longestJob24h <= "${mapValueForAnnotation(appliedFilters.maxLongestJob24h, "longestJob24h")}")`;
-    }
-
-    qbuild = "(".repeat(numberOfParenthesis) + qbuild;
-    setInternalQuery(qbuild);
     completeQuery = completeQuery.replace("%%QUERY%%", escapeForJS(qbuild));
-    setCurlQuery(completeQuery);
-  }, [appliedFilters]);
-
-  const fetchData = useCallback(
-    async (forceRefresh = false) => {
-      setLoading(true);
-      const cached = localStorage.getItem(CACHE_KEY);
-      if (cached && !forceRefresh) {
-        const parsed = JSON.parse(cached);
-        if (Date.now() - parsed.timestamp < CACHE_TTL) {
-          setProviderData(new ProviderData(parsed.data));
-          setLoading(false);
-          return;
-        }
-      }
-
-      try {
-        const entities = await fetchAllEntities(client, 10, import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS, internalQuery);
-        const data = new ProviderData({ grouped: "all", byProviderId: entities });
-        setProviderData(data);
-        localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data }));
-      } catch (error) {
-        console.error("Error fetching provider data:", error);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [client, internalQuery],
-  );
+    window.navigator.clipboard.writeText(completeQuery);
+  };
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appliedFilters]);
 
   const { displayedProviders, totalMatches } = useMemo(() => {
     if (!providerData) {
@@ -261,44 +229,7 @@ const ProvidersPage = () => {
     }
 
     const providers = Object.values(providerData.byProviderId);
-    const fc = appliedFilters;
-
-    const filtered = providers.filter((p) => {
-      if (fc.providerNameSearch && !p.providerName.toLowerCase().includes(fc.providerNameSearch.toLowerCase()))
-        return false;
-      if (fc.minWork !== null && p.totalWork < fc.minWork * 1e9) return false;
-      if (fc.maxWork !== null && p.totalWork > fc.maxWork * 1e9) return false;
-      if (fc.minWork24h !== null && p.totalWork24h < fc.minWork24h * 1e9) return false;
-      if (fc.maxWork24h !== null && p.totalWork24h > fc.maxWork24h * 1e9) return false;
-      if (fc.minSpeed !== null && p.speed < fc.minSpeed * 1e6) return false;
-      if (fc.maxSpeed !== null && p.speed > fc.maxSpeed * 1e6) return false;
-      if (fc.minSpeed24h !== null && p.speed24h < fc.minSpeed24h * 1e6) return false;
-      if (fc.maxSpeed24h !== null && p.speed24h > fc.maxSpeed24h * 1e6) return false;
-      if (fc.minEfficiency !== null && p.efficiency < fc.minEfficiency * 1e12) return false;
-      if (fc.maxEfficiency !== null && p.efficiency > fc.maxEfficiency * 1e12) return false;
-      if (fc.minEfficiency24h !== null && p.efficiency24h < fc.minEfficiency24h * 1e12) return false;
-      if (fc.maxEfficiency24h !== null && p.efficiency24h > fc.maxEfficiency24h * 1e12) return false;
-      if (fc.minTotalCost !== null && p.totalCost < fc.minTotalCost) return false;
-      if (fc.maxTotalCost !== null && p.totalCost > fc.maxTotalCost) return false;
-      if (fc.minTotalCost24h !== null && p.totalCost24h < fc.minTotalCost24h) return false;
-      if (fc.maxTotalCost24h !== null && p.totalCost24h > fc.maxTotalCost24h) return false;
-      if (fc.minWorkHours !== null && p.totalWorkHours < fc.minWorkHours) return false;
-      if (fc.maxWorkHours !== null && p.totalWorkHours > fc.maxWorkHours) return false;
-      if (fc.minWorkHours24h !== null && p.totalWorkHours24h < fc.minWorkHours24h) return false;
-      if (fc.maxWorkHours24h !== null && p.totalWorkHours24h > fc.maxWorkHours24h) return false;
-      if (fc.minNumberOfJobs !== null && p.numberOfJobs < fc.minNumberOfJobs) return false;
-      if (fc.maxNumberOfJobs !== null && p.numberOfJobs > fc.maxNumberOfJobs) return false;
-      if (fc.minNumberOfJobs24h !== null && p.numberOfJobs24h < fc.minNumberOfJobs24h) return false;
-      if (fc.maxNumberOfJobs24h !== null && p.numberOfJobs24h > fc.maxNumberOfJobs24h) return false;
-      if (fc.minLongestJob !== null && p.longestJob < fc.minLongestJob) return false;
-      if (fc.maxLongestJob !== null && p.longestJob > fc.maxLongestJob) return false;
-      if (fc.minLongestJob24h !== null && p.longestJob24h < fc.minLongestJob24h) return false;
-      if (fc.maxLongestJob24h !== null && p.longestJob24h > fc.maxLongestJob24h) return false;
-      // filter passed
-      return true;
-    });
-
-    const sorted = filtered.sort((a, b) => {
+    const sorted = providers.sort((a, b) => {
       const { sortBy, sortOrder } = appliedFilters;
       let aVal, bVal;
 
@@ -380,13 +311,7 @@ const ProvidersPage = () => {
                 />
               </CardContent>
             </Card>
-            <Button
-              onClick={() => {
-                navigator.clipboard.writeText(curlQuery);
-              }}
-            >
-              Copy curl query
-            </Button>
+            <Button onClick={copyCurlQuery}>Copy curl query</Button>
           </div>
         </aside>
 
@@ -469,7 +394,7 @@ const ProvidersPage = () => {
                     updateFavoriteName={updateFavoriteName}
                   />
                 </div>
-                <Button onClick={() => fetchData(true)} disabled={loading}>
+                <Button onClick={() => fetchData()} disabled={loading}>
                   {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : <RefreshCw className="mr-2 size-4" />}
                   Refresh
                 </Button>
