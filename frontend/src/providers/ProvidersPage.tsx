@@ -16,28 +16,11 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { escapeForJS } from "@/utils";
 import ExperimentalAlert from "@/components/ExperimentalAlert";
 import { useFilterState } from "./useFilterState";
-import { FilterCriteria } from "./provider-types";
+import { FilterCriteria, sortOptions } from "./provider-types";
 import { FilterHistory } from "./FilterHistory";
 
 const CACHE_KEY = "providerDataCache";
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
-
-const sortOptions = [
-  { value: "providerName", label: "Provider Name" },
-  { value: "longestJob", label: "Longest Job (All Time)" },
-  { value: "longestJob24h", label: "Longest Job (24h)" },
-  { value: "speed", label: "Speed (All Time)" },
-  { value: "speed24h", label: "Speed (24h)" },
-  { value: "efficiency", label: "Efficiency (All Time)" },
-  { value: "efficiency24h", label: "Efficiency (24h)" },
-  { value: "totalWorkHours", label: "Work Hours (All Time)" },
-  { value: "totalWorkHours24h", label: "Work Hours (24h)" },
-  { value: "totalCost", label: "Cost (All Time)" },
-  { value: "totalCost24h", label: "Cost (24h)" },
-  { value: "numberOfJobs", label: "Jobs (All Time)" },
-  { value: "numberOfJobs24h", label: "Jobs (24h)" },
-  { value: "score", label: "Score" },
-];
 
 const ProvidersPage = () => {
   const [loading, setLoading] = useState(true);
@@ -47,16 +30,16 @@ const ProvidersPage = () => {
   const {
     stagedFilters,
     appliedFilters,
-    changeStagedFilterField,
-    resetFilters,
-    applyFilters,
     filterHistory,
-    setStagedFilters,
-    applyStagedFiltersWithoutHistory,
-    removeFromHistory,
-    promoteToFavorite,
     favoriteFilters,
-    removeFromFavorites,
+    changeStagedFilterField,
+    applyFilters,
+    setAndApplyStagedFilters,
+    resetFilters,
+    applyHistoricalFilter,
+    deleteHistoricalFilter,
+    promoteToFavorite,
+    deleteFavoriteFilter,
     updateFavoriteName,
   } = useFilterState();
 
@@ -351,15 +334,20 @@ const ProvidersPage = () => {
     setDisplayLimit(50);
   };
 
-  const applyHistoricalFilter = (filter: FilterCriteria) => {
-    setStagedFilters(filter);
-    applyStagedFiltersWithoutHistory(filter);
+  const applyHistoricalFilterAndResetList = (filter: FilterCriteria) => {
+    applyHistoricalFilter(filter);
     window.scrollTo({ top: 0, behavior: "instant" });
     setDisplayLimit(50);
   };
 
   const resetFiltersAndResetList = () => {
     resetFilters();
+    window.scrollTo({ top: 0, behavior: "instant" });
+    setDisplayLimit(50);
+  };
+
+  const changeSortOrder = (sortBy: FilterCriteria["sortBy"], sortOrder: "asc" | "desc") => {
+    setAndApplyStagedFilters({ sortBy, sortOrder });
     window.scrollTo({ top: 0, behavior: "instant" });
     setDisplayLimit(50);
   };
@@ -376,10 +364,10 @@ const ProvidersPage = () => {
                 <FilterHistory
                   favoriteFilters={favoriteFilters}
                   filterHistory={filterHistory}
-                  applyHistoricalFilter={applyHistoricalFilter}
-                  deleteHistoricalFilter={removeFromHistory}
+                  applyHistoricalFilter={applyHistoricalFilterAndResetList}
+                  deleteHistoricalFilter={deleteHistoricalFilter}
                   promoteToFavorite={promoteToFavorite}
-                  deleteFavoriteFilter={removeFromFavorites}
+                  deleteFavoriteFilter={deleteFavoriteFilter}
                   updateFavoriteName={updateFavoriteName}
                 />
               </CardHeader>
@@ -420,7 +408,7 @@ const ProvidersPage = () => {
                 </Label>
                 <Select
                   value={stagedFilters.sortBy}
-                  onValueChange={(value) => changeStagedFilterField("sortBy", value as FilterCriteria["sortBy"])}
+                  onValueChange={(value) => changeSortOrder(value as FilterCriteria["sortBy"], stagedFilters.sortOrder)}
                 >
                   <SelectTrigger id="sort-by" className="mt-1 w-full sm:w-[180px]">
                     <SelectValue placeholder="Select sorting" />
@@ -442,7 +430,7 @@ const ProvidersPage = () => {
                 </Label>
                 <Select
                   value={stagedFilters.sortOrder}
-                  onValueChange={(value) => changeStagedFilterField("sortOrder", value as "asc" | "desc")}
+                  onValueChange={(value) => changeSortOrder(stagedFilters.sortBy, value as "asc" | "desc")}
                 >
                   <SelectTrigger id="sort-order" className="mt-1 sm:w-[150px]">
                     <SelectValue placeholder="Select order" />
@@ -474,10 +462,10 @@ const ProvidersPage = () => {
                   <FilterHistory
                     favoriteFilters={favoriteFilters}
                     filterHistory={filterHistory}
-                    applyHistoricalFilter={applyHistoricalFilter}
-                    deleteHistoricalFilter={removeFromHistory}
+                    applyHistoricalFilter={applyHistoricalFilterAndResetList}
+                    deleteHistoricalFilter={deleteHistoricalFilter}
                     promoteToFavorite={promoteToFavorite}
-                    deleteFavoriteFilter={removeFromFavorites}
+                    deleteFavoriteFilter={deleteFavoriteFilter}
                     updateFavoriteName={updateFavoriteName}
                   />
                 </div>

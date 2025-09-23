@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { History, Trash, Heart, Edit } from "lucide-react";
 import { useState } from "react";
-import { FilterCriteria } from "./provider-types";
+import { FilterCriteria, sortOptions } from "./provider-types";
 import { filterableMetrics } from "./ProviderFilters";
 import { HistoricalFilter } from "./useFilterState";
 
@@ -21,6 +21,11 @@ const formatFilter = (filter: FilterCriteria) => {
 
   if (filter.providerNameSearch) {
     criteria.push({ key: "Name", value: filter.providerNameSearch });
+  }
+
+  const sortOption = sortOptions.find((option) => option.value === filter.sortBy);
+  if (sortOption) {
+    criteria.push({ key: "Sort by", value: `${sortOption.label} (${filter.sortOrder})` });
   }
 
   filterableMetrics.forEach((metric) => {
