@@ -81,19 +81,28 @@ export const addressExamples = {
   "letters-heavy": (count: number) => {
     if (count < 1 || count > 40) return null;
     const letters = "ABCDEF";
-    let address = "";
+    // Create an array of indices [0, 1, ..., 39]
+    const indices = Array.from({ length: 40 }, (_, i) => i);
+    // Shuffle the indices
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    const letterPositions = new Set(indices.slice(0, count));
+    const addressArr = Array(40).fill(null);
+
     for (let i = 0; i < 40; i++) {
-      if (i < count) {
-        address += letters[Math.floor(Math.random() * letters.length)];
+      if (letterPositions.has(i)) {
+        addressArr[i] = letters[Math.floor(Math.random() * letters.length)];
       } else {
-        address += randomHex(1);
+        addressArr[i] = Math.floor(Math.random() * 10).toString();
       }
     }
 
     return (
       <span>
         0x
-        {Array.from(address).map((char, i) => (
+        {addressArr.map((char, i) => (
           <span key={i} className={letters.includes(char) ? "text-primary" : ""}>
             {char}
           </span>
@@ -113,23 +122,78 @@ export const addressExamples = {
     );
   },
   "snake-score-no-case": (count: number) => {
-    if (count < 1 || count > 20) return null;
-    let address = "";
-    for (let i = 0; i < count; i++) {
-      const char = randomHex(1);
-      address += char + char;
+    const ADDRESS_HEX_LENGTH = 40;
+    // Partitions an integer into a given number of parts, each >= 1.
+    const partitionInteger = (number: number, parts: number) => {
+      const partitions = Array(parts).fill(1);
+      let remainder = number - parts;
+      while (remainder > 0) {
+        partitions[Math.floor(Math.random() * parts)]++;
+        remainder--;
+      }
+      return partitions;
+    };
+    const shuffleArray = (array: number[]) => {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    };
+
+    const minK = Math.ceil(count / 6); // Let's say the biggest snake is 6 characters long
+    const maxK = Math.min(ADDRESS_HEX_LENGTH - count, count);
+
+    let k;
+    if (minK > maxK) {
+      // It's possible that a longer snake is forced, e.g. count=35
+      k = maxK;
+    } else {
+      // Pick a random valid number of scoring chunks.
+      k = Math.floor(Math.random() * (maxK - minK + 1)) + minK;
     }
-    const remaining = 40 - address.length;
-    address += randomHex(remaining);
+
+    const scoringChunks = partitionInteger(count, k);
+    const numSingletons = ADDRESS_HEX_LENGTH - (count + k);
+    const singletonChunks = Array(numSingletons).fill(0);
+
+    const plan = scoringChunks.concat(singletonChunks);
+    shuffleArray(plan);
+
+    const hexChars = "0123456789abcdef";
+    const getRandomHexCharExcluding = (excludeChar: string | null) => {
+      let newChar;
+      do {
+        newChar = hexChars[Math.floor(Math.random() * hexChars.length)];
+      } while (newChar === excludeChar);
+      return newChar;
+    };
+
+    const address = ["0", "x"];
+    let lastChar: string | null = null;
+
+    for (const score of plan) {
+      const chunkLength = score + 1; // score of 1 ('aa') is length 2
+      const char = getRandomHexCharExcluding(lastChar);
+
+      for (let i = 0; i < chunkLength; i++) {
+        address.push(char);
+      }
+      lastChar = char;
+    }
 
     return (
       <span>
-        0x
-        {Array.from(address).map((char, i, arr) => (
-          <span key={i} className={arr[i] === arr[i - 1] ? "text-primary" : ""}>
-            {char}
-          </span>
-        ))}
+        {address.map((char, i, arr) => {
+          const isSnake =
+            (i > 1 && arr[i] === arr[i - 1]) || // part of a pair with the previous char
+            (i < arr.length - 1 && arr[i] === arr[i + 1]); // part of a pair with the next char
+
+          return (
+            <span key={i} className={isSnake ? "text-primary" : ""}>
+              {char}
+            </span>
+          );
+        })}
       </span>
     );
   },
