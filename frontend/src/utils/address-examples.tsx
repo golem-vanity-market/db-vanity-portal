@@ -6,11 +6,13 @@ const randomHex = (length: number) =>
     .map(() => Math.floor(Math.random() * 16).toString(16))
     .join("");
 
+const InvalidInput = ({ reason }: { reason: string }) => <span className="text-red-500">{reason}</span>;
+
 export const addressExamples = {
   "user-prefix": (specifier: string) => {
     const prefix = specifier.replace("0x", "").toUpperCase();
     const remaining = 40 - prefix.length;
-    if (remaining < 0) return null;
+    if (remaining < 0) return <InvalidInput reason="Specifier must be between 0 and 40 characters" />;
     const randomPart = randomHex(remaining);
     return (
       <span>
@@ -22,7 +24,7 @@ export const addressExamples = {
   "user-suffix": (specifier: string) => {
     const suffix = specifier.toUpperCase();
     const remaining = 40 - suffix.length;
-    if (remaining < 0) return null;
+    if (remaining < 0) return <InvalidInput reason="Specifier must be between 0 and 40 characters" />;
     const randomPart = randomHex(remaining);
     return (
       <span>
@@ -33,7 +35,9 @@ export const addressExamples = {
   },
   "user-mask": (specifier: string) => {
     const mask = specifier.replace("0x", "").toUpperCase();
-    if (mask.length !== 40) return null;
+    if (mask.length !== 40) return <InvalidInput reason="Mask must be exactly 40 characters" />;
+    if (!/^[0-9A-FX]{40}$/.test(mask))
+      return <InvalidInput reason="Mask can only contain hexadecimal characters and 'X'" />;
     const address = Array.from(mask).map((char) => {
       if (char === "X") {
         return randomHex(1);
@@ -53,7 +57,7 @@ export const addressExamples = {
     );
   },
   "leading-any": (length: number) => {
-    if (length < 1 || length > 40) return null;
+    if (length < 1 || length > 40) return <InvalidInput reason="Length must be between 0 and 40" />;
     const char = randomHex(1).toUpperCase();
     const prefix = Array(length).fill(char).join("");
     const remaining = 40 - length;
@@ -66,7 +70,7 @@ export const addressExamples = {
     );
   },
   "trailing-any": (length: number) => {
-    if (length < 1 || length > 40) return null;
+    if (length < 1 || length > 40) return <InvalidInput reason="Length must be between 0 and 40" />;
     const char = randomHex(1).toUpperCase();
     const suffix = Array(length).fill(char).join("");
     const remaining = 40 - length;
@@ -79,7 +83,7 @@ export const addressExamples = {
     );
   },
   "letters-heavy": (count: number) => {
-    if (count < 1 || count > 40) return null;
+    if (count < 1 || count > 40) return <InvalidInput reason="Count must be between 0 and 40" />;
     const letters = "ABCDEF";
     // Create an array of indices [0, 1, ..., 39]
     const indices = Array.from({ length: 40 }, (_, i) => i);
@@ -123,6 +127,9 @@ export const addressExamples = {
   },
   "snake-score-no-case": (count: number) => {
     const ADDRESS_HEX_LENGTH = 40;
+
+    if (count < 1 || count > 39) return <InvalidInput reason="Number of pairs must be between 1 and 39" />;
+
     // Partitions an integer into a given number of parts, each >= 1.
     const partitionInteger = (number: number, parts: number) => {
       const partitions = Array(parts).fill(1);

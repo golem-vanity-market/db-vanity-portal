@@ -151,7 +151,7 @@ type ProblemConfig =
 const problems = [
   {
     id: "user-prefix",
-    label: "Prefix",
+    label: "Custom Prefix",
     description: "Search for addresses that start with the specified prefix",
     specifierType: "text",
     defaultValue: "0xC0FFEE",
@@ -162,7 +162,7 @@ const problems = [
   },
   {
     id: "user-suffix",
-    label: "Suffix",
+    label: "Custom Suffix",
     description: "Search for addresses that end with the specified suffix",
     specifierType: "text",
     defaultValue: "BADD1E",
@@ -177,7 +177,7 @@ const problems = [
     description:
       "Search for addresses that match the specified mask. Use X to match any character (e.g., 0x1234xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5678)",
     specifierType: "text",
-    defaultValue: "0x1234xxxxxxxxxxxxxxxxxxxxxxxxxxxx5678",
+    defaultValue: "0x1234xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5678",
     specifierKey: "specifier",
     icon: <Grid3x3 />,
     getExample: addressExamples["user-mask"],
@@ -498,17 +498,27 @@ export const AccountPage = () => {
                                         </div>
                                       ) : (
                                         <Input
+                                          className="font-mono"
                                           placeholder={item.defaultValue}
                                           type={item.specifierType}
-                                          value={field.value || item.defaultValue}
+                                          value={field.value === undefined ? item.defaultValue : field.value}
                                           onFocus={() => !isSelected && toggleProblem(item.id)}
                                           onClick={(e) => e.stopPropagation()}
                                           onChange={(e) => {
                                             let value = e.target.value;
                                             if (item.id === "user-mask") {
-                                              value = "0x" + value.replace(/^0x/i, "").replace(/[^0-9a-fA-FXx]/gi, "");
+                                              if (value.length < 2) {
+                                                value = "0x";
+                                              } else {
+                                                value =
+                                                  "0x" + value.replace(/^0x/i, "").replace(/[^0-9a-fA-FXx]/gi, "");
+                                              }
                                             } else if (item.id === "user-prefix") {
-                                              value = "0x" + value.replace(/^0x/i, "").replace(/[^0-9a-fA-F]/gi, "");
+                                              if (value.length < 2) {
+                                                value = "0x";
+                                              } else {
+                                                value = "0x" + value.replace(/^0x/i, "").replace(/[^0-9a-fA-F]/gi, "");
+                                              }
                                             } else {
                                               value = value.replace(/[^0-9a-fA-F]/gi, "");
                                             }
