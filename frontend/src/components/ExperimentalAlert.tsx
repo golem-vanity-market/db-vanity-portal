@@ -1,17 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { TriangleAlert } from "lucide-react";
 
 const ExperimentalAlert = () => {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
+  const [isVisible, setIsVisible] = useState(() => {
     const hasSeenAlert = localStorage.getItem("hasSeenExperimentalAlert");
-    if (!hasSeenAlert) {
-      setIsVisible(true);
-    }
-  }, []);
+    return !hasSeenAlert;
+  });
 
   const handleDismiss = () => {
     localStorage.setItem("hasSeenExperimentalAlert", "true");

@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useEffect } from "react";
+import React, { useMemo, useEffect } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { createROClient } from "golem-base-sdk";
 import { ModeToggle } from "./components/theme-toggle";
@@ -27,20 +27,19 @@ const Dashboard = () => {
     [],
   );
 
-  const update_current_block = useCallback(async () => {
-    try {
-      const blockNumber = await client.getRawClient().httpClient.getBlockNumber();
-      setCurrentBlock(blockNumber);
-    } catch (error) {
-      console.error("Failed to fetch block number:", error);
-    }
-  }, [client]);
-
   useEffect(() => {
+    const update_current_block = async () => {
+      try {
+        const blockNumber = await client.getRawClient().httpClient.getBlockNumber();
+        setCurrentBlock(blockNumber);
+      } catch (error) {
+        console.error("Failed to fetch block number:", error);
+      }
+    };
     update_current_block();
     const interval = setInterval(update_current_block, 15000);
     return () => clearInterval(interval);
-  }, [update_current_block]);
+  }, [client]);
 
   const lightLogo = assetsUrl() + "logo_light.svg";
   const darkLogo = assetsUrl() + "logo_dark.svg";

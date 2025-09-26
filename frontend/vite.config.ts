@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
+import react from "@vitejs/plugin-react";
 import compression from "vite-plugin-compression2";
 import tailwindcss from "@tailwindcss/vite";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
@@ -11,7 +11,11 @@ import path from "path";
 // https://vitejs.dev/config https://vitest.dev/config
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      babel: {
+        plugins: ["babel-plugin-react-compiler"],
+      },
+    }),
     tailwindcss(),
     compression(),
     nodePolyfills({
