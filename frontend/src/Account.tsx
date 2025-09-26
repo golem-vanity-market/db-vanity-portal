@@ -441,7 +441,7 @@ export const AccountPage = () => {
                     <FormLabel className="text-base">Problems</FormLabel>
                     <FormDescription>Select the problems you want to order for solving.</FormDescription>
                   </div>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                     {problems.map((item) => {
                       const fieldIndex = fields.findIndex((field) => field.type === item.id);
                       const isSelected = fieldIndex > -1;
