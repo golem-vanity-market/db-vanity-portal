@@ -410,6 +410,15 @@ export const AccountPage = () => {
 
   const totalDifficulty = calculateWorkUnitForProblems(selectedProblems);
 
+  // prettier-ignore
+  const hashesIn30Min = 20 // 20 providers
+    * 5 * 1e6 // 5 MH/s
+    * 30 * 60 // 30 minutes
+
+  const expectedMatches = Math.round(
+    selectedProblems.length > 0 && totalDifficulty > 0 ? hashesIn30Min / totalDifficulty : 0,
+  );
+
   return (
     <Card>
       <CardHeader>
@@ -576,14 +585,27 @@ export const AccountPage = () => {
             <div className="mt-4 rounded-md border bg-muted/30 p-4">
               <h3 className="text-lg font-semibold">Total Difficulty</h3>
               <p className="text-sm text-foreground/80">
-                This is an estimate of how hard it will be to find an address that matches at least one of the selected
-                problems.
+                This is an estimate of how many addresses need to be checked to find at least one that matches any of
+                the selected problems.
               </p>
               <p className="text-sm text-foreground/80">
                 The more problems you select, the easier it will be to match any of them.
               </p>
               <p className="mt-2 text-2xl font-bold text-primary">{displayDifficulty(totalDifficulty)}</p>
+              <h3 className="mt-4 text-lg font-semibold">Time Estimation</h3>
+              <p className="text-sm text-foreground/80">
+                With 20 providers working for 30 minutes, you can expect to find approximately:
+              </p>
+              <p className="mt-2 text-2xl font-bold text-primary">
+                {expectedMatches.toLocaleString()} matching addresses
+              </p>
+              {expectedMatches < 100 && selectedProblems.length > 0 && (
+                <p className="mt-2 text-sm text-orange-500">
+                  Warning: The expected number of matches is low. Consider selecting easier problems for better results.
+                </p>
+              )}
             </div>
+
             <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending ? "Sending Order..." : "Send Order"}
             </Button>
