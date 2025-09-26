@@ -25,6 +25,7 @@ import { addressExamples } from "@/utils/address-examples";
 import { Slider } from "@/components/ui/slider";
 import { calculateWorkUnitForProblems, Problem } from "@/utils/difficulty";
 import { displayDifficulty } from "@/utils";
+import { Alert } from "./components/ui/alert";
 
 const ProblemSchema = z.discriminatedUnion("type", [
   z.object({
@@ -425,6 +426,14 @@ export const AccountPage = () => {
         <CardTitle>Create an Order</CardTitle>
       </CardHeader>
       <CardContent>
+        <Alert variant="default" className="mb-2">
+          <strong>Disclaimer:</strong> This is an alpha implementation of the orderbook system. Please use{" "}
+          <span className="font-bold text-orange-600">testnet tokens only</span>. Orders will be handled by our nodes in
+          a best-effort manner. There is no guarantee that your order will be fulfilled. Never share your private key.
+          The public key you provide should correspond to a private key that you control, but the private key itself is
+          never shared or transmitted.
+        </Alert>
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
@@ -436,7 +445,10 @@ export const AccountPage = () => {
                   <FormControl>
                     <Input placeholder="0x..." {...field} />
                   </FormControl>
-                  <FormDescription>The public key of the wallet to receive the vanity address.</FormDescription>
+                  <FormDescription>
+                    The public key that the providers will use to search for vanity addresses. Make sure you control the
+                    corresponding private key.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
