@@ -1,5 +1,5 @@
 import { Annotation, createClient, Tagged } from "golem-base-sdk";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
@@ -23,6 +23,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { cn } from "@/lib/utils";
 import { addressExamples } from "@/utils/address-examples";
 import { Slider } from "@/components/ui/slider";
+import { calculateWorkUnitForProblems, Problem } from "@/utils/difficulty";
+import { displayDifficulty } from "@/utils";
 
 const ProblemSchema = z.discriminatedUnion("type", [
   z.object({
@@ -249,7 +251,7 @@ const problems = [
   },
 ] as const satisfies readonly ProblemConfig[];
 
-export const problemsById = problems.reduce(
+const problemsById = problems.reduce(
   (acc, problem) => {
     acc[problem.id] = problem;
     return acc;
@@ -311,6 +313,11 @@ export const AccountPage = () => {
     },
   });
 
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "problems",
+  });
+
   const mutation = useMutation({
     mutationFn: sendOrder,
   });
@@ -320,6 +327,17 @@ export const AccountPage = () => {
   }
 
   const selectedProblems = form.watch("problems");
+
+  const [specifierValues, setSpecifierValues] = useState<Record<string, string | number>>(() => {
+    const initialValues: Record<string, string | number> = {};
+    for (const problem of problems) {
+      if (problem.defaultValue !== null) {
+        initialValues[problem.id] = problem.defaultValue;
+      }
+    }
+    return initialValues;
+  });
+
   const [examples, setExamples] = useState<Record<string, React.ReactNode>>(() => {
     const initialExamples: Record<string, React.ReactNode> = {};
     for (const problem of problems) {
@@ -330,74 +348,67 @@ export const AccountPage = () => {
 
   const updateExample = (problemId: ProblemId, specifierValue: string | number) => {
     const problem = problemsById[problemId];
-    switch (problem.specifierType) {
-      case "text":
-        if (typeof specifierValue === "string") {
-          setExamples((prev) => ({
-            ...prev,
-            [problemId]: problem.getExample(specifierValue),
-          }));
-        }
-        break;
-
-      case "number":
-        if (typeof specifierValue === "number") {
-          setExamples((prev) => ({
-            ...prev,
-            [problemId]: problem.getExample(specifierValue),
-          }));
-        }
-        break;
+    if (problem.specifierType === "text" && typeof specifierValue === "string") {
+      setExamples((prev) => ({ ...prev, [problemId]: problem.getExample(specifierValue) }));
+    } else if (problem.specifierType === "number" && typeof specifierValue === "number") {
+      setExamples((prev) => ({ ...prev, [problemId]: problem.getExample(specifierValue) }));
     }
   };
+
   const toggleProblem = (problemId: ProblemId) => {
-    const currentProblems = form.getValues("problems") || [];
-    const selectedProblem = currentProblems.find((p) => p.type === problemId);
+    const fieldIndex = fields.findIndex((field) => field.type === problemId);
+    const problem = problemsById[problemId];
 
-    if (selectedProblem) {
-      const newProblems = currentProblems.filter((p) => p.type !== problemId);
-      form.setValue("problems", newProblems);
-
-      // Reset example to default when problem is deselected, but only if the problem's specifier is not the default
-      const problem = problemsById[problemId];
-      if (
-        problem.specifierKey &&
-        problem.defaultValue &&
-        problem.specifierKey in selectedProblem &&
-        (selectedProblem as ProblemData & { [key in typeof problem.specifierKey]: unknown })[problem.specifierKey] !==
-          problem.defaultValue
-      ) {
-        setExamples((prev) => ({
-          ...prev,
-          [problemId]: problem.getDefaultExample(),
-        }));
-      }
+    if (fieldIndex > -1) {
+      remove(fieldIndex);
     } else {
-      const problem = problemsById[problemId];
       let newProblemForForm: ProblemData;
+      const specifierValue = specifierValues[problem.id];
+
       switch (problem.id) {
         case "user-prefix":
         case "user-suffix":
         case "user-mask":
-          newProblemForForm = { type: problem.id, specifier: problem.defaultValue };
+          newProblemForForm = { type: problem.id, specifier: specifierValue as string };
           break;
         case "leading-any":
         case "trailing-any":
-          newProblemForForm = { type: problem.id, length: problem.min };
+          newProblemForForm = { type: problem.id, length: specifierValue as number };
           break;
         case "letters-heavy":
         case "snake-score-no-case":
-          newProblemForForm = { type: problem.id, count: problem.min };
+          newProblemForForm = { type: problem.id, count: specifierValue as number };
           break;
         case "numbers-heavy":
           newProblemForForm = { type: problem.id };
           break;
       }
-
-      const newProblems = [...currentProblems, newProblemForForm];
-      form.setValue("problems", newProblems);
+      append(newProblemForForm);
+      // Immediately trigger validation on the newly added field for better UX
+      form.trigger(`problems.${fields.length}`);
     }
   };
+
+  const handleSpecifierChange = (problemId: ProblemId, value: string | number) => {
+    // if value didn't change, do nothing
+    if (specifierValues[problemId] === value) return;
+
+    setSpecifierValues((prev) => ({ ...prev, [problemId]: value }));
+    updateExample(problemId, value);
+
+    const fieldIndex = fields.findIndex((field) => field.type === problemId);
+    if (fieldIndex > -1) {
+      const problemConfig = problemsById[problemId];
+      if (problemConfig.specifierKey) {
+        form.setValue(`problems.${fieldIndex}.${problemConfig.specifierKey}`, value, {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+      }
+    }
+  };
+
+  const totalDifficulty = calculateWorkUnitForProblems(selectedProblems);
 
   return (
     <Card>
@@ -432,8 +443,14 @@ export const AccountPage = () => {
                   </div>
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {problems.map((item) => {
-                      const isSelected = selectedProblems.some((p) => p.type === item.id);
-                      const problemIndex = selectedProblems.findIndex((p) => p.type === item.id);
+                      const fieldIndex = fields.findIndex((field) => field.type === item.id);
+                      const isSelected = fieldIndex > -1;
+                      const problemForDifficultyCalc = selectedProblems.find((p) => p.type === item.id) || {
+                        type: item.id,
+                        ...(item.specifierKey && { [item.specifierKey]: specifierValues[item.id] }),
+                      };
+
+                      const difficulty = calculateWorkUnitForProblems([problemForDifficultyCalc as Problem]);
 
                       return (
                         <Card
@@ -473,19 +490,15 @@ export const AccountPage = () => {
                             {item.specifierKey && (
                               <FormField
                                 control={form.control}
-                                name={`problems.${problemIndex}.${item.specifierKey}`}
-                                render={({ field }) => (
+                                name={`problems.${fieldIndex}.${item.specifierKey}`}
+                                render={() => (
                                   <FormItem>
                                     <FormControl>
                                       {item.specifierType === "number" ? (
                                         <div className="flex items-center gap-4">
                                           <Slider
-                                            value={[field.value ? Number(field.value) : item.min]}
-                                            onValueChange={(value) => {
-                                              if (value[0] === field.value) return;
-                                              field.onChange(value[0]);
-                                              updateExample(item.id, value[0]);
-                                            }}
+                                            value={[specifierValues[item.id] as number]}
+                                            onValueChange={(value) => handleSpecifierChange(item.id, value[0])}
                                             min={item.min}
                                             max={item.max}
                                             step={1}
@@ -493,15 +506,15 @@ export const AccountPage = () => {
                                             onClick={(e) => e.stopPropagation()}
                                           />
                                           <div className="w-8 text-center font-bold text-primary">
-                                            {field.value || item.min}
+                                            {specifierValues[item.id]}
                                           </div>
                                         </div>
                                       ) : (
                                         <Input
                                           className="font-mono"
+                                          value={specifierValues[item.id] as string}
                                           placeholder={item.defaultValue}
                                           type={item.specifierType}
-                                          value={field.value === undefined ? item.defaultValue : field.value}
                                           onFocus={() => !isSelected && toggleProblem(item.id)}
                                           onClick={(e) => e.stopPropagation()}
                                           onChange={(e) => {
@@ -522,9 +535,7 @@ export const AccountPage = () => {
                                             } else {
                                               value = value.replace(/[^0-9a-fA-F]/gi, "");
                                             }
-                                            if (value === field.value) return;
-                                            field.onChange(value);
-                                            updateExample(item.id, value);
+                                            handleSpecifierChange(item.id, value);
                                           }}
                                         />
                                       )}
@@ -544,6 +555,15 @@ export const AccountPage = () => {
                                 </div>
                               </div>
                             )}
+                            <div className="mt-2 flex flex-col">
+                              <label className="text-sm font-medium">Difficulty</label>
+                              <label className="text-xs text-foreground/60">
+                                How many addresses need to be checked to find one that matches the pattern?
+                              </label>
+                              <div className="mt-2 rounded-md bg-background/50 p-3 font-mono text-sm break-all">
+                                {difficulty.toLocaleString()} ({displayDifficulty(difficulty)})
+                              </div>
+                            </div>
                           </CardContent>
                         </Card>
                       );
@@ -553,6 +573,17 @@ export const AccountPage = () => {
                 </FormItem>
               )}
             />
+            <div className="mt-4 rounded-md border bg-muted/30 p-4">
+              <h3 className="text-lg font-semibold">Total Difficulty</h3>
+              <p className="text-sm text-foreground/80">
+                This is an estimate of how hard it will be to find an address that matches at least one of the selected
+                problems.
+              </p>
+              <p className="text-sm text-foreground/80">
+                The more problems you select, the easier it will be to match any of them.
+              </p>
+              <p className="mt-2 text-2xl font-bold text-primary">{displayDifficulty(totalDifficulty)}</p>
+            </div>
             <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending ? "Sending Order..." : "Send Order"}
             </Button>
