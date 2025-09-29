@@ -85,7 +85,9 @@ createAppKit({
     socials: false,
     email: false,
   },
-  themeMode: "dark",
+  chainImages: {
+    [golemBaseNetwork.id]: "/assets/golem_db_logo.svg",
+  },
   themeVariables: {
     "--w3m-accent": "var(--color-primary)",
     "--w3m-font-family": "var(--font-heading)",
@@ -95,12 +97,12 @@ createAppKit({
 
 root.render(
   <React.StrictMode>
-    <ThemeProvider defaultTheme="system" storageKey="ui-theme">
-      <WagmiProvider config={wagmiAdapter.wagmiConfig}>
-        <QueryClientProvider client={queryClient}>
+    <WagmiProvider config={wagmiAdapter.wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider defaultTheme="system" storageKey="ui-theme">
           <RouterProvider router={router} />
-        </QueryClientProvider>
-      </WagmiProvider>
-    </ThemeProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   </React.StrictMode>,
 );

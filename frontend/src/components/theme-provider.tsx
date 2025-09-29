@@ -1,3 +1,4 @@
+import { useAppKitTheme } from "@reown/appkit/react";
 import { createContext, useContext, useEffect, useState } from "react";
 
 type Theme = "dark" | "light" | "system";
@@ -27,7 +28,7 @@ export function ThemeProvider({
   ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => (localStorage.getItem(storageKey) as Theme) || defaultTheme);
-
+  const { setThemeMode: setAppKitTheme } = useAppKitTheme();
   useEffect(() => {
     const root = window.document.documentElement;
 
@@ -39,9 +40,9 @@ export function ThemeProvider({
       root.classList.add(systemTheme);
       return;
     }
-
+    setAppKitTheme(theme);
     root.classList.add(theme);
-  }, [theme]);
+  }, [theme, setAppKitTheme]);
 
   const value = {
     theme,
