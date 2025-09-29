@@ -16,6 +16,7 @@ import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { createAppKit } from "@reown/appkit/react";
 import { defineChain } from "@reown/appkit/networks";
 import { WagmiProvider } from "wagmi";
+import { assetsUrl } from "@/utils";
 
 const golemBaseNetwork = defineChain({
   id: Number(import.meta.env.VITE_GOLEM_DB_CHAIN_ID),
@@ -86,7 +87,7 @@ createAppKit({
     email: false,
   },
   chainImages: {
-    [golemBaseNetwork.id]: "/assets/golem_db_logo.svg",
+    [golemBaseNetwork.id]: `${assetsUrl()}golem_db_logo.svg`,
   },
   themeVariables: {
     "--w3m-accent": "var(--color-primary)",
