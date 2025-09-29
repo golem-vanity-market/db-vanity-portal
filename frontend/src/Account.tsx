@@ -26,6 +26,7 @@ import { Slider } from "@/components/ui/slider";
 import { calculateWorkUnitForProblems, Problem } from "@/utils/difficulty";
 import { displayDifficulty } from "@/utils";
 import { Alert } from "./components/ui/alert";
+import { useAppKitAccount } from "@reown/appkit/react";
 
 const ProblemSchema = z.discriminatedUnion("type", [
   z.object({
@@ -304,6 +305,8 @@ async function sendOrder(data: z.infer<typeof formSchema>) {
 }
 
 export const AccountPage = () => {
+  const { isConnected } = useAppKitAccount();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     mode: "onSubmit",
@@ -618,8 +621,8 @@ export const AccountPage = () => {
               )}
             </div>
 
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? "Sending Order..." : "Send Order"}
+            <Button type="submit" disabled={mutation.isPending || !isConnected}>
+              {mutation.isPending ? "Sending Order..." : !isConnected ? "Connect wallet to send order" : "Send Order"}
             </Button>
           </form>
         </Form>
