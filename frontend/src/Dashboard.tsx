@@ -83,7 +83,7 @@ const Dashboard = () => {
               <Skeleton className="h-9 w-24" />
             )}
             <Separator orientation="vertical" className="h-9" />
-            <appkit-button />
+            <appkit-button size="sm" />
             <Separator orientation="vertical" className="h-9" />
             <ModeToggle />
           </div>
