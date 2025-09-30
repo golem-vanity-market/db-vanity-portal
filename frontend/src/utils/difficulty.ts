@@ -1,45 +1,4 @@
-type ProblemCategory =
-  | "user-prefix" // The address starts with the user-defined prefix.
-  | "user-suffix" // The address ends with the user-defined suffix.
-  | "user-mask" // The address matches the user-defined mask (e.g., 0xabcXXXabcXXXabc where X is any character).
-  | "leading-any" // The number of leading characters that are the same.
-  | "trailing-any" // The number of trailing characters that are the same.
-  | "letters-heavy" // Addresses with a high number of letters (a-f).
-  | "numbers-heavy" // Addresses with a high number of ciphers (0-9).
-  | "snake-score-no-case"; // The number of repeating characters in the address. Case insensitive.
-
-export type Problem =
-  | {
-      type: "leading-any";
-      length: number;
-    }
-  | {
-      type: "trailing-any";
-      length: number;
-    }
-  | {
-      type: "letters-heavy";
-      count: number;
-    }
-  | {
-      type: "numbers-heavy";
-    }
-  | {
-      type: "snake-score-no-case";
-      count: number;
-    }
-  | {
-      type: "user-prefix";
-      specifier: string;
-    }
-  | {
-      type: "user-suffix";
-      specifier: string;
-    }
-  | {
-      type: "user-mask";
-      specifier: string;
-    };
+import { Problem, ProblemId } from "@/order/order-schema";
 
 /**
  * Calculates "n choose k" using BigInt for perfect precision.
@@ -85,7 +44,7 @@ const TOTAL_ADDRESS_SPACE = 16n ** 40n;
  * This is the number of addresses that meet or exceed the threshold.
  * NOTE: This calculation sums the spaces for each category, ignoring overlaps.
  */
-function calculateProbabilitySpace(category: ProblemCategory, threshold: number): bigint {
+function calculateProbabilitySpace(category: ProblemId, threshold: number): bigint {
   switch (category) {
     case "user-prefix": {
       // The number of addresses with at least `threshold` characters matching the user-defined pattern.
@@ -188,7 +147,7 @@ export function calculateWorkUnitForProblems(problems: Problem[]): number {
       }
       return acc;
     },
-    {} as Record<ProblemCategory, number>,
+    {} as Record<ProblemId, number>,
   );
 
   let totalProbabilitySpace = 0n;
