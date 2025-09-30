@@ -4,7 +4,7 @@ import { OrderWithTimestamp, Problem } from "./order-schema";
 import { problemsById } from "./problem-config";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
-import { ChevronsUpDown } from "lucide-react";
+import { ChevronsUpDown, ExternalLink } from "lucide-react";
 
 const getProblemDisplayName = (problem: Problem) => {
   const config = problemsById[problem.type];
@@ -40,7 +40,17 @@ export const OrderCard = ({ id, order }: { id: string; order: OrderWithTimestamp
         <div className="space-y-4">
           <div>
             <h3 className="text-md font-medium">ID</h3>
-            <p className="font-mono text-sm text-muted-foreground">{id}</p>
+            <p>
+              <a
+                href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${id}?tab=data`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 font-mono text-sm text-muted-foreground underline"
+              >
+                {id}
+                <ExternalLink className="size-4" />
+              </a>
+            </p>
           </div>
           <div>
             <h3 className="text-md font-medium">Public Key</h3>
