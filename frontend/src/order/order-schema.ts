@@ -52,3 +52,9 @@ export const OrderSchema = z.object({
 
 export type Problem = z.infer<typeof ProblemSchema>;
 export type ProblemId = Problem["type"];
+
+export const OrderWithTimestampSchema = OrderSchema.extend({
+  timestamp: z.string().datetime(),
+});
+
+export type OrderWithTimestamp = z.infer<typeof OrderWithTimestampSchema>;
