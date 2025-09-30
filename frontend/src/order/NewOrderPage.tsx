@@ -18,6 +18,7 @@ import { Alert } from "@/components/ui/alert";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { OrderSchema, Problem, ProblemId } from "./order-schema";
 import { problems, problemsById } from "./problem-config";
+import { toast } from "sonner";
 
 const getEthereumGlobal = () => {
   if (typeof window !== "undefined" && (window as any).ethereum) {
@@ -75,6 +76,27 @@ export const NewOrderPage = () => {
 
   const mutation = useMutation({
     mutationFn: sendOrder,
+    onSuccess: (data) => {
+      form.reset();
+      toast.success("Order sent successfully!", {
+        action: {
+          label: "View in block explorer",
+          onClick: () => {
+            window.open(
+              `${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${data[0].entityKey}?tab=data`,
+              "_blank",
+            );
+          },
+        },
+      });
+    },
+    onError: (error) => {
+      console.error("Error sending order:", error);
+      const message = error instanceof Error ? error.message : "Unknown error";
+      toast.error(`Error sending order, check the console for more details`, {
+        description: message.substring(0, 100) + (message.length > 100 ? "..." : ""),
+      });
+    },
   });
 
   function onSubmit(data: z.infer<typeof OrderSchema>) {

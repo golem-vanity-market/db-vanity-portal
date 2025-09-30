@@ -18,6 +18,7 @@ import { createAppKit } from "@reown/appkit/react";
 import { defineChain } from "@reown/appkit/networks";
 import { WagmiProvider } from "wagmi";
 import { assetsUrl } from "@/utils";
+import { Toaster } from "@/components/ui/sonner";
 
 const golemBaseNetwork = defineChain({
   id: Number(import.meta.env.VITE_GOLEM_DB_CHAIN_ID),
@@ -107,6 +108,7 @@ root.render(
       <QueryClientProvider client={queryClient}>
         <ThemeProvider defaultTheme="system" storageKey="ui-theme">
           <RouterProvider router={router} />
+          <Toaster />
         </ThemeProvider>
       </QueryClientProvider>
     </WagmiProvider>
