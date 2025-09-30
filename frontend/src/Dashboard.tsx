@@ -77,7 +77,11 @@ const Dashboard = () => {
             <Separator orientation="vertical" className="h-9" />
             {current_block !== null ? (
               <Badge variant="outline" className="h-9">
-                <Link to={import.meta.env.VITE_GOLEM_DB_LANDING_PAGE || "https://golem.network"}>
+                <Link
+                  to={import.meta.env.VITE_GOLEM_DB_LANDING_PAGE || "https://golem.network"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   {import.meta.env.VITE_GOLEM_DB_NETWORK_NAME || "Golem DB"} Block: {current_block.toString()}
                 </Link>
               </Badge>
