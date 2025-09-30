@@ -20,126 +20,94 @@ import { FilterCriteria, sortOptions } from "./provider-types";
 import { FilterHistory } from "./FilterHistory";
 
 const buildQuery = (appliedFilters: FilterCriteria) => {
-  let numberOfParenthesis = 0;
   let qbuild = `$owner = "${import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}"`;
   if (appliedFilters.providerNameSearch) {
-    numberOfParenthesis += 1;
-    qbuild += ` && name = "${escapeForJS(appliedFilters.providerNameSearch)}")`;
+    qbuild += ` && name = "${escapeForJS(appliedFilters.providerNameSearch)}"`;
   }
   if (appliedFilters.minWork !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && totalWork >= "${mapValueForAnnotation(appliedFilters.minWork * 1e9, "totalWork")}")`;
+    qbuild += ` && totalWork >= "${mapValueForAnnotation(appliedFilters.minWork * 1e9, "totalWork")}"`;
   }
   if (appliedFilters.maxWork !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && totalWork <= "${mapValueForAnnotation(appliedFilters.maxWork * 1e9, "totalWork")}")`;
+    qbuild += ` && totalWork <= "${mapValueForAnnotation(appliedFilters.maxWork * 1e9, "totalWork")}"`;
   }
   if (appliedFilters.minWork24h !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && totalWork24h >= "${mapValueForAnnotation(appliedFilters.minWork24h * 1e9, "totalWork24h")}")`;
+    qbuild += ` && totalWork24h >= "${mapValueForAnnotation(appliedFilters.minWork24h * 1e9, "totalWork24h")}"`;
   }
   if (appliedFilters.maxWork24h !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && totalWork24h <= "${mapValueForAnnotation(appliedFilters.maxWork24h * 1e9, "totalWork24h")}")`;
+    qbuild += ` && totalWork24h <= "${mapValueForAnnotation(appliedFilters.maxWork24h * 1e9, "totalWork24h")}"`;
   }
   if (appliedFilters.minSpeed !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && speed >= "${mapValueForAnnotation(appliedFilters.minSpeed * 1e6, "speed")}")`;
+    qbuild += ` && speed >= "${mapValueForAnnotation(appliedFilters.minSpeed * 1e6, "speed")}"`;
   }
   if (appliedFilters.maxSpeed !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && speed <= "${mapValueForAnnotation(appliedFilters.maxSpeed * 1e6, "speed")}")`;
+    qbuild += ` && speed <= "${mapValueForAnnotation(appliedFilters.maxSpeed * 1e6, "speed")}"`;
   }
   if (appliedFilters.minSpeed24h !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && speed24h >= "${mapValueForAnnotation(appliedFilters.minSpeed24h * 1e6, "speed24h")}")`;
+    qbuild += ` && speed24h >= "${mapValueForAnnotation(appliedFilters.minSpeed24h * 1e6, "speed24h")}"`;
   }
   if (appliedFilters.maxSpeed24h !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && speed24h <= "${mapValueForAnnotation(appliedFilters.maxSpeed24h * 1e6, "speed24h")}")`;
+    qbuild += ` && speed24h <= "${mapValueForAnnotation(appliedFilters.maxSpeed24h * 1e6, "speed24h")}"`;
   }
   if (appliedFilters.minEfficiency !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && efficiency >= "${mapValueForAnnotation(appliedFilters.minEfficiency * 1e12, "efficiency")}")`;
+    qbuild += ` && efficiency >= "${mapValueForAnnotation(appliedFilters.minEfficiency * 1e12, "efficiency")}"`;
   }
   if (appliedFilters.maxEfficiency !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && efficiency <= "${mapValueForAnnotation(appliedFilters.maxEfficiency * 1e12, "efficiency")}")`;
+    qbuild += ` && efficiency <= "${mapValueForAnnotation(appliedFilters.maxEfficiency * 1e12, "efficiency")}"`;
   }
   if (appliedFilters.minEfficiency24h !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && efficiency24h >= "${mapValueForAnnotation(appliedFilters.minEfficiency24h * 1e12, "efficiency24h")}")`;
+    qbuild += ` && efficiency24h >= "${mapValueForAnnotation(appliedFilters.minEfficiency24h * 1e12, "efficiency24h")}"`;
   }
   if (appliedFilters.maxEfficiency24h !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && efficiency24h <= "${mapValueForAnnotation(appliedFilters.maxEfficiency24h * 1e12, "efficiency24h")}")`;
+    qbuild += ` && efficiency24h <= "${mapValueForAnnotation(appliedFilters.maxEfficiency24h * 1e12, "efficiency24h")}"`;
   }
   if (appliedFilters.minTotalCost !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && totalCost >= "${mapValueForAnnotation(appliedFilters.minTotalCost, "totalCost")}")`;
+    qbuild += ` && totalCost >= "${mapValueForAnnotation(appliedFilters.minTotalCost, "totalCost")}"`;
   }
   if (appliedFilters.maxTotalCost !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && totalCost <= "${mapValueForAnnotation(appliedFilters.maxTotalCost, "totalCost")}")`;
+    qbuild += ` && totalCost <= "${mapValueForAnnotation(appliedFilters.maxTotalCost, "totalCost")}"`;
   }
   if (appliedFilters.minTotalCost24h !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && totalCost24h >= "${mapValueForAnnotation(appliedFilters.minTotalCost24h, "totalCost24h")}")`;
+    qbuild += ` && totalCost24h >= "${mapValueForAnnotation(appliedFilters.minTotalCost24h, "totalCost24h")}"`;
   }
   if (appliedFilters.maxTotalCost24h !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && totalCost24h <= "${mapValueForAnnotation(appliedFilters.maxTotalCost24h, "totalCost24h")}")`;
+    qbuild += ` && totalCost24h <= "${mapValueForAnnotation(appliedFilters.maxTotalCost24h, "totalCost24h")}"`;
   }
   if (appliedFilters.minWorkHours !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && totalWorkHours >= "${mapValueForAnnotation(appliedFilters.minWorkHours, "totalWorkHours")}")`;
+    qbuild += ` && totalWorkHours >= "${mapValueForAnnotation(appliedFilters.minWorkHours, "totalWorkHours")}"`;
   }
   if (appliedFilters.maxWorkHours !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && totalWorkHours <= "${mapValueForAnnotation(appliedFilters.maxWorkHours, "totalWorkHours")}")`;
+    qbuild += ` && totalWorkHours <= "${mapValueForAnnotation(appliedFilters.maxWorkHours, "totalWorkHours")}"`;
   }
   if (appliedFilters.minWorkHours24h !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && totalWorkHours24h >= "${mapValueForAnnotation(appliedFilters.minWorkHours24h, "totalWorkHours24h")}")`;
+    qbuild += ` && totalWorkHours24h >= "${mapValueForAnnotation(appliedFilters.minWorkHours24h, "totalWorkHours24h")}"`;
   }
   if (appliedFilters.maxWorkHours24h !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && totalWorkHours24h <= "${mapValueForAnnotation(appliedFilters.maxWorkHours24h, "totalWorkHours24h")}")`;
+    qbuild += ` && totalWorkHours24h <= "${mapValueForAnnotation(appliedFilters.maxWorkHours24h, "totalWorkHours24h")}"`;
   }
   if (appliedFilters.minNumberOfJobs !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && numberOfJobs >= ${mapValueForNumberAnnotation(appliedFilters.minNumberOfJobs, "numberOfJobs")})`;
+    qbuild += ` && numberOfJobs >= ${mapValueForNumberAnnotation(appliedFilters.minNumberOfJobs, "numberOfJobs")}`;
   }
   if (appliedFilters.maxNumberOfJobs !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && numberOfJobs <= ${mapValueForNumberAnnotation(appliedFilters.maxNumberOfJobs, "numberOfJobs")})`;
+    qbuild += ` && numberOfJobs <= ${mapValueForNumberAnnotation(appliedFilters.maxNumberOfJobs, "numberOfJobs")}`;
   }
   if (appliedFilters.minNumberOfJobs24h !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && numberOfJobs24h >= ${mapValueForNumberAnnotation(appliedFilters.minNumberOfJobs24h, "numberOfJobs24h")})`;
+    qbuild += ` && numberOfJobs24h >= ${mapValueForNumberAnnotation(appliedFilters.minNumberOfJobs24h, "numberOfJobs24h")}`;
   }
   if (appliedFilters.maxNumberOfJobs24h !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && numberOfJobs24h <= ${mapValueForNumberAnnotation(appliedFilters.maxNumberOfJobs24h, "numberOfJobs24h")})`;
+    qbuild += ` && numberOfJobs24h <= ${mapValueForNumberAnnotation(appliedFilters.maxNumberOfJobs24h, "numberOfJobs24h")}`;
   }
   if (appliedFilters.minLongestJob !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && longestJob >= "${mapValueForAnnotation(appliedFilters.minLongestJob, "longestJob")}")`;
+    qbuild += ` && longestJob >= "${mapValueForAnnotation(appliedFilters.minLongestJob, "longestJob")}"`;
   }
   if (appliedFilters.maxLongestJob !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && longestJob <= "${mapValueForAnnotation(appliedFilters.maxLongestJob, "longestJob")}")`;
+    qbuild += ` && longestJob <= "${mapValueForAnnotation(appliedFilters.maxLongestJob, "longestJob")}"`;
   }
   if (appliedFilters.minLongestJob24h !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && longestJob24h >= "${mapValueForAnnotation(appliedFilters.minLongestJob24h, "longestJob24h")}")`;
+    qbuild += ` && longestJob24h >= "${mapValueForAnnotation(appliedFilters.minLongestJob24h, "longestJob24h")}"`;
   }
   if (appliedFilters.maxLongestJob24h !== null) {
-    numberOfParenthesis += 1;
-    qbuild += ` && longestJob24h <= "${mapValueForAnnotation(appliedFilters.maxLongestJob24h, "longestJob24h")}")`;
+    qbuild += ` && longestJob24h <= "${mapValueForAnnotation(appliedFilters.maxLongestJob24h, "longestJob24h")}"`;
   }
-
-  qbuild = "(".repeat(numberOfParenthesis) + qbuild;
   return qbuild;
 };
 
