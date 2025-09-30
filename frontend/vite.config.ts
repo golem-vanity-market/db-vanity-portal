@@ -1,8 +1,11 @@
 import { defineConfig, loadEnv } from "vite";
+//@ts-expect-error missing types
 import react from "@vitejs/plugin-react";
 import compression from "vite-plugin-compression2";
+//@ts-expect-error missing types
 import tailwindcss from "@tailwindcss/vite";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
+//@ts-expect-error somehow it works
 import path from "path";
 
 // https://vitejs.dev/config https://vitest.dev/config
