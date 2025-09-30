@@ -10,7 +10,8 @@ const root = createRoot(container);
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import Welcome from "./Welcome";
 import ProvidersPage from "./providers/ProvidersPage";
-import { AccountPage } from "./Account";
+import { NewOrderPage } from "./order/NewOrderPage";
+import { MyOrdersPage } from "./order/MyOrdersPage";
 import DetailsPage from "./provider/DetailsPage";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { createAppKit } from "@reown/appkit/react";
@@ -60,8 +61,12 @@ const router = createBrowserRouter(
           element: <DetailsPage />,
         },
         {
-          path: "/account",
-          element: <AccountPage />,
+          path: "/order",
+          element: <MyOrdersPage />,
+        },
+        {
+          path: "/order/new",
+          element: <NewOrderPage />,
         },
       ],
     },

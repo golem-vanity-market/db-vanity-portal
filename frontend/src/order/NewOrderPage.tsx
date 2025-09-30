@@ -23,55 +23,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { cn } from "@/lib/utils";
 import { addressExamples } from "@/utils/address-examples";
 import { Slider } from "@/components/ui/slider";
-import { calculateWorkUnitForProblems, Problem } from "@/utils/difficulty";
+import { calculateWorkUnitForProblems } from "@/utils/difficulty";
 import { displayDifficulty } from "@/utils";
-import { Alert } from "./components/ui/alert";
+import { Alert } from "@/components/ui/alert";
 import { useAppKitAccount } from "@reown/appkit/react";
-
-const ProblemSchema = z.discriminatedUnion("type", [
-  z.object({
-    type: z.literal("leading-any"),
-    length: z.number().min(8).max(40),
-  }),
-  z.object({
-    type: z.literal("trailing-any"),
-    length: z.number().min(8).max(40),
-  }),
-  z.object({
-    type: z.literal("letters-heavy"),
-    count: z.number().min(32).max(40),
-  }),
-  z.object({
-    type: z.literal("numbers-heavy"),
-  }),
-  z.object({
-    type: z.literal("snake-score-no-case"),
-    count: z.number().min(15).max(39),
-  }),
-  z.object({
-    type: z.literal("user-prefix"),
-    specifier: z
-      .string()
-      .min(8)
-      .max(42)
-      .startsWith("0x")
-      .regex(/^0x[0-9a-f]+$/i),
-  }),
-  z.object({
-    type: z.literal("user-suffix"),
-    specifier: z
-      .string()
-      .min(6)
-      .max(40)
-      .regex(/^[0-9a-f]+$/i),
-  }),
-  z.object({
-    type: z.literal("user-mask"),
-    specifier: z.string().length(42).startsWith("0x"),
-  }),
-]);
-type ProblemData = z.infer<typeof ProblemSchema>;
-type ProblemId = ProblemData["type"];
+import { OrderSchema, Problem, ProblemId } from "./order-schema";
 
 interface ProblemConfigBase {
   label: string;
@@ -261,13 +217,6 @@ const problemsById = problems.reduce(
   {} as Record<ProblemId, ProblemConfig>,
 );
 
-const formSchema = z.object({
-  publicKey: z.string().startsWith("0x").length(132),
-  problems: z.array(ProblemSchema).refine((value) => value.length > 0, {
-    message: "You have to select at least one item.",
-  }),
-});
-
 const getEthereumGlobal = () => {
   if (typeof window !== "undefined" && (window as any).ethereum) {
     return (window as any).ethereum;
@@ -275,7 +224,7 @@ const getEthereumGlobal = () => {
   return null;
 };
 
-async function sendOrder(data: z.infer<typeof formSchema>) {
+async function sendOrder(data: z.infer<typeof OrderSchema>) {
   const golemClient = await createClient(
     parseInt(import.meta.env.VITE_GOLEM_DB_CHAIN_ID),
     new Tagged("ethereumprovider", getEthereumGlobal()),
@@ -304,11 +253,11 @@ async function sendOrder(data: z.infer<typeof formSchema>) {
   return res;
 }
 
-export const AccountPage = () => {
+export const NewOrderPage = () => {
   const { isConnected } = useAppKitAccount();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof OrderSchema>>({
+    resolver: zodResolver(OrderSchema),
     mode: "onSubmit",
     defaultValues: {
       publicKey:
@@ -326,7 +275,7 @@ export const AccountPage = () => {
     mutationFn: sendOrder,
   });
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  function onSubmit(data: z.infer<typeof OrderSchema>) {
     mutation.mutate(data);
   }
 
@@ -366,7 +315,7 @@ export const AccountPage = () => {
     if (fieldIndex > -1) {
       remove(fieldIndex);
     } else {
-      let newProblemForForm: ProblemData;
+      let newProblemForForm: Problem;
       const specifierValue = specifierValues[problem.id];
 
       switch (problem.id) {
