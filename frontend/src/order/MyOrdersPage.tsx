@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { OrderCard } from "./OrderCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OrderWithTimestampSchema } from "./order-schema";
+import { PlusCircle } from "lucide-react";
 
 const getEthereumGlobal = () => {
   if (typeof window !== "undefined" && (window as any).ethereum) {
@@ -57,11 +58,14 @@ export const MyOrdersPage = () => {
   }
 
   return (
-    <div className="mx-auto max-w-4xl p-4">
+    <div className="container">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold">My Orders</h1>
         <Button asChild>
-          <Link to="/order/new">New Order</Link>
+          <Link to="/order/new">
+            <PlusCircle className="size-4" />
+            New Order
+          </Link>
         </Button>
       </div>
 
