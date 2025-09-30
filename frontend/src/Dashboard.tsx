@@ -77,7 +77,9 @@ const Dashboard = () => {
             <Separator orientation="vertical" className="h-9" />
             {current_block !== null ? (
               <Badge variant="outline" className="h-9">
-                Golem Base Block: {current_block.toString()}
+                <Link to={import.meta.env.VITE_GOLEM_DB_LANDING_PAGE || "https://golem.network"}>
+                  {import.meta.env.VITE_GOLEM_DB_NETWORK_NAME || "Golem DB"} Block: {current_block.toString()}
+                </Link>
               </Badge>
             ) : (
               <Skeleton className="h-9 w-24" />
