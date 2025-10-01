@@ -14,6 +14,7 @@ import { Badge } from "./components/ui/badge";
 import { Skeleton } from "./components/ui/skeleton";
 import { Footer } from "./Footer";
 import { assetsUrl } from "./utils";
+import { ConnectButton } from "@/components/ConnectButton";
 
 const Dashboard = () => {
   const [current_block, setCurrentBlock] = React.useState<bigint | null>(null);
@@ -76,7 +77,7 @@ const Dashboard = () => {
             </NavigationMenu>
             <Separator orientation="vertical" className="h-9" />
             {current_block !== null ? (
-              <Badge variant="outline" className="h-9">
+              <Badge variant="outline" className="h-9 font-heading text-sm">
                 <Link
                   to={import.meta.env.VITE_GOLEM_DB_LANDING_PAGE || "https://golem.network"}
                   target="_blank"
@@ -89,7 +90,7 @@ const Dashboard = () => {
               <Skeleton className="h-9 w-24" />
             )}
             <Separator orientation="vertical" className="h-9" />
-            <appkit-button size="sm" />
+            <ConnectButton />
             <Separator orientation="vertical" className="h-9" />
             <ModeToggle />
           </div>
