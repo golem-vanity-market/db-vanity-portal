@@ -6,7 +6,7 @@ import { createClient, Tagged } from "golem-base-sdk";
 import { Link } from "react-router-dom";
 import { OrderCard } from "./OrderCard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { OrderWithTimestampSchema } from "./order-schema";
+import { VanityRequestWithTimestampSchema } from "./order-schema";
 import { PlusCircle } from "lucide-react";
 
 const getEthereumGlobal = () => {
@@ -35,7 +35,7 @@ const fetchMyOrders = async () => {
         console.error("Failed to parse JSON for order:", e);
         return null;
       }
-      const parsed = OrderWithTimestampSchema.safeParse(jsonParsed);
+      const parsed = VanityRequestWithTimestampSchema.safeParse(jsonParsed);
       if (!parsed.success) {
         return null;
       }

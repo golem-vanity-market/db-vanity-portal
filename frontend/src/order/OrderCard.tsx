@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { OrderWithTimestamp, Problem } from "./order-schema";
+import { VanityRequestWithTimestamp, Problem } from "./order-schema";
 import { problemsById } from "./problem-config";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ const getProblemDisplayName = (problem: Problem) => {
   }
 };
 
-export const OrderCard = ({ id, order }: { id: string; order: OrderWithTimestamp }) => {
+export const OrderCard = ({ id, order }: { id: string; order: VanityRequestWithTimestamp }) => {
   return (
     <Card>
       <CardHeader>

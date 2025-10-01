@@ -43,7 +43,7 @@ export const ProblemSchema = z.discriminatedUnion("type", [
   }),
 ]);
 
-export const OrderSchema = z.object({
+export const VanityRequestSchema = z.object({
   publicKey: z.string().startsWith("0x").length(132),
   problems: z.array(ProblemSchema).refine((value) => value.length > 0, {
     message: "You have to select at least one item.",
@@ -53,8 +53,8 @@ export const OrderSchema = z.object({
 export type Problem = z.infer<typeof ProblemSchema>;
 export type ProblemId = Problem["type"];
 
-export const OrderWithTimestampSchema = OrderSchema.extend({
+export const VanityRequestWithTimestampSchema = VanityRequestSchema.extend({
   timestamp: z.string().datetime(),
 });
 
-export type OrderWithTimestamp = z.infer<typeof OrderWithTimestampSchema>;
+export type VanityRequestWithTimestamp = z.infer<typeof VanityRequestWithTimestampSchema>;

@@ -16,7 +16,7 @@ import { calculateWorkUnitForProblems } from "@/utils/difficulty";
 import { displayDifficulty } from "@/utils";
 import { Alert } from "@/components/ui/alert";
 import { useAppKitAccount } from "@reown/appkit/react";
-import { OrderSchema, Problem, ProblemId } from "./order-schema";
+import { VanityRequestSchema, Problem, ProblemId } from "./order-schema";
 import { problems, problemsById } from "./problem-config";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
@@ -28,7 +28,7 @@ const getEthereumGlobal = () => {
   return null;
 };
 
-async function sendOrder(data: z.infer<typeof OrderSchema>) {
+async function sendOrder(data: z.infer<typeof VanityRequestSchema>) {
   const golemClient = await createClient(
     parseInt(import.meta.env.VITE_GOLEM_DB_CHAIN_ID),
     new Tagged("ethereumprovider", getEthereumGlobal()),
@@ -60,8 +60,8 @@ async function sendOrder(data: z.infer<typeof OrderSchema>) {
 export const NewOrderPage = () => {
   const { isConnected } = useAppKitAccount();
 
-  const form = useForm<z.infer<typeof OrderSchema>>({
-    resolver: zodResolver(OrderSchema),
+  const form = useForm<z.infer<typeof VanityRequestSchema>>({
+    resolver: zodResolver(VanityRequestSchema),
     mode: "onSubmit",
     defaultValues: {
       publicKey:
@@ -100,7 +100,7 @@ export const NewOrderPage = () => {
     },
   });
 
-  function onSubmit(data: z.infer<typeof OrderSchema>) {
+  function onSubmit(data: z.infer<typeof VanityRequestSchema>) {
     mutation.mutate(data);
   }
 
