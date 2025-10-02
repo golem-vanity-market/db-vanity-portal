@@ -1,28 +1,20 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useQuery } from "@tanstack/react-query";
-import { createClient, Tagged } from "golem-base-sdk";
 import { Link } from "react-router-dom";
-import { OrderCard } from "./OrderCard";
-import { Skeleton } from "@/components/ui/skeleton";
-import { VanityRequestWithTimestampSchema } from "./order-schema";
 import { PlusCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { makeClient } from "./helpers";
+import OrdersExplainer from "./OrdersExplainer";
+import OpenOrdersSection from "./OpenOrdersSection";
+import MyOrdersSection from "./MyOrdersSection";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { VanityOrderSchema, VanityRequestWithTimestampSchema, type VanityRequestWithTimestamp } from "./order-schema";
+import { z } from "zod";
 
-const getEthereumGlobal = () => {
-  if (typeof window !== "undefined" && (window as any).ethereum) {
-    return (window as any).ethereum;
-  }
-  return null;
-};
-
-const fetchMyOrders = async () => {
-  const golemClient = await createClient(
-    parseInt(import.meta.env.VITE_GOLEM_DB_CHAIN_ID),
-    new Tagged("ethereumprovider", getEthereumGlobal()),
-    import.meta.env.VITE_GOLEM_DB_RPC,
-    import.meta.env.VITE_GOLEM_DB_RPC_WS,
-  );
+const fetchMyRequests = async () => {
+  const golemClient = await makeClient();
   const rawRes = await golemClient.queryEntities(
     `vanity_market_request="1" && $owner="${golemClient.getRawClient().walletClient.account.address}"`,
   );
@@ -39,28 +31,58 @@ const fetchMyOrders = async () => {
       if (!parsed.success) {
         return null;
       }
-      return { id: entityKey, order: parsed.data };
+      return { id: entityKey as string, order: parsed.data };
     })
-    .filter((o) => o !== null)
+    .filter((o): o is { id: string; order: VanityRequestWithTimestamp } => o !== null)
     .sort((a, b) => new Date(b.order.timestamp).getTime() - new Date(a.order.timestamp).getTime());
 };
 
+const fetchMyOrders = async () => {
+  // TODO: implement on vanity node side, for now placeholder
+  return VanityOrderSchema.array().parse([]);
+};
+
 export const MyOrdersPage = () => {
-  const { data, isLoading, error } = useQuery({
+  const {
+    data: myRequests = [],
+    isLoading: isRequestsLoading,
+    error: requestsError,
+  } = useQuery<{ id: string; order: VanityRequestWithTimestamp }[]>({
+    queryKey: ["myRequests"],
+    queryFn: fetchMyRequests,
+  });
+
+  type VanityOrder = z.infer<typeof VanityOrderSchema>;
+  const {
+    data: myOrders = [],
+    isLoading: isOrdersLoading,
+    error: ordersError,
+  } = useQuery<VanityOrder[]>({
     queryKey: ["myOrders"],
     queryFn: fetchMyOrders,
   });
 
   const { isConnected } = useAppKitAccount();
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   if (!isConnected) {
     return <Alert>Please connect your wallet to view your orders.</Alert>;
   }
 
+  const ordersByRequestId = new Map(myOrders.map((o) => [o.requestId, o]));
+  const pendingRequests = myRequests.filter(({ id }) => !ordersByRequestId.has(id));
+
   return (
-    <div className="container">
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">My Orders</h1>
+    <div className="mx-auto max-w-screen-2xl space-y-6 px-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">My Activity</h1>
+          <p className="text-sm text-muted-foreground">Track your open and active orders.</p>
+        </div>
         <Button asChild>
           <Link to="/order/new">
             <PlusCircle className="size-4" />
@@ -69,35 +91,26 @@ export const MyOrdersPage = () => {
         </Button>
       </div>
 
-      {isLoading && (
-        <div className="space-y-4">
-          <Skeleton className="h-32 w-full" />
-          <Skeleton className="h-32 w-full" />
-          <Skeleton className="h-32 w-full" />
-        </div>
-      )}
+      <OrdersExplainer />
 
-      {error && (
-        <Alert variant="destructive">
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>Failed to fetch orders. Please try again later.</AlertDescription>
-        </Alert>
-      )}
-
-      {data && data.length === 0 && (
-        <Alert>
-          <AlertTitle>No Orders Found</AlertTitle>
-          <AlertDescription>{`You haven't placed any orders yet. Create one to get started!`}</AlertDescription>
-        </Alert>
-      )}
-
-      {data && data.length > 0 && (
-        <div className="space-y-4">
-          {data.map(({ id, order }) => (
-            <OrderCard key={id} id={id} order={order} />
-          ))}
-        </div>
-      )}
+      <Tabs defaultValue="open" className="w-full">
+        <TabsList>
+          <TabsTrigger value="open" className="flex items-center gap-2">
+            Open Orders
+            <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{pendingRequests.length}</span>
+          </TabsTrigger>
+          <TabsTrigger value="mine" className="flex items-center gap-2">
+            My Orders
+            <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{myOrders.length}</span>
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="open" className="mt-4">
+          <OpenOrdersSection pending={pendingRequests} isLoading={isRequestsLoading} error={requestsError} now={now} />
+        </TabsContent>
+        <TabsContent value="mine" className="mt-4">
+          <MyOrdersSection orders={myOrders} isLoading={isOrdersLoading} error={ordersError} now={now} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
