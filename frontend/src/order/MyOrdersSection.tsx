@@ -9,6 +9,7 @@ import type { Problem } from "./order-schema";
 import { formatDateTime, formatRelative, truncateMiddle } from "./helpers";
 
 type Order = {
+  orderId: string;
   requestId: string;
   status: "queue" | "processing" | "completed";
   created: string;
@@ -32,7 +33,7 @@ export function MyOrdersSection({
   return (
     <section className="rounded-lg border p-4">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Active & Past Orders</h2>
+        <h2 className="text-lg font-semibold">Picked up & history</h2>
         {isLoading ? (
           <span className="text-xs text-muted-foreground">Loading…</span>
         ) : (
@@ -64,7 +65,7 @@ export function MyOrdersSection({
               <TableHead>Created</TableHead>
               <TableHead>Started</TableHead>
               <TableHead>Completed</TableHead>
-              <TableHead className="text-right">Problems</TableHead>
+              <TableHead className="text-right">Selected problems</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -72,20 +73,32 @@ export function MyOrdersSection({
               const statusVariant =
                 o.status === "completed" ? "default" : o.status === "processing" ? "secondary" : "outline";
               return (
-                <TableRow key={`${o.requestId}-${o.created}`}>
+                <TableRow key={`${o.orderId}-${o.created}`}>
                   <TableCell>
                     <div className="flex flex-col">
                       <a
-                        href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${o.requestId}?tab=data`}
+                        href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${o.orderId}?tab=data`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="font-mono text-xs underline"
                         title="Open in explorer"
                       >
-                        {truncateMiddle(o.requestId, 10, 8)}
+                        {truncateMiddle(o.orderId, 10, 8)}
                       </a>
                       <span className="font-mono text-[10px] text-muted-foreground">
                         pub: {truncateMiddle(o.pubKey, 10, 8)}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">
+                        Request:{" "}
+                        <a
+                          className="font-mono underline"
+                          href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${o.requestId}?tab=data`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Open posted request"
+                        >
+                          {truncateMiddle(o.requestId, 8, 6)}
+                        </a>
                       </span>
                     </div>
                   </TableCell>

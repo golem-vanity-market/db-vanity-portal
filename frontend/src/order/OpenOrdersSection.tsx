@@ -18,16 +18,20 @@ export function OpenOrdersSection({
   isLoading,
   error,
   now,
+  pickedRequestIds,
+  onShowPicked,
 }: {
   pending: PendingItem[];
   isLoading: boolean;
   error: unknown;
   now: number;
+  pickedRequestIds: Set<string>;
+  onShowPicked?: () => void;
 }) {
   return (
     <section className="rounded-lg border p-4">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Open Orders (awaiting pickup)</h2>
+        <h2 className="text-lg font-semibold">Posted (awaiting pickup)</h2>
         {isLoading ? (
           <span className="text-xs text-muted-foreground">Loading…</span>
         ) : (
@@ -54,7 +58,8 @@ export function OpenOrdersSection({
             <TableRow>
               <TableHead className="w-[40%]">Order</TableHead>
               <TableHead>Created</TableHead>
-              <TableHead>Expires</TableHead>
+              <TableHead>Time left</TableHead>
+              <TableHead>Pickup</TableHead>
               <TableHead className="text-right">Problems</TableHead>
             </TableRow>
           </TableHeader>
@@ -63,6 +68,7 @@ export function OpenOrdersSection({
               const createdAt = new Date(order.timestamp).getTime();
               const expiresAt = createdAt + REQUEST_TTL_MS;
               const remaining = Math.max(0, expiresAt - now);
+              const isPicked = pickedRequestIds.has(id);
               return (
                 <TableRow key={id}>
                   <TableCell>
@@ -77,7 +83,7 @@ export function OpenOrdersSection({
                         {truncateMiddle(id, 10, 8)}
                       </a>
                       <span className="font-mono text-[10px] break-all text-muted-foreground">
-                        {truncateMiddle(order.publicKey, 10, 8)}
+                        pub: {truncateMiddle(order.publicKey, 10, 8)}
                       </span>
                     </div>
                   </TableCell>
@@ -89,6 +95,22 @@ export function OpenOrdersSection({
                   </TableCell>
                   <TableCell>
                     <Badge variant={"secondary"}>{`in ${msToShort(remaining)}`}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    {isPicked ? (
+                      <Button
+                        bounce="none"
+                        variant="link"
+                        type="button"
+                        onClick={onShowPicked}
+                        className="px-0 text-xs"
+                        title="View picked-up details"
+                      >
+                        Picked up →
+                      </Button>
+                    ) : (
+                      <Badge variant="outline">Awaiting</Badge>
+                    )}
                   </TableCell>
                   <TableCell className="text-right text-sm">
                     <Popover>

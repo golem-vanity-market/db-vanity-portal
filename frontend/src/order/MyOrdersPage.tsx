@@ -29,6 +29,7 @@ const fetchMyRequests = async () => {
       }
       const parsed = VanityRequestWithTimestampSchema.safeParse(jsonParsed);
       if (!parsed.success) {
+        console.error("Failed to validate request:", parsed.error);
         return null;
       }
       return { id: entityKey as string, order: parsed.data };
@@ -38,8 +39,28 @@ const fetchMyRequests = async () => {
 };
 
 const fetchMyOrders = async () => {
-  // TODO: implement on vanity node side, for now placeholder
-  return VanityOrderSchema.array().parse([]);
+  const golemClient = await makeClient();
+  const rawRes = await golemClient.queryEntities(
+    `vanity_market_order="1" && requestor="${golemClient.getRawClient().walletClient.account.address}"`,
+  );
+  return rawRes
+    .map(({ entityKey, storageValue }) => {
+      let jsonParsed = null;
+      try {
+        jsonParsed = JSON.parse(storageValue.toString());
+      } catch (e) {
+        console.error("Failed to parse JSON for order:", e);
+        return null;
+      }
+      const parsed = VanityOrderSchema.safeParse(jsonParsed);
+      if (!parsed.success) {
+        console.error("Failed to validate order:", parsed.error);
+        return null;
+      }
+      return { ...parsed.data, orderId: entityKey as string };
+    })
+    .filter((o): o is z.infer<typeof VanityOrderSchema> & { orderId: string } => o !== null)
+    .sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
 };
 
 export const MyOrdersPage = () => {
@@ -52,7 +73,7 @@ export const MyOrdersPage = () => {
     queryFn: fetchMyRequests,
   });
 
-  type VanityOrder = z.infer<typeof VanityOrderSchema>;
+  type VanityOrder = z.infer<typeof VanityOrderSchema> & { orderId: string };
   const {
     data: myOrders = [],
     isLoading: isOrdersLoading,
@@ -64,6 +85,7 @@ export const MyOrdersPage = () => {
 
   const { isConnected } = useAppKitAccount();
   const [now, setNow] = useState(() => Date.now());
+  const [tab, setTab] = useState<"open" | "mine">("open");
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 60_000);
     return () => clearInterval(id);
@@ -73,8 +95,7 @@ export const MyOrdersPage = () => {
     return <Alert>Please connect your wallet to view your orders.</Alert>;
   }
 
-  const ordersByRequestId = new Map(myOrders.map((o) => [o.requestId, o]));
-  const pendingRequests = myRequests.filter(({ id }) => !ordersByRequestId.has(id));
+  const pickedRequestIds = new Set(myOrders.map((o) => o.requestId));
 
   return (
     <div className="mx-auto max-w-screen-2xl space-y-6 px-4">
@@ -93,19 +114,26 @@ export const MyOrdersPage = () => {
 
       <OrdersExplainer />
 
-      <Tabs defaultValue="open" className="w-full">
+      <Tabs value={tab} onValueChange={(v) => setTab(v as "open" | "mine")} className="w-full">
         <TabsList>
           <TabsTrigger value="open" className="flex items-center gap-2">
-            Open Orders
-            <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{pendingRequests.length}</span>
+            Posted (awaiting pickup)
+            <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{myRequests.length}</span>
           </TabsTrigger>
           <TabsTrigger value="mine" className="flex items-center gap-2">
-            My Orders
+            Picked up & history
             <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{myOrders.length}</span>
           </TabsTrigger>
         </TabsList>
         <TabsContent value="open" className="mt-4">
-          <OpenOrdersSection pending={pendingRequests} isLoading={isRequestsLoading} error={requestsError} now={now} />
+          <OpenOrdersSection
+            pending={myRequests}
+            isLoading={isRequestsLoading}
+            error={requestsError}
+            now={now}
+            pickedRequestIds={pickedRequestIds}
+            onShowPicked={() => setTab("mine")}
+          />
         </TabsContent>
         <TabsContent value="mine" className="mt-4">
           <MyOrdersSection orders={myOrders} isLoading={isOrdersLoading} error={ordersError} now={now} />
