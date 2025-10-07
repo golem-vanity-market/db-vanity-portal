@@ -19,6 +19,7 @@ import { defineChain } from "@reown/appkit/networks";
 import { WagmiProvider } from "wagmi";
 import { assetsUrl } from "@/utils";
 import { Toaster } from "@/components/ui/sonner";
+import OrderResultsPage from "./order/OrderResults";
 
 const golemBaseNetwork = defineChain({
   id: Number(import.meta.env.VITE_GOLEM_DB_CHAIN_ID),
@@ -68,6 +69,10 @@ const router = createBrowserRouter(
         {
           path: "/order/new",
           element: <NewOrderPage />,
+        },
+        {
+          path: "/order/:orderId/results",
+          element: <OrderResultsPage />,
         },
       ],
     },

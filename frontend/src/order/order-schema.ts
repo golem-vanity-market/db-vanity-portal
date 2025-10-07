@@ -64,6 +64,22 @@ export const VanityOrderSchema = z.object({
   problems: z.array(ProblemSchema),
 });
 
+export const VanityOrderResultSchema = z.object({
+  orderId: z.string(),
+  provider: z.object({
+    id: z.string().startsWith("0x").length(42),
+    name: z.string(),
+    walletAddress: z.string().startsWith("0x").length(42),
+  }),
+  proof: z.object({
+    address: z.string().startsWith("0x").length(42),
+    pubKey: z.string().startsWith("0x").length(132),
+    salt: z.string().length(66),
+  }),
+});
+
+export type VanityOrderResult = z.infer<typeof VanityOrderResultSchema>;
+
 export type Problem = z.infer<typeof ProblemSchema>;
 export type ProblemId = Problem["type"];
 

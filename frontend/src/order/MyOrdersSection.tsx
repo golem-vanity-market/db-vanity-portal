@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import ProblemList from "./ProblemList";
 import type { Problem } from "./order-schema";
 import { formatDateTime, formatRelative, truncateMiddle } from "./helpers";
@@ -60,11 +61,12 @@ export function MyOrdersSection({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[40%]">Order</TableHead>
+              <TableHead className="w-[25%]">Order</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Created</TableHead>
               <TableHead>Started</TableHead>
               <TableHead>Completed</TableHead>
+              <TableHead>Results</TableHead>
               <TableHead className="text-right">Selected problems</TableHead>
             </TableRow>
           </TableHeader>
@@ -111,6 +113,15 @@ export function MyOrdersSection({
                   </TableCell>
                   <TableCell title={o.completed ? formatDateTime(o.completed) : undefined}>
                     {o.completed ? formatRelative(o.completed, now) : <span className="text-muted-foreground">—</span>}
+                  </TableCell>
+                  <TableCell>
+                    {o.status === "completed" ? (
+                      <Button asChild variant="link" size="sm" className="h-auto px-0 underline">
+                        <Link to={`/order/${o.orderId}/results`}>View results →</Link>
+                      </Button>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
                   </TableCell>
                   <TableCell className="text-right">
                     <Popover>

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { PlusCircle } from "lucide-react";
+import { Loader2, PlusCircle, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { makeClient } from "./helpers";
 import OrdersExplainer from "./OrdersExplainer";
@@ -68,9 +68,13 @@ export const MyOrdersPage = () => {
     data: myRequests = [],
     isLoading: isRequestsLoading,
     error: requestsError,
+    refetch: refetchRequests,
+    isFetching: isRequestsFetching,
   } = useQuery<{ id: string; order: VanityRequestWithTimestamp }[]>({
     queryKey: ["myRequests"],
     queryFn: fetchMyRequests,
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: true,
   });
 
   type VanityOrder = z.infer<typeof VanityOrderSchema> & { orderId: string };
@@ -78,9 +82,13 @@ export const MyOrdersPage = () => {
     data: myOrders = [],
     isLoading: isOrdersLoading,
     error: ordersError,
+    refetch: refetchOrders,
+    isFetching: isOrdersFetching,
   } = useQuery<VanityOrder[]>({
     queryKey: ["myOrders"],
     queryFn: fetchMyOrders,
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: true,
   });
 
   const { isConnected } = useAppKitAccount();
@@ -96,6 +104,7 @@ export const MyOrdersPage = () => {
   }
 
   const pickedRequestIds = new Set(myOrders.map((o) => o.requestId));
+  const anyFetching = isRequestsFetching || isOrdersFetching;
 
   return (
     <div className="mx-auto max-w-screen-2xl space-y-6 px-4">
@@ -115,16 +124,30 @@ export const MyOrdersPage = () => {
       <OrdersExplainer />
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as "open" | "mine")} className="w-full">
-        <TabsList>
-          <TabsTrigger value="open" className="flex items-center gap-2">
-            Posted (awaiting pickup)
-            <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{myRequests.length}</span>
-          </TabsTrigger>
-          <TabsTrigger value="mine" className="flex items-center gap-2">
-            Picked up & history
-            <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{myOrders.length}</span>
-          </TabsTrigger>
-        </TabsList>
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <TabsList>
+            <TabsTrigger value="open" className="flex items-center gap-2">
+              Posted (awaiting pickup)
+              <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{myRequests.length}</span>
+            </TabsTrigger>
+            <TabsTrigger value="mine" className="flex items-center gap-2">
+              Picked up & history
+              <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{myOrders.length}</span>
+            </TabsTrigger>
+          </TabsList>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              Promise.allSettled([refetchRequests(), refetchOrders()]);
+            }}
+            disabled={anyFetching}
+            title="Refresh both lists"
+          >
+            {anyFetching ? <Loader2 className="mr-2 size-4 animate-spin" /> : <RefreshCw className="mr-2 size-4" />}
+            Refresh
+          </Button>
+        </div>
         <TabsContent value="open" className="mt-4">
           <OpenOrdersSection
             pending={myRequests}

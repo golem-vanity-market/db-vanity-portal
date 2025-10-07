@@ -56,7 +56,7 @@ export function OpenOrdersSection({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[40%]">Order</TableHead>
+              <TableHead className="w-[25%]">Order</TableHead>
               <TableHead>Created</TableHead>
               <TableHead>Time left</TableHead>
               <TableHead>Pickup</TableHead>
