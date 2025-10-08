@@ -2,14 +2,18 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Clipboard, ClipboardCheck, Download, ExternalLink, Info } from "lucide-react";
 import { toast } from "sonner";
+import { useState } from "react";
 
-import { VanityOrderResult, VanityOrderResultSchema } from "./order-schema";
+import { VanityOrderResult, VanityOrderResultSchema, type Problem } from "./order-schema";
 import { makeClient, truncateMiddle } from "./helpers";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useOrder } from "./useOrder";
+import { matchProblemToAddress } from "@/utils/difficulty";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const fetchOrderResults = async (orderId: string) => {
   const golemClient = await makeClient();
@@ -36,7 +40,7 @@ const fetchOrderResults = async (orderId: string) => {
 function OrderResultsPage() {
   const { orderId } = useParams();
   const {
-    data = [],
+    data: results = [],
     error,
     isLoading,
   } = useQuery({
@@ -45,7 +49,83 @@ function OrderResultsPage() {
     enabled: !!orderId,
   });
 
-  const results = data;
+  const { data: orderData } = useOrder(orderId ?? "");
+
+  const resultsWithProblemAssigned = results.map((result) => {
+    const problem = orderData ? matchProblemToAddress(result.order.proof.address, orderData.problems) : null;
+    return { ...result, problem };
+  });
+
+  // Build filter tabs from problems
+  const problemKey = (p: Problem) => {
+    switch (p.type) {
+      case "leading-any":
+        return `leading-any:${p.length}`;
+      case "trailing-any":
+        return `trailing-any:${p.length}`;
+      case "letters-heavy":
+        return `letters-heavy:${p.count}`;
+      case "numbers-heavy":
+        return "numbers-heavy";
+      case "snake-score-no-case":
+        return `snake:${p.count}`;
+      case "user-prefix":
+        return `user-prefix:${p.specifier.toLowerCase()}`;
+      case "user-suffix":
+        return `user-suffix:${p.specifier.toLowerCase()}`;
+      case "user-mask":
+        return `user-mask:${p.specifier.toLowerCase()}`;
+    }
+  };
+
+  const problemLabel = (p: Problem) => {
+    switch (p.type) {
+      case "leading-any":
+        return `Leading ${p.length} same`;
+      case "trailing-any":
+        return `Trailing ${p.length} same`;
+      case "letters-heavy":
+        return `≥${p.count} letters`;
+      case "numbers-heavy":
+        return "All numbers";
+      case "snake-score-no-case":
+        return `≥${p.count} pairs`;
+      case "user-prefix":
+        return `Prefix ${p.specifier}`;
+      case "user-suffix":
+        return `Suffix ${p.specifier}`;
+      case "user-mask":
+        return `Mask ${p.specifier}`;
+    }
+  };
+
+  const uniqueProblems = (() => {
+    const m = new Map<string, Problem>();
+    for (const p of orderData?.problems ?? []) {
+      m.set(problemKey(p), p);
+    }
+    return Array.from(m.values());
+  })();
+
+  const [activeFilter, setActiveFilter] = useState<string>("all");
+
+  const filteredResults =
+    activeFilter === "all"
+      ? resultsWithProblemAssigned
+      : resultsWithProblemAssigned.filter((r) => r.problem && problemKey(r.problem) === activeFilter);
+
+  // Counts for each problem (and All)
+  const problemCounts = (() => {
+    const counts = new Map<string, number>();
+    for (const p of uniqueProblems) counts.set(problemKey(p), 0);
+    for (const r of resultsWithProblemAssigned) {
+      if (r.problem) {
+        const key = problemKey(r.problem);
+        counts.set(key, (counts.get(key) ?? 0) + 1);
+      }
+    }
+    return counts;
+  })();
 
   const copyText = async (text: string, label = "Copied") => {
     try {
@@ -174,93 +254,115 @@ function OrderResultsPage() {
           No results yet. If a provider finds a matching address, it will appear here.
         </div>
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[40%]">Address</TableHead>
-              <TableHead>Entity</TableHead>
-              <TableHead>Provider</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {results.map(({ id, order }) => (
-              <TableRow key={id}>
-                <TableCell>
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => copyText(order.proof.address, "Address copied")}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        copyText(order.proof.address, "Address copied");
-                      }
-                    }}
-                    className="group inline-flex max-w-full cursor-pointer items-center gap-2"
-                    title="Click to copy address"
-                  >
-                    <span className="truncate font-mono text-sm">{order.proof.address}</span>
-                    <Clipboard className="size-4 text-muted-foreground group-hover:text-foreground" />
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <a
-                    href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${id}?tab=data`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 font-mono text-sm underline"
-                    title="Open result entity in explorer"
-                  >
-                    {truncateMiddle(id, 10, 8)} <ExternalLink className="size-3" />
-                  </a>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="inline-flex size-6 items-center justify-center rounded-full text-[10px] font-bold text-white"
-                        style={{ backgroundColor: colorFromId(order.provider.id) }}
-                        aria-hidden
-                      >
-                        {order.provider.name?.slice(0, 1).toUpperCase() || "?"}
-                      </div>
-                      <span className="text-sm">{order.provider.name}</span>
-                    </div>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="ghost" size="icon" title="Provider details">
-                          <Info className="size-3.5" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-96" align="start">
-                        <div className="space-y-2 text-sm">
-                          <div className="font-semibold">{order.provider.name}</div>
-                          <div className="font-mono text-xs break-all">id: {order.provider.id}</div>
-                          <div className="font-mono text-xs break-all text-muted-foreground">
-                            wallet: {order.provider.walletAddress}
-                          </div>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => copyText(order.proof.salt, "Salt copied")}
-                      title="Copy salt"
-                    >
-                      <ClipboardCheck className="mr-2 size-3.5" /> Copy salt
-                    </Button>
-                  </div>
-                </TableCell>
+        <>
+          {uniqueProblems.length > 0 && (
+            <Tabs value={activeFilter} onValueChange={(v) => setActiveFilter(v)} className="w-full">
+              <TabsList className="mb-2">
+                <TabsTrigger value="all">
+                  <span>All</span>
+                  <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs">
+                    {resultsWithProblemAssigned.length}
+                  </span>
+                </TabsTrigger>
+                {uniqueProblems.map((p) => (
+                  <TabsTrigger key={problemKey(p)} value={problemKey(p)}>
+                    <span>{problemLabel(p)}</span>
+                    <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs">
+                      {problemCounts.get(problemKey(p)) ?? 0}
+                    </span>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          )}
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[40%]">Address</TableHead>
+                <TableHead>Entity</TableHead>
+                <TableHead>Provider</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {filteredResults.map(({ id, order }) => (
+                <TableRow key={id}>
+                  <TableCell>
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => copyText(order.proof.address, "Address copied")}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          copyText(order.proof.address, "Address copied");
+                        }
+                      }}
+                      className="group inline-flex max-w-full cursor-pointer items-center gap-2"
+                      title="Click to copy address"
+                    >
+                      <span className="truncate font-mono text-sm">{order.proof.address}</span>
+                      <Clipboard className="size-4 text-muted-foreground group-hover:text-foreground" />
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <a
+                      href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${id}?tab=data`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 font-mono text-sm underline"
+                      title="Open result entity in explorer"
+                    >
+                      {truncateMiddle(id, 10, 8)} <ExternalLink className="size-3" />
+                    </a>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="inline-flex size-6 items-center justify-center rounded-full text-[10px] font-bold text-white"
+                          style={{ backgroundColor: colorFromId(order.provider.id) }}
+                          aria-hidden
+                        >
+                          {order.provider.name?.slice(0, 1).toUpperCase() || "?"}
+                        </div>
+                        <span className="text-sm">{order.provider.name}</span>
+                      </div>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="ghost" size="icon" title="Provider details">
+                            <Info className="size-3.5" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-96" align="start">
+                          <div className="space-y-2 text-sm">
+                            <div className="font-semibold">{order.provider.name}</div>
+                            <div className="font-mono text-xs break-all">id: {order.provider.id}</div>
+                            <div className="font-mono text-xs break-all text-muted-foreground">
+                              wallet: {order.provider.walletAddress}
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => copyText(order.proof.salt, "Salt copied")}
+                        title="Copy salt"
+                      >
+                        <ClipboardCheck className="mr-2 size-3.5" /> Copy salt
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </>
       )}
     </div>
   );

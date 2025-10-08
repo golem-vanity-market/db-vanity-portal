@@ -161,3 +161,94 @@ export function calculateWorkUnitForProblems(problems: Problem[]): number {
 
   return Number(TOTAL_ADDRESS_SPACE / (totalProbabilitySpace || TOTAL_ADDRESS_SPACE));
 }
+
+export function matchProblemToAddress(address: string, problems: Problem[]): Problem | null {
+  for (const problem of problems) {
+    switch (problem.type) {
+      case "user-prefix": {
+        if (address.toLowerCase().startsWith(problem.specifier.toLowerCase())) {
+          return problem;
+        }
+        break;
+      }
+      case "user-suffix": {
+        if (address.toLowerCase().endsWith(problem.specifier.toLowerCase())) {
+          return problem;
+        }
+        break;
+      }
+      case "user-mask": {
+        let match = true;
+        const addressWithout0x = address.replace(/^0x/, "");
+        const maskWithout0x = problem.specifier.replace(/^0x/, "");
+        for (let i = 0; i < maskWithout0x.length; i++) {
+          const char = maskWithout0x[i];
+          if (char !== "x" && char !== addressWithout0x[i]) {
+            match = false;
+            break;
+          }
+        }
+        if (match) {
+          return problem;
+        }
+        break;
+      }
+      case "leading-any": {
+        const firstChar = address[2];
+        let match = true;
+        for (let i = 0; i < problem.length; i++) {
+          if (address[2 + i] !== firstChar) {
+            match = false;
+            break;
+          }
+        }
+        if (match) {
+          return problem;
+        }
+        break;
+      }
+      case "trailing-any": {
+        const lastChar = address[address.length - 1];
+        let match = true;
+        for (let i = 0; i < problem.length; i++) {
+          if (address[address.length - 1 - i] !== lastChar) {
+            match = false;
+            break;
+          }
+        }
+        if (match) {
+          return problem;
+        }
+        break;
+      }
+      case "letters-heavy": {
+        const letters = address.replace(/^0x/, "").replace(/[0-9]/g, "");
+        if (letters.length >= problem.count) {
+          return problem;
+        }
+        break;
+      }
+      case "numbers-heavy": {
+        const numbers = address.replace(/^0x/, "").replace(/[A-Fa-f]/g, "");
+        if (numbers.length === 40) {
+          return problem;
+        }
+        break;
+      }
+      case "snake-score-no-case": {
+        let pairs = 0;
+        const addr = address.replace(/^0x/, "").toLowerCase();
+        for (let i = 0; i < addr.length - 1; i++) {
+          if (addr[i] === addr[i + 1]) {
+            pairs++;
+          }
+        }
+        if (pairs >= problem.count) {
+          return problem;
+        }
+        break;
+      }
+    }
+  }
+  return null;
+}
