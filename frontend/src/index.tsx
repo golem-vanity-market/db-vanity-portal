@@ -21,28 +21,28 @@ import { assetsUrl } from "@/utils";
 import { Toaster } from "@/components/ui/sonner";
 import OrderResultsPage from "./order/OrderResults";
 
-const golemBaseNetwork = defineChain({
-  id: Number(import.meta.env.VITE_GOLEM_DB_CHAIN_ID),
-  caipNetworkId: `eip155:${import.meta.env.VITE_GOLEM_DB_CHAIN_ID}`,
-  chainNamespace: "eip155",
-  name: "Golem DB",
-  nativeCurrency: {
-    decimals: 18,
-    name: "ETH",
-    symbol: "ETH",
-  },
-  blockExplorers: {
-    default: { name: "default_block_explorer", url: String(import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER || "") },
-  },
-  rpcUrls: {
-    default: {
-      http: [import.meta.env.VITE_GOLEM_DB_RPC || ""],
-      webSocket: [import.meta.env.VITE_GOLEM_DB_RPC_WS || ""],
-    },
-  },
-});
+// const golemBaseNetwork = defineChain({
+//   id: Number(import.meta.env.VITE_GOLEM_DB_CHAIN_ID),
+//   caipNetworkId: `eip155:${import.meta.env.VITE_GOLEM_DB_CHAIN_ID}`,
+//   chainNamespace: "eip155",
+//   name: "Golem DB",
+//   nativeCurrency: {
+//     decimals: 18,
+//     name: "ETH",
+//     symbol: "ETH",
+//   },
+//   blockExplorers: {
+//     default: { name: "default_block_explorer", url: String(import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER || "") },
+//   },
+//   rpcUrls: {
+//     default: {
+//       http: [import.meta.env.VITE_GOLEM_DB_RPC || ""],
+//       webSocket: [import.meta.env.VITE_GOLEM_DB_RPC_WS || ""],
+//     },
+//   },
+// });
 
-const queryClient = new QueryClient();
+// const queryClient = new QueryClient();
 
 const router = createBrowserRouter(
   [
@@ -54,68 +54,68 @@ const router = createBrowserRouter(
           index: true,
           element: <Welcome />,
         },
-        {
-          path: "/providers",
-          element: <ProvidersPage />,
-        },
-        {
-          path: "/provider",
-          element: <DetailsPage />,
-        },
-        {
-          path: "/order",
-          element: <MyOrdersPage />,
-        },
-        {
-          path: "/order/new",
-          element: <NewOrderPage />,
-        },
-        {
-          path: "/order/:orderId/results",
-          element: <OrderResultsPage />,
-        },
+        // {
+        //   path: "/providers",
+        //   element: <ProvidersPage />,
+        // },
+        // {
+        //   path: "/provider",
+        //   element: <DetailsPage />,
+        // },
+        // {
+        //   path: "/order",
+        //   element: <MyOrdersPage />,
+        // },
+        // {
+        //   path: "/order/new",
+        //   element: <NewOrderPage />,
+        // },
+        // {
+        //   path: "/order/:orderId/results",
+        //   element: <OrderResultsPage />,
+        // },
       ],
     },
   ],
   { basename: import.meta.env.BASE_URL },
 );
 
-const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || "";
+// const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || "";
 
-const wagmiAdapter = new WagmiAdapter({
-  networks: [golemBaseNetwork],
-  projectId,
-  ssr: false,
-});
+// const wagmiAdapter = new WagmiAdapter({
+//   networks: [golemBaseNetwork],
+//   projectId,
+//   ssr: false,
+// });
 
-createAppKit({
-  adapters: [wagmiAdapter],
-  networks: [golemBaseNetwork],
-  projectId,
-  features: {
-    analytics: false,
-    socials: false,
-    email: false,
-  },
-  chainImages: {
-    [golemBaseNetwork.id]: `${assetsUrl()}golem_db_logo.svg`,
-  },
-  themeVariables: {
-    "--w3m-accent": "var(--color-primary)",
-    "--w3m-font-family": "var(--font-heading)",
-    "--w3m-border-radius-master": "2px",
-  },
-});
+// createAppKit({
+//   adapters: [wagmiAdapter],
+//   networks: [golemBaseNetwork],
+//   projectId,
+//   features: {
+//     analytics: false,
+//     socials: false,
+//     email: false,
+//   },
+//   chainImages: {
+//     [golemBaseNetwork.id]: `${assetsUrl()}golem_db_logo.svg`,
+//   },
+//   themeVariables: {
+//     "--w3m-accent": "var(--color-primary)",
+//     "--w3m-font-family": "var(--font-heading)",
+//     "--w3m-border-radius-master": "2px",
+//   },
+// });
 
 root.render(
   <React.StrictMode>
-    <WagmiProvider config={wagmiAdapter.wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider defaultTheme="system" storageKey="ui-theme">
-          <RouterProvider router={router} />
-          <Toaster />
-        </ThemeProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    {/* <WagmiProvider config={wagmiAdapter.wagmiConfig}> */}
+    {/* <QueryClientProvider client={queryClient}> */}
+    <ThemeProvider defaultTheme="system" storageKey="ui-theme">
+      <RouterProvider router={router} />
+      <Toaster />
+    </ThemeProvider>
+    {/* </QueryClientProvider> */}
+    {/* </WagmiProvider> */}
   </React.StrictMode>,
 );

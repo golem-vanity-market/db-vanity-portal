@@ -126,23 +126,6 @@ const Welcome = () => {
       <section className="mb-24 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
           <CardHeader>
-            <Database className="mb-4 h-8 w-8 text-primary" />
-            <CardTitle>Provider Statistics</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>
-              Explore a database of providers stored reliably on Golem Base. See who computes the most hashes, offers
-              the best prices, and more.
-            </p>
-          </CardContent>
-          <CardFooter>
-            <Button variant="secondary" className="w-full" asChild>
-              <Link to="/providers">View Provider Stats</Link>
-            </Button>
-          </CardFooter>
-        </Card>
-        <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-          <CardHeader>
             <Terminal className="mb-4 h-8 w-8 text-primary" />
             <CardTitle>Powerful CLI Tool</CardTitle>
           </CardHeader>
@@ -166,8 +149,26 @@ const Welcome = () => {
         </Card>
         <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
           <CardHeader>
+            <Database className="mb-4 h-8 w-8 text-primary" />
+            <CardTitle>Provider Statistics</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>
+              Explore a database of providers stored reliably on Golem Base. See who computes the most hashes, offers
+              the best prices, and more.
+            </p>
+          </CardContent>
+          <CardFooter>
+            <Button variant="secondary" className="w-full" disabled>
+              Coming Soon
+              {/* <Link to="/providers">View Provider Stats</Link> */}
+            </Button>
+          </CardFooter>
+        </Card>
+        <Card className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+          <CardHeader>
             <LayoutGrid className="mb-4 h-8 w-8 text-primary" />
-            <CardTitle>Web Interface (Soon)</CardTitle>
+            <CardTitle>Web Interface</CardTitle>
           </CardHeader>
           <CardContent>
             <p>
@@ -175,6 +176,11 @@ const Welcome = () => {
               your browser.
             </p>
           </CardContent>
+          <CardFooter className="flex flex-1 items-end">
+            <Button variant="secondary" className="w-full" disabled>
+              Coming Soon
+            </Button>
+          </CardFooter>
         </Card>
       </section>
 

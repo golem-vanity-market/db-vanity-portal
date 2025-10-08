@@ -1,46 +1,46 @@
-import React, { useMemo, useEffect } from "react";
+// import React, { useMemo, useEffect } from "react";
 import { Link, Outlet } from "react-router-dom";
-import { createROClient } from "golem-base-sdk";
+// import { createROClient } from "golem-base-sdk";
 import { ModeToggle } from "./components/theme-toggle";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  navigationMenuTriggerStyle,
-} from "./components/ui/navigation-menu";
-import { Separator } from "./components/ui/separator";
-import { Badge } from "./components/ui/badge";
-import { Skeleton } from "./components/ui/skeleton";
+// import {
+//   NavigationMenu,
+//   NavigationMenuItem,
+//   NavigationMenuLink,
+//   NavigationMenuList,
+//   navigationMenuTriggerStyle,
+// } from "./components/ui/navigation-menu";
+// import { Separator } from "./components/ui/separator";
+// import { Badge } from "./components/ui/badge";
+// import { Skeleton } from "./components/ui/skeleton";
 import { Footer } from "./Footer";
 import { assetsUrl } from "./utils";
-import { ConnectButton } from "@/components/ConnectButton";
+// import { ConnectButton } from "@/components/ConnectButton";
 
 const Dashboard = () => {
-  const [current_block, setCurrentBlock] = React.useState<bigint | null>(null);
-  const client = useMemo(
-    () =>
-      createROClient(
-        parseInt(import.meta.env.VITE_GOLEM_DB_CHAIN_ID || ""),
-        import.meta.env.VITE_GOLEM_DB_RPC || "",
-        import.meta.env.VITE_GOLEM_DB_RPC_WS || "",
-      ),
-    [],
-  );
+  // const [current_block, setCurrentBlock] = React.useState<bigint | null>(null);
+  // const client = useMemo(
+  //   () =>
+  //     createROClient(
+  //       parseInt(import.meta.env.VITE_GOLEM_DB_CHAIN_ID || ""),
+  //       import.meta.env.VITE_GOLEM_DB_RPC || "",
+  //       import.meta.env.VITE_GOLEM_DB_RPC_WS || "",
+  //     ),
+  //   [],
+  // );
 
-  useEffect(() => {
-    const update_current_block = async () => {
-      try {
-        const blockNumber = await client.getRawClient().httpClient.getBlockNumber();
-        setCurrentBlock(blockNumber);
-      } catch (error) {
-        console.error("Failed to fetch block number:", error);
-      }
-    };
-    update_current_block();
-    const interval = setInterval(update_current_block, 15000);
-    return () => clearInterval(interval);
-  }, [client]);
+  // useEffect(() => {
+  //   const update_current_block = async () => {
+  //     try {
+  //       const blockNumber = await client.getRawClient().httpClient.getBlockNumber();
+  //       setCurrentBlock(blockNumber);
+  //     } catch (error) {
+  //       console.error("Failed to fetch block number:", error);
+  //     }
+  //   };
+  //   update_current_block();
+  //   const interval = setInterval(update_current_block, 15000);
+  //   return () => clearInterval(interval);
+  // }, [client]);
 
   const lightLogo = assetsUrl() + "logo_light.svg";
   const darkLogo = assetsUrl() + "logo_dark.svg";
@@ -56,7 +56,7 @@ const Dashboard = () => {
           </Link>
 
           <div className="flex items-center space-x-4">
-            <NavigationMenu className="font-heading">
+            {/* <NavigationMenu className="font-heading">
               <NavigationMenuList>
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
@@ -91,7 +91,7 @@ const Dashboard = () => {
             )}
             <Separator orientation="vertical" className="h-9" />
             <ConnectButton />
-            <Separator orientation="vertical" className="h-9" />
+            <Separator orientation="vertical" className="h-9" /> */}
             <ModeToggle />
           </div>
         </div>
