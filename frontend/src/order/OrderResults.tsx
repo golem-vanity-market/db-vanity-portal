@@ -56,76 +56,43 @@ function OrderResultsPage() {
     return { ...result, problem };
   });
 
-  // Build filter tabs from problems
-  const problemKey = (p: Problem) => {
-    switch (p.type) {
+  const problemLabel = (p: Problem["type"]) => {
+    switch (p) {
       case "leading-any":
-        return `leading-any:${p.length}`;
+        return `Leading`;
       case "trailing-any":
-        return `trailing-any:${p.length}`;
+        return `Trailing`;
       case "letters-heavy":
-        return `letters-heavy:${p.count}`;
+        return "Letters heavy";
       case "numbers-heavy":
-        return "numbers-heavy";
+        return "Numbers only";
       case "snake-score-no-case":
-        return `snake:${p.count}`;
+        return "Snake score";
       case "user-prefix":
-        return `user-prefix:${p.specifier.toLowerCase()}`;
+        return `Custom prefix`;
       case "user-suffix":
-        return `user-suffix:${p.specifier.toLowerCase()}`;
+        return `Custom suffix`;
       case "user-mask":
-        return `user-mask:${p.specifier.toLowerCase()}`;
+        return `Custom mask`;
     }
   };
 
-  const problemLabel = (p: Problem) => {
-    switch (p.type) {
-      case "leading-any":
-        return `Leading ${p.length} same`;
-      case "trailing-any":
-        return `Trailing ${p.length} same`;
-      case "letters-heavy":
-        return `≥${p.count} letters`;
-      case "numbers-heavy":
-        return "All numbers";
-      case "snake-score-no-case":
-        return `≥${p.count} pairs`;
-      case "user-prefix":
-        return `Prefix ${p.specifier}`;
-      case "user-suffix":
-        return `Suffix ${p.specifier}`;
-      case "user-mask":
-        return `Mask ${p.specifier}`;
-    }
-  };
-
-  const uniqueProblems = (() => {
-    const m = new Map<string, Problem>();
-    for (const p of orderData?.problems ?? []) {
-      m.set(problemKey(p), p);
-    }
-    return Array.from(m.values());
-  })();
+  const problems = new Set(orderData?.problems?.map((p) => p.type) ?? []);
 
   const [activeFilter, setActiveFilter] = useState<string>("all");
 
   const filteredResults =
     activeFilter === "all"
       ? resultsWithProblemAssigned
-      : resultsWithProblemAssigned.filter((r) => r.problem && problemKey(r.problem) === activeFilter);
+      : resultsWithProblemAssigned.filter((r) => r.problem && r.problem.type === activeFilter);
 
-  // Counts for each problem (and All)
-  const problemCounts = (() => {
-    const counts = new Map<string, number>();
-    for (const p of uniqueProblems) counts.set(problemKey(p), 0);
-    for (const r of resultsWithProblemAssigned) {
-      if (r.problem) {
-        const key = problemKey(r.problem);
-        counts.set(key, (counts.get(key) ?? 0) + 1);
-      }
+  const problemCounts = resultsWithProblemAssigned.reduce((acc, r) => {
+    if (r.problem) {
+      const key = r.problem.type;
+      acc.set(key, (acc.get(key) ?? 0) + 1);
     }
-    return counts;
-  })();
+    return acc;
+  }, new Map<Problem["type"], number>());
 
   const copyText = async (text: string, label = "Copied") => {
     try {
@@ -255,7 +222,7 @@ function OrderResultsPage() {
         </div>
       ) : (
         <>
-          {uniqueProblems.length > 0 && (
+          {problems.size > 0 && (
             <Tabs value={activeFilter} onValueChange={(v) => setActiveFilter(v)} className="w-full">
               <TabsList className="mb-2">
                 <TabsTrigger value="all">
@@ -264,14 +231,16 @@ function OrderResultsPage() {
                     {resultsWithProblemAssigned.length}
                   </span>
                 </TabsTrigger>
-                {uniqueProblems.map((p) => (
-                  <TabsTrigger key={problemKey(p)} value={problemKey(p)}>
-                    <span>{problemLabel(p)}</span>
-                    <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs">
-                      {problemCounts.get(problemKey(p)) ?? 0}
-                    </span>
-                  </TabsTrigger>
-                ))}
+                {Array.from(problems)
+                  .toSorted()
+                  .map((p) => (
+                    <TabsTrigger key={p} value={p}>
+                      <span>{problemLabel(p)}</span>
+                      <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs">
+                        {problemCounts.get(p) ?? 0}
+                      </span>
+                    </TabsTrigger>
+                  ))}
               </TabsList>
             </Tabs>
           )}
