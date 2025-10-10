@@ -93,10 +93,35 @@ export const MyOrdersPage = () => {
 
   const { isConnected } = useAppKitAccount();
   const [now, setNow] = useState(() => Date.now());
-  const [tab, setTab] = useState<"open" | "mine">("open");
+  const [tab, setTab] = useState<"pending" | "active">(() => {
+    if (typeof window === "undefined") return "pending";
+    const hash = window.location.hash.replace(/^#/, "");
+    if (hash === "pending" || hash === "active") return hash;
+    return "pending";
+  });
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 60_000);
     return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const target = `#${tab}`;
+    if (window.location.hash !== target) {
+      window.history.replaceState(null, "", target);
+    }
+  }, [tab]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handler = () => {
+      const hash = window.location.hash.replace(/^#/, "");
+      if (hash === "pending" || hash === "active") {
+        setTab(hash);
+      }
+    };
+    window.addEventListener("hashchange", handler);
+    return () => window.removeEventListener("hashchange", handler);
   }, []);
 
   if (!isConnected) {
@@ -123,14 +148,14 @@ export const MyOrdersPage = () => {
 
       <OrdersExplainer />
 
-      <Tabs value={tab} onValueChange={(v) => setTab(v as "open" | "mine")} className="w-full">
+      <Tabs value={tab} onValueChange={(v) => setTab(v as "pending" | "active")} className="w-full">
         <div className="mb-2 flex items-center justify-between gap-3">
           <TabsList>
-            <TabsTrigger value="open" className="flex items-center gap-2">
+            <TabsTrigger value="pending" className="flex items-center gap-2">
               Posted (awaiting pickup)
               <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{myRequests.length}</span>
             </TabsTrigger>
-            <TabsTrigger value="mine" className="flex items-center gap-2">
+            <TabsTrigger value="active" className="flex items-center gap-2">
               Picked up & history
               <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{myOrders.length}</span>
             </TabsTrigger>
@@ -148,17 +173,17 @@ export const MyOrdersPage = () => {
             Refresh
           </Button>
         </div>
-        <TabsContent value="open" className="mt-4">
+        <TabsContent value="pending" className="mt-4">
           <OpenOrdersSection
             pending={myRequests}
             isLoading={isRequestsLoading}
             error={requestsError}
             now={now}
             pickedRequestIds={pickedRequestIds}
-            onShowPicked={() => setTab("mine")}
+            onShowPicked={() => setTab("active")}
           />
         </TabsContent>
-        <TabsContent value="mine" className="mt-4">
+        <TabsContent value="active" className="mt-4">
           <MyOrdersSection orders={myOrders} isLoading={isOrdersLoading} error={ordersError} now={now} />
         </TabsContent>
       </Tabs>
