@@ -18,8 +18,8 @@ import { Alert } from "@/components/ui/alert";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { VanityRequestSchema, Problem, ProblemId } from "./order-schema";
 import { problems, problemsById } from "./problem-config";
-import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import { toast } from "@/components/Toast";
 
 const FormSchema = z.object({
   publicKey: z.string().startsWith("0x").length(132),
@@ -246,8 +246,10 @@ export const NewOrderPage = () => {
     mutationFn: sendOrder,
     onSuccess: (data) => {
       form.reset();
-      toast.success("Order sent successfully!", {
-        action: {
+      toast({
+        title: "Order sent successfully!",
+        variant: "success",
+        button: {
           label: "View in block explorer",
           onClick: () => {
             window.open(
@@ -261,8 +263,10 @@ export const NewOrderPage = () => {
     onError: (error) => {
       console.error("Error sending order:", error);
       const message = error instanceof Error ? error.message : "Unknown error";
-      toast.error(`Error sending order, check the console for more details`, {
+      toast({
+        title: "Error sending order, check the console for more details",
         description: message.substring(0, 100) + (message.length > 100 ? "..." : ""),
+        variant: "error",
       });
     },
   });

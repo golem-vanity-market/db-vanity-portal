@@ -1,7 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Clipboard, ClipboardCheck, Download, ExternalLink, Info } from "lucide-react";
-import { toast } from "sonner";
 import { useState } from "react";
 
 import { VanityOrderResult, VanityOrderResultSchema, type Problem } from "./order-schema";
@@ -14,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useOrder } from "./useOrder";
 import { matchProblemToAddress } from "@/utils/difficulty";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "@/components/Toast";
 
 const fetchOrderResults = async (orderId: string) => {
   const golemClient = await makeClient();
@@ -97,9 +97,9 @@ function OrderResultsPage() {
   const copyText = async (text: string, label = "Copied") => {
     try {
       await navigator.clipboard.writeText(text);
-      toast.success(label);
+      toast({ title: label, variant: "success" });
     } catch (e) {
-      toast.error("Failed to copy to clipboard");
+      toast({ title: "Failed to copy to clipboard", variant: "error" });
       console.error(e);
     }
   };
@@ -116,7 +116,7 @@ function OrderResultsPage() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (e) {
-      toast.error("Failed to download file");
+      toast({ title: "Failed to download file", variant: "error" });
       console.error(e);
     }
   };
