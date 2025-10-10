@@ -20,6 +20,7 @@ import { VanityRequestSchema, Problem, ProblemId } from "./order-schema";
 import { problems, problemsById } from "./problem-config";
 import { Link } from "react-router-dom";
 import { toast } from "@/components/Toast";
+import { KeyGuideSheet } from "./KeyGuideSheet";
 
 const FormSchema = z.object({
   publicKey: z.string().startsWith("0x").length(132),
@@ -222,13 +223,20 @@ async function sendOrder(data: z.infer<typeof FormSchema>) {
 
 export const NewOrderPage = () => {
   const { isConnected } = useAppKitAccount();
+  const LOCAL_STORAGE_KEY = "vanity_last_public_key";
+  const [savedPublicKey, setSavedPublicKey] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem(LOCAL_STORAGE_KEY);
+    } catch {
+      return null;
+    }
+  });
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     mode: "onChange",
     defaultValues: {
-      publicKey:
-        "0x04d4a96d675423cc05f60409c48b084a53d3fa0ac59957939f526505c43f975b77fabab74decd66d80396308db9cb4db13b0c273811d51a1773d6d9e2dbcac1d28",
+      publicKey: "",
       problems: {
         "leading-any": { enabled: false, length: 8 },
         "trailing-any": { enabled: false, length: 8 },
@@ -245,6 +253,16 @@ export const NewOrderPage = () => {
   const mutation = useMutation({
     mutationFn: sendOrder,
     onSuccess: (data) => {
+      // persist last used public key
+      try {
+        const key = form.getValues("publicKey");
+        if (key) {
+          localStorage.setItem(LOCAL_STORAGE_KEY, key);
+          setSavedPublicKey(key);
+        }
+      } catch {
+        // ignore storage errors
+      }
       form.reset();
       toast({
         title: "Order sent successfully!",
@@ -498,13 +516,32 @@ export const NewOrderPage = () => {
                 name="publicKey"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Public Key</FormLabel>
+                    <div className="flex items-center justify-between gap-2">
+                      <FormLabel>Public Key</FormLabel>
+                      <KeyGuideSheet />
+                    </div>
                     <FormControl>
-                      <Input placeholder="0x..." {...field} />
+                      <div className="flex flex-row gap-1">
+                        <Input placeholder="0x..." {...field} />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={!savedPublicKey || field.value === savedPublicKey}
+                          onClick={() => {
+                            field.onChange(savedPublicKey);
+                            toast({
+                              title: "Public key inserted",
+                              description: "Make sure you control the corresponding private key.",
+                            });
+                          }}
+                        >
+                          Use previously saved key
+                        </Button>
+                      </div>
                     </FormControl>
                     <FormDescription>
                       The public key that the providers will use to search for vanity addresses. Make sure you control
-                      the corresponding private key.
+                      the corresponding private key. Keep it secure and never share it.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

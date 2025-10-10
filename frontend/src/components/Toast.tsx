@@ -20,7 +20,6 @@ export function toast(toast: Omit<ToastProps, "id">) {
   ));
 }
 
-/** A fully custom toast that still maintains the animations and interactions. */
 function Toast(props: ToastProps) {
   const { title, description, button, id, variant = "info" } = props;
 
