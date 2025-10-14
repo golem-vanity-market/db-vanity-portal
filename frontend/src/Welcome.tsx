@@ -5,6 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Check, CheckCircle2, Copy, Database, Github, LayoutGrid, Lock, Terminal } from "lucide-react";
 import { Link } from "react-router-dom";
 import { assetsUrl } from "./utils";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "./components/ui/label";
+import { CheckedState } from "@radix-ui/react-checkbox";
+
+const randomizeCase = (s: string) =>
+  s
+    .split("")
+    .map((c) => (Math.random() < 0.5 ? c.toLowerCase() : c.toUpperCase()))
+    .join("");
 
 const CodeBlock = ({ title, code }: { title: string; code: string }) => {
   const [hasCopied, setHasCopied] = useState(false);
@@ -30,8 +39,8 @@ const CodeBlock = ({ title, code }: { title: string; code: string }) => {
 };
 
 const Welcome = () => {
-  const generateMockAddress = (p: string) => {
-    const cleanPrefix = p.toUpperCase();
+  const generateMockAddress = (p: string, isCaseSensitive: boolean) => {
+    const cleanPrefix = isCaseSensitive ? p : randomizeCase(p);
     const remaining = 40 - cleanPrefix.length;
     const randomPart = Array(remaining)
       .fill(0)
@@ -44,10 +53,11 @@ const Welcome = () => {
       </span>
     );
   };
-  const [state, setState] = useState<{ prefix: string; address: React.ReactNode }>(() => ({
+  const [state, setState] = useState<{ prefix: string; address: React.ReactNode; isCaseSensitive: boolean }>({
     prefix: "CAFE",
-    address: generateMockAddress("CAFE"),
-  }));
+    address: generateMockAddress("CAFE", false),
+    isCaseSensitive: false,
+  });
 
   const handlePrefixChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const sanitizedValue = e.target.value.replace(/[^0-9a-fA-F]/g, "").slice(0, 12);
@@ -56,13 +66,33 @@ const Welcome = () => {
         return prev;
       }
       return {
+        ...prev,
         prefix: sanitizedValue,
-        address: generateMockAddress(sanitizedValue),
+        address: generateMockAddress(sanitizedValue, prev.isCaseSensitive),
       };
     });
   };
 
-  const difficulty = (16 ** state.prefix.length).toLocaleString("en-US");
+  const handleCaseSensitivityChange = (e: CheckedState) => {
+    const isChecked = e === true;
+    setState((prev) => {
+      if (isChecked === prev.isCaseSensitive) {
+        return prev;
+      }
+      return {
+        ...prev,
+        isCaseSensitive: isChecked,
+        address: generateMockAddress(prev.prefix, isChecked),
+      };
+    });
+  };
+
+  const computeDifficulty = (prefix: string, isCaseSensitive: boolean) => {
+    const baseDifficulty = 16 ** prefix.length;
+    if (!isCaseSensitive) return baseDifficulty;
+    const caseSensitiveChars = prefix.split("").filter((c) => /[a-fA-F]/.test(c)).length;
+    return baseDifficulty * 2 ** caseSensitiveChars;
+  };
 
   const lightLogo = assetsUrl() + "logo_light.svg";
   const darkLogo = assetsUrl() + "logo_dark.svg";
@@ -100,22 +130,38 @@ const Welcome = () => {
               <CardDescription>Enter a hexadecimal prefix (0-9, a-f) to see an example.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-muted-foreground">0x</span>
-                <Input
-                  value={state.prefix}
-                  onChange={handlePrefixChange}
-                  placeholder="CAFE"
-                  className="w-40 font-mono text-lg"
-                  maxLength={12}
-                />
+              <div className="flex flex-col justify-between gap-4 sm:flex-row md:flex-row md:items-center">
+                <div className="flex flex-row items-center gap-2">
+                  <span className="font-mono text-muted-foreground">0x</span>
+                  <Input
+                    value={state.prefix}
+                    onChange={handlePrefixChange}
+                    placeholder="CAFE"
+                    className="w-40 font-mono text-lg"
+                    maxLength={12}
+                  />
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <Checkbox
+                    id="case-sensitive"
+                    checked={state.isCaseSensitive}
+                    onCheckedChange={handleCaseSensitivityChange}
+                  />
+                  <Label htmlFor="case-sensitive">Case Sensitive</Label>
+                </div>
               </div>
+
               <div className="mt-4 rounded-md bg-muted p-4">
-                <p className="font-mono text-sm break-all md:text-base">{generateMockAddress(state.prefix)}</p>
+                <p className="font-mono text-sm break-all md:text-base">{state.address}</p>
               </div>
               <div className="mt-4">
                 <p className="text-sm text-muted-foreground">
-                  Difficulty: Approx. 1 in <span className="font-semibold text-primary">{difficulty}</span> combinations
+                  Difficulty: Approx. 1 in{" "}
+                  <span className="font-semibold text-primary">
+                    {computeDifficulty(state.prefix, state.isCaseSensitive).toLocaleString("en-US")}
+                  </span>{" "}
+                  combinations
                 </p>
               </div>
             </CardContent>
