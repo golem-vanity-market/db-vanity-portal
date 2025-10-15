@@ -48,7 +48,7 @@ const Dashboard = () => {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex h-14 max-w-7xl items-center justify-between">
+        <div className="mx-auto flex h-16 w-full max-w-[1600px] items-center justify-between px-6">
           <Link to="/" className="flex items-center space-x-3">
             <img src={lightLogo} alt="Logo" className="hidden h-8 w-8 dark:block" />
             <img src={darkLogo} alt="Logo" className="block h-8 w-8 dark:hidden" />
@@ -97,8 +97,8 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <main className="flex-1">
-        <div className="container mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+      <main className="flex-1 bg-muted/10">
+        <div className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-8 lg:px-12">
           <Outlet />
         </div>
       </main>

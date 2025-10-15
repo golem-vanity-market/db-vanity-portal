@@ -28,14 +28,21 @@ export function OpenOrdersSection({
   pickedRequestIds: Set<string>;
   onShowPicked?: () => void;
 }) {
+  const visibleCount = pending.length;
+
   return (
-    <section className="rounded-lg border p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Posted (awaiting pickup)</h2>
+    <section className="rounded-2xl border border-border/60 bg-background p-4 shadow-sm sm:p-6">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="font-heading text-lg font-semibold text-foreground">Posted (awaiting pickup)</h2>
+          <p className="text-sm text-muted-foreground">Orders waiting for providers to claim them.</p>
+        </div>
         {isLoading ? (
           <span className="text-xs text-muted-foreground">Loading…</span>
         ) : (
-          <Badge variant="outline">{pending.length}</Badge>
+          <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-semibold">
+            {visibleCount}
+          </Badge>
         )}
       </div>
       {!!error && (
@@ -46,21 +53,24 @@ export function OpenOrdersSection({
       )}
       {isLoading ? (
         <div className="space-y-2">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
         </div>
       ) : pending.length === 0 ? (
-        <div className="text-sm text-muted-foreground">No open orders. Create a new one to get started.</div>
+        <div className="rounded-xl border border-dashed border-border/60 bg-muted/40 p-6 text-sm text-muted-foreground">
+          No open orders. Create a new one to get started.
+        </div>
       ) : (
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[25%]">Order</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead>Time left</TableHead>
-              <TableHead>Pickup</TableHead>
-              <TableHead className="text-right">Problems</TableHead>
+          <TableHeader className="bg-muted/40">
+            <TableRow className="border-border/60">
+              <TableHead className="">Request</TableHead>
+              <TableHead className="">Public key</TableHead>
+              <TableHead className="">Added</TableHead>
+              <TableHead className="">Expires</TableHead>
+              <TableHead className="">Availability</TableHead>
+              <TableHead className="">Problems</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -69,59 +79,74 @@ export function OpenOrdersSection({
               const expiresAt = createdAt + REQUEST_TTL_MS;
               const remaining = Math.max(0, expiresAt - now);
               const isPicked = pickedRequestIds.has(id);
+              const availabilityClasses =
+                "inline-flex h-8 items-center gap-1 rounded-full border px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
+
+              const availabilityBadge = isPicked ? (
+                <button
+                  type="button"
+                  onClick={onShowPicked}
+                  title="View picked-up details"
+                  className={`${availabilityClasses} cursor-pointer border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 focus-visible:ring-emerald-200 `}
+                >
+                  Picked up
+                  <span aria-hidden>→</span>
+                </button>
+              ) : (
+                <span
+                  className={`${availabilityClasses} cursor-default border-muted-foreground/30 bg-transparent text-muted-foreground`}
+                >
+                  Awaiting provider
+                </span>
+              );
+
               return (
-                <TableRow key={id}>
+                <TableRow key={id} className="text-sm">
                   <TableCell>
-                    <div className="flex flex-col">
+                    <div className="space-y-1">
                       <a
                         href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${id}?tab=data`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-mono text-xs underline"
+                        className="font-mono text-sm font-medium text-foreground underline underline-offset-4"
                         title="Open in explorer"
                       >
                         {truncateMiddle(id, 10, 8)}
                       </a>
-                      <span className="font-mono text-[10px] break-all text-muted-foreground">
-                        pub: {truncateMiddle(order.publicKey, 10, 8)}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <span className="font-mono text-sm text-muted-foreground" title={order.publicKey}>
+                      {truncateMiddle(order.publicKey, 14, 10)}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="space-y-1">
+                      <span className="font-medium text-foreground" title={formatDateTime(order.timestamp)}>
+                        {formatRelative(order.timestamp, now)}
                       </span>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex flex-col text-sm">
-                      <span title={formatDateTime(order.timestamp)}>{formatRelative(order.timestamp, now)}</span>
-                      <span className="text-xs text-muted-foreground">{formatDateTime(order.timestamp)}</span>
-                    </div>
+                    <Badge
+                      variant="secondary"
+                      className="w-fit rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"
+                      title={formatDateTime(new Date(expiresAt).toISOString())}
+                    >
+                      in {msToShort(remaining)}
+                    </Badge>
                   </TableCell>
-                  <TableCell>
-                    <Badge variant={"secondary"}>{`in ${msToShort(remaining)}`}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    {isPicked ? (
-                      <Button
-                        bounce="none"
-                        variant="link"
-                        type="button"
-                        onClick={onShowPicked}
-                        className="px-0 text-xs"
-                        title="View picked-up details"
-                      >
-                        Picked up →
-                      </Button>
-                    ) : (
-                      <Badge variant="outline">Awaiting</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right text-sm">
+                  <TableCell className="align-middle">{availabilityBadge}</TableCell>
+                  <TableCell className="">
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
-                          variant="link"
+                          variant="ghost"
                           size="sm"
-                          className="h-auto px-0 underline"
+                          className="h-8 gap-2 px-3 text-sm font-medium text-primary"
                           aria-label={`View selected problems (${order.problems.length})`}
                         >
-                          View problems ({order.problems.length})
+                          View ({order.problems.length})
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-96" align="end">

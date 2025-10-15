@@ -31,14 +31,21 @@ export function MyOrdersSection({
   error: unknown;
   now: number;
 }) {
+  const visibleCount = orders.length;
+
   return (
-    <section className="rounded-lg border p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Picked up & history</h2>
+    <section className="rounded-2xl border border-border/60 bg-background p-4 shadow-sm sm:p-6">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="font-heading text-lg font-semibold text-foreground">Picked up &amp; history</h2>
+          <p className="text-sm text-muted-foreground">Monitor in-flight work and revisit completed runs.</p>
+        </div>
         {isLoading ? (
           <span className="text-xs text-muted-foreground">Loading…</span>
         ) : (
-          <Badge variant="outline">{orders.length}</Badge>
+          <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-semibold">
+            {visibleCount}
+          </Badge>
         )}
       </div>
       {!!error && (
@@ -49,90 +56,123 @@ export function MyOrdersSection({
       )}
       {isLoading ? (
         <div className="space-y-2">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
         </div>
       ) : orders.length === 0 ? (
-        <div className="text-sm text-muted-foreground">
+        <div className="rounded-xl border border-dashed border-border/60 bg-muted/40 p-6 text-sm text-muted-foreground">
           No orders yet. Once a node picks up your order, it will appear here.
         </div>
       ) : (
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[25%]">Order</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead>Started</TableHead>
-              <TableHead>Completed</TableHead>
-              <TableHead>Results</TableHead>
-              <TableHead className="text-right">Selected problems</TableHead>
+          <TableHeader className="bg-muted/40">
+            <TableRow className="border-border/60">
+              <TableHead className="">Order</TableHead>
+              <TableHead className="">Request</TableHead>
+              <TableHead className="">Public key</TableHead>
+              <TableHead className="">Created</TableHead>
+              <TableHead className="">Started</TableHead>
+              <TableHead className="">Completed</TableHead>
+              <TableHead className="">Status</TableHead>
+              <TableHead className="">Results</TableHead>
+              <TableHead className="">Problems</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {orders.map((o) => {
               const statusVariant =
                 o.status === "completed" ? "default" : o.status === "processing" ? "secondary" : "outline";
+              const problemsCount = o.problems?.length ?? 0;
+              const availabilityClasses =
+                "inline-flex h-8 items-center gap-1 rounded-full border px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
+              const availabilityBadge =
+                o.status === "completed" ? (
+                  <Link to={`/order/${o.orderId}/results`}>
+                    <button
+                      type="button"
+                      title="View picked-up details"
+                      className={`${availabilityClasses} cursor-pointer border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 focus-visible:ring-emerald-200`}
+                    >
+                      Results
+                      <span aria-hidden>→</span>
+                    </button>
+                  </Link>
+                ) : (
+                  <span
+                    className={`${availabilityClasses} cursor-default border-muted-foreground/30 bg-transparent text-muted-foreground`}
+                  >
+                    Awaiting provider
+                  </span>
+                );
               return (
-                <TableRow key={`${o.orderId}-${o.created}`}>
+                <TableRow key={`${o.orderId}-${o.created}`} className="text-sm">
                   <TableCell>
-                    <div className="flex flex-col">
-                      <a
-                        href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${o.orderId}?tab=data`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-mono text-xs underline"
-                        title="Open in explorer"
-                      >
-                        {truncateMiddle(o.orderId, 10, 8)}
-                      </a>
-                      <span className="font-mono text-[10px] text-muted-foreground">
-                        pub: {truncateMiddle(o.pubKey, 10, 8)}
+                    <a
+                      href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${o.orderId}?tab=data`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-mono text-sm font-medium text-foreground underline underline-offset-4"
+                      title="Open order in explorer"
+                    >
+                      {truncateMiddle(o.orderId, 10, 8)}
+                    </a>
+                  </TableCell>
+                  <TableCell>
+                    <a
+                      href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${o.requestId}?tab=data`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-mono text-sm text-muted-foreground underline underline-offset-4"
+                      title="Open request in explorer"
+                    >
+                      {truncateMiddle(o.requestId, 10, 8)}
+                    </a>
+                  </TableCell>
+                  <TableCell>
+                    <span className="font-mono text-sm text-muted-foreground" title={o.pubKey}>
+                      {truncateMiddle(o.pubKey, 14, 10)}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="font-medium text-foreground" title={formatDateTime(o.created)}>
+                      {formatRelative(o.created, now)}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    {o.started ? (
+                      <span className="font-medium text-foreground" title={formatDateTime(o.started)}>
+                        {formatRelative(o.started, now)}
                       </span>
-                      <span className="text-[10px] text-muted-foreground">
-                        Request:{" "}
-                        <a
-                          className="font-mono underline"
-                          href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${o.requestId}?tab=data`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          title="Open posted request"
-                        >
-                          {truncateMiddle(o.requestId, 8, 6)}
-                        </a>
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={statusVariant}>{o.status}</Badge>
-                  </TableCell>
-                  <TableCell title={formatDateTime(o.created)}>{formatRelative(o.created, now)}</TableCell>
-                  <TableCell title={o.started ? formatDateTime(o.started) : undefined}>
-                    {o.started ? formatRelative(o.started, now) : <span className="text-muted-foreground">—</span>}
-                  </TableCell>
-                  <TableCell title={o.completed ? formatDateTime(o.completed) : undefined}>
-                    {o.completed ? formatRelative(o.completed, now) : <span className="text-muted-foreground">—</span>}
-                  </TableCell>
-                  <TableCell>
-                    {o.status === "completed" ? (
-                      <Button asChild variant="link" size="sm" className="h-auto px-0 underline">
-                        <Link to={`/order/${o.orderId}/results`}>View results →</Link>
-                      </Button>
                     ) : (
                       <span className="text-muted-foreground">—</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell>
+                    {o.completed ? (
+                      <span className="font-medium text-foreground" title={formatDateTime(o.completed)}>
+                        {formatRelative(o.completed, now)}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={statusVariant} className="rounded-full px-3 py-1 capitalize">
+                      {o.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{availabilityBadge}</TableCell>
+                  <TableCell>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
-                          variant="link"
+                          variant="ghost"
                           size="sm"
-                          className="h-auto px-0 underline"
-                          aria-label={`View selected problems (${o.problems?.length ?? 0})`}
+                          className="h-8 gap-2 px-3 text-sm font-medium text-primary"
+                          aria-label={`View selected problems (${problemsCount})`}
                         >
-                          View problems ({o.problems?.length ?? 0})
+                          View ({problemsCount})
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-96" align="end">
