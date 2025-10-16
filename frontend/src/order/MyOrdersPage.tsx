@@ -17,7 +17,7 @@ import { z } from "zod";
 const fetchMyRequests = async () => {
   const golemClient = await makeClient();
   const rawRes = await golemClient.queryEntities(
-    `vanity_market_request="1" && $owner="${golemClient.getRawClient().walletClient.account.address}"`,
+    `vanity_market_request="2" && $owner="${golemClient.getRawClient().walletClient.account.address}"`,
   );
   return rawRes
     .map(({ entityKey, storageValue }) => {

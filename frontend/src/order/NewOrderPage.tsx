@@ -1,9 +1,9 @@
 import { Annotation, createClient, Tagged } from "golem-base-sdk";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
-import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, CheckSquare2, Square } from "lucide-react";
 import React, { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
 import { calculateWorkUnitForProblems } from "@/utils/difficulty";
 import { displayDifficulty } from "@/utils";
@@ -22,159 +23,183 @@ import { Link } from "react-router-dom";
 import { toast } from "@/components/Toast";
 import { KeyGuideSheet } from "./KeyGuideSheet";
 
-const FormSchema = z.object({
-  publicKey: z.string().startsWith("0x").length(132),
-  problems: z
-    .object({
-      "leading-any": z
-        .object({
-          enabled: z.boolean(),
-          length: z.number(),
-        })
-        .superRefine((data, ctx) => {
-          if (data.enabled) {
-            if (data.length < 8 || data.length > 40) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "Length must be between 8 and 40",
-                path: ["length"],
-              });
+const FormSchema = z
+  .object({
+    keyType: z.enum(["publicKey", "xpub"]),
+    publicKey: z.string(),
+    duration: z.enum(["5m", "15m", "30m", "1h", "4h", "12h", "24h"]),
+    problems: z
+      .object({
+        "leading-any": z
+          .object({
+            enabled: z.boolean(),
+            length: z.number(),
+          })
+          .superRefine((data, ctx) => {
+            if (data.enabled) {
+              if (data.length < 8 || data.length > 40) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: "Length must be between 8 and 40",
+                  path: ["length"],
+                });
+              }
             }
-          }
-        }),
-      "trailing-any": z
-        .object({
-          enabled: z.boolean(),
-          length: z.number(),
-        })
-        .superRefine((data, ctx) => {
-          if (data.enabled) {
-            if (data.length < 8 || data.length > 40) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "Length must be between 8 and 40",
-                path: ["length"],
-              });
+          }),
+        "trailing-any": z
+          .object({
+            enabled: z.boolean(),
+            length: z.number(),
+          })
+          .superRefine((data, ctx) => {
+            if (data.enabled) {
+              if (data.length < 8 || data.length > 40) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: "Length must be between 8 and 40",
+                  path: ["length"],
+                });
+              }
             }
-          }
-        }),
-      "letters-heavy": z
-        .object({
-          enabled: z.boolean(),
-          count: z.number(),
-        })
-        .superRefine((data, ctx) => {
-          if (data.enabled) {
-            if (data.count < 32 || data.count > 40) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "Count must be between 32 and 40",
-                path: ["count"],
-              });
+          }),
+        "letters-heavy": z
+          .object({
+            enabled: z.boolean(),
+            count: z.number(),
+          })
+          .superRefine((data, ctx) => {
+            if (data.enabled) {
+              if (data.count < 32 || data.count > 40) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: "Count must be between 32 and 40",
+                  path: ["count"],
+                });
+              }
             }
-          }
+          }),
+        "numbers-heavy": z.object({
+          enabled: z.boolean(),
         }),
-      "numbers-heavy": z.object({
-        enabled: z.boolean(),
+        "snake-score-no-case": z
+          .object({
+            enabled: z.boolean(),
+            count: z.number(),
+          })
+          .superRefine((data, ctx) => {
+            if (data.enabled) {
+              if (data.count < 15 || data.count > 39) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: "Count must be between 15 and 39",
+                  path: ["count"],
+                });
+              }
+            }
+          }),
+        "user-prefix": z
+          .object({
+            enabled: z.boolean(),
+            specifier: z.string(),
+          })
+          .superRefine((data, ctx) => {
+            if (data.enabled) {
+              if (!data.specifier.startsWith("0x")) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: "Specifier must start with 0x",
+                  path: ["specifier"],
+                });
+              }
+              if (data.specifier.length < 8 || data.specifier.length > 42) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: "Specifier must be between 8 and 42 characters",
+                  path: ["specifier"],
+                });
+              }
+              if (!/^0x[0-9a-f]+$/i.test(data.specifier)) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: "Specifier must be a valid hex string",
+                  path: ["specifier"],
+                });
+              }
+            }
+          }),
+        "user-suffix": z
+          .object({
+            enabled: z.boolean(),
+            specifier: z.string(),
+          })
+          .superRefine((data, ctx) => {
+            if (data.enabled) {
+              if (data.specifier.length < 6 || data.specifier.length > 40) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: "Specifier must be between 6 and 40 characters",
+                  path: ["specifier"],
+                });
+              }
+              if (!/^[0-9a-f]+$/i.test(data.specifier)) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: "Specifier must be a valid hex string",
+                  path: ["specifier"],
+                });
+              }
+            }
+          }),
+        "user-mask": z
+          .object({
+            enabled: z.boolean(),
+            specifier: z.string(),
+          })
+          .superRefine((data, ctx) => {
+            if (data.enabled) {
+              if (!data.specifier.startsWith("0x")) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: "Specifier must start with 0x",
+                  path: ["specifier"],
+                });
+              }
+              if (data.specifier.length !== 42) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  message: "Specifier must be 42 characters long",
+                  path: ["specifier"],
+                });
+              }
+            }
+          }),
+      })
+      .refine((data) => Object.values(data).some((problem) => problem.enabled), {
+        message: "Select at least one problem",
+        path: ["problems"],
       }),
-      "snake-score-no-case": z
-        .object({
-          enabled: z.boolean(),
-          count: z.number(),
-        })
-        .superRefine((data, ctx) => {
-          if (data.enabled) {
-            if (data.count < 15 || data.count > 39) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "Count must be between 15 and 39",
-                path: ["count"],
-              });
-            }
-          }
-        }),
-      "user-prefix": z
-        .object({
-          enabled: z.boolean(),
-          specifier: z.string(),
-        })
-        .superRefine((data, ctx) => {
-          if (data.enabled) {
-            if (!data.specifier.startsWith("0x")) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "Specifier must start with 0x",
-                path: ["specifier"],
-              });
-            }
-            if (data.specifier.length < 8 || data.specifier.length > 42) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "Specifier must be between 8 and 42 characters",
-                path: ["specifier"],
-              });
-            }
-            if (!/^0x[0-9a-f]+$/i.test(data.specifier)) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "Specifier must be a valid hex string",
-                path: ["specifier"],
-              });
-            }
-          }
-        }),
-      "user-suffix": z
-        .object({
-          enabled: z.boolean(),
-          specifier: z.string(),
-        })
-        .superRefine((data, ctx) => {
-          if (data.enabled) {
-            if (data.specifier.length < 6 || data.specifier.length > 40) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "Specifier must be between 6 and 40 characters",
-                path: ["specifier"],
-              });
-            }
-            if (!/^[0-9a-f]+$/i.test(data.specifier)) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "Specifier must be a valid hex string",
-                path: ["specifier"],
-              });
-            }
-          }
-        }),
-      "user-mask": z
-        .object({
-          enabled: z.boolean(),
-          specifier: z.string(),
-        })
-        .superRefine((data, ctx) => {
-          if (data.enabled) {
-            if (!data.specifier.startsWith("0x")) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "Specifier must start with 0x",
-                path: ["specifier"],
-              });
-            }
-            if (data.specifier.length !== 42) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "Specifier must be 42 characters long",
-                path: ["specifier"],
-              });
-            }
-          }
-        }),
-    })
-    .refine((data) => Object.values(data).some((problem) => problem.enabled), {
-      message: "Select at least one problem",
-      path: ["problems"],
-    }),
-});
+  })
+  .superRefine((val, ctx) => {
+    const keyType = val.keyType;
+    const publicKey = val.publicKey;
+    if (keyType === "publicKey") {
+      if (!publicKey.startsWith("0x") || publicKey.length !== 132) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Public key must start with 0x and be 132 characters long",
+          path: ["publicKey"],
+        });
+      }
+    } else if (keyType === "xpub") {
+      if (!publicKey.startsWith("xpub") || publicKey.length !== 111) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "xpub must start with xpub and be 111 characters long",
+          path: ["publicKey"],
+        });
+      }
+    }
+  });
 
 const getEthereumGlobal = () => {
   if (typeof window !== "undefined" && (window as any).ethereum) {
@@ -203,6 +228,7 @@ async function sendOrder(data: z.infer<typeof FormSchema>) {
   const parsedEntity = VanityRequestSchema.parse({
     publicKey: data.publicKey,
     problems: selectedProblems,
+    duration: data.duration,
   });
 
   const res = await golemClient.createEntities([
@@ -213,8 +239,8 @@ async function sendOrder(data: z.infer<typeof FormSchema>) {
           timestamp,
         }),
       ),
-      btl: 1800 * 24 * 7,
-      stringAnnotations: [new Annotation("vanity_market_request", "1"), new Annotation("timestamp", timestamp)],
+      btl: 1800 * 24, // 24h, block every 2 seconds
+      stringAnnotations: [new Annotation("vanity_market_request", "2"), new Annotation("timestamp", timestamp)],
       numericAnnotations: [],
     },
   ]);
@@ -236,15 +262,17 @@ export const NewOrderPage = () => {
     resolver: zodResolver(FormSchema),
     mode: "onChange",
     defaultValues: {
+      keyType: "publicKey",
       publicKey: "",
+      duration: "5m",
       problems: {
         "leading-any": { enabled: false, length: 8 },
         "trailing-any": { enabled: false, length: 8 },
         "letters-heavy": { enabled: false, count: 32 },
         "numbers-heavy": { enabled: false },
         "snake-score-no-case": { enabled: false, count: 15 },
-        "user-prefix": { enabled: false, specifier: "0xC0FFEE" },
-        "user-suffix": { enabled: false, specifier: "BADD1E" },
+        "user-prefix": { enabled: false, specifier: "0xC0FFEE00" },
+        "user-suffix": { enabled: false, specifier: "00BADD1E" },
         "user-mask": { enabled: false, specifier: "0x1234xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5678" },
       },
     },
@@ -293,15 +321,18 @@ export const NewOrderPage = () => {
     mutation.mutate(data);
   }
 
-  const selectedProblems = Object.entries(form.watch("problems"))
-    .filter(([, problem]) => problem.enabled)
-    .map(
-      ([key, value]) =>
-        ({
-          type: key,
-          ...value,
-        }) as Problem,
-    );
+  const problems_watch = useWatch({ control: form.control, name: "problems" });
+  const selectedProblems = problems_watch
+    ? Object.entries(problems_watch)
+        .filter(([, problem]) => problem.enabled)
+        .map(
+          ([key, value]) =>
+            ({
+              type: key,
+              ...value,
+            }) as Problem,
+        )
+    : [];
 
   const [examples, setExamples] = useState<Record<string, React.ReactNode>>(() => {
     const initialExamples: Record<string, React.ReactNode> = {};
@@ -341,13 +372,37 @@ export const NewOrderPage = () => {
 
   const totalDifficulty = calculateWorkUnitForProblems(selectedProblems);
 
+  const duration = useWatch({ control: form.control, name: "duration" }) || "30m";
+
+  // Convert duration to minutes
+  const durationInMinutes = (() => {
+    switch (duration) {
+      case "5m":
+        return 5;
+      case "15m":
+        return 15;
+      case "30m":
+        return 30;
+      case "1h":
+        return 60;
+      case "4h":
+        return 240;
+      case "12h":
+        return 720;
+      case "24h":
+        return 1440;
+      default:
+        return 30;
+    }
+  })();
+
   // prettier-ignore
-  const hashesIn30Min = 20 // 20 providers
+  const hashesPerDuration = 20 // 20 providers
     * 5 * 1e6 // 5 MH/s
-    * 30 * 60 // 30 minutes
+    * durationInMinutes * 60 // duration in seconds
 
   const expectedMatches = Math.round(
-    selectedProblems.length > 0 && totalDifficulty > 0 ? hashesIn30Min / totalDifficulty : 0,
+    selectedProblems.length > 0 && totalDifficulty > 0 ? hashesPerDuration / totalDifficulty : 0,
   );
 
   const formFields = problems.reduce(
@@ -513,37 +568,81 @@ export const NewOrderPage = () => {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
                 control={form.control}
-                name="publicKey"
+                name="keyType"
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center justify-between gap-2">
-                      <FormLabel>Public Key</FormLabel>
+                      <FormLabel>Key Input Type</FormLabel>
                       <KeyGuideSheet />
                     </div>
-                    <FormControl>
-                      <div className="flex flex-row gap-1">
-                        <Input placeholder="0x..." {...field} />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          disabled={!savedPublicKey || field.value === savedPublicKey}
-                          onClick={() => {
-                            field.onChange(savedPublicKey);
-                            toast({
-                              title: "Public key inserted",
-                              description: "Make sure you control the corresponding private key.",
-                            });
-                          }}
-                        >
-                          Use previously saved key
-                        </Button>
-                      </div>
-                    </FormControl>
-                    <FormDescription>
-                      The public key that the providers will use to search for vanity addresses. Make sure you control
-                      the corresponding private key. Keep it secure and never share it.
+                    <Tabs
+                      value={field.value}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        form.resetField("publicKey");
+                      }}
+                    >
+                      <TabsList>
+                        <TabsTrigger value="publicKey">Public Key</TabsTrigger>
+                        <TabsTrigger value="xpub">xpub</TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="publicKey">
+                        <FormField
+                          control={form.control}
+                          name="publicKey"
+                          render={({ field: publicKeyField }) => (
+                            <FormItem>
+                              <FormControl>
+                                <div className="flex flex-row gap-1">
+                                  <Input placeholder="0x..." {...publicKeyField} />
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={!savedPublicKey || publicKeyField.value === savedPublicKey}
+                                    onClick={() => {
+                                      publicKeyField.onChange(savedPublicKey);
+                                      toast({
+                                        title: "Public key inserted",
+                                        description: "Make sure you control the corresponding private key.",
+                                      });
+                                    }}
+                                  >
+                                    Use previously saved key
+                                  </Button>
+                                </div>
+                              </FormControl>
+                              <FormDescription>
+                                Enter your uncompressed public key (130 hex characters after 0x prefix). This will be
+                                used to derive addresses for vanity address generation.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </TabsContent>
+                      <TabsContent value="xpub">
+                        <FormField
+                          control={form.control}
+                          name="publicKey"
+                          render={({ field: xpubField }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input placeholder="xpub..." {...xpubField} />
+                              </FormControl>
+                              <FormDescription>
+                                Enter your extended public key (xpub format, 111 characters). This allows derivation of
+                                multiple addresses for vanity generation.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </TabsContent>
+                    </Tabs>
+                    <FormDescription className="mt-2">
+                      The key that the providers will use to search for vanity addresses. Make sure you control the
+                      corresponding private key. Keep it secure and never share it.
                     </FormDescription>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -556,11 +655,12 @@ export const NewOrderPage = () => {
                       <FormLabel className="text-base">Problems</FormLabel>
                       <FormDescription>Select the problems you want to order for solving.</FormDescription>
                     </div>
-                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                    <div className="space-y-3">
                       {problems.map((item) => {
-                        const isSelected = form.getValues(`problems.${item.id}.enabled`);
+                        const input = problems_watch[item.id];
+                        const isSelected = input?.enabled;
                         const problemForDifficultyCalc = {
-                          ...form.getValues(`problems.${item.id}`),
+                          ...input,
                           type: item.id,
                         } as Problem;
                         const difficulty = calculateWorkUnitForProblems([problemForDifficultyCalc]);
@@ -569,60 +669,64 @@ export const NewOrderPage = () => {
                           <Card
                             key={item.id}
                             className={cn(
-                              "cursor-pointer border-2 group",
+                              "border-2 transition-all",
                               isSelected
-                                ? "border-primary bg-primary/5 shadow-lg"
-                                : "border-transparent hover:border-primary/60 hover:shadow-lg bg-muted/30 text-muted-foreground",
+                                ? "border-primary bg-primary/5 shadow-md"
+                                : "border-muted hover:border-primary/40",
                             )}
-                            onClick={() => toggleProblem(item.id)}
                           >
                             <CardHeader>
-                              <CardTitle
-                                className={cn("flex items-center justify-between", !isSelected && "text-foreground")}
+                              <div
+                                className="-m-2 w-full cursor-pointer rounded-md p-2 transition-colors hover:bg-muted/20"
+                                onClick={() => {
+                                  toggleProblem(item.id);
+                                }}
                               >
-                                <div
-                                  className={cn(
-                                    "flex items-center gap-2 transition-colors",
-                                    !isSelected ? "text-muted-foreground group-hover:text-foreground" : "",
+                                <div className="flex items-center gap-3">
+                                  {isSelected ? (
+                                    <CheckSquare2 className="size-6 text-primary" />
+                                  ) : (
+                                    <Square className="size-6 text-muted-foreground" />
                                   )}
-                                >
-                                  {item.icon}
-                                  {item.label}
-                                </div>
-                                {isSelected && <CheckCircle2 className={cn("text-primary")} />}
-                              </CardTitle>
-                              <CardDescription
-                                className={cn(
-                                  isSelected
-                                    ? "text-foreground/80"
-                                    : "text-foreground/60 group-hover:text-foreground/80",
-                                )}
-                              >
-                                {item.description}
-                              </CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                              {formFields[item.id]}
-                              {examples[item.id] && (
-                                <div>
-                                  <label className={cn("text-sm font-medium", !isSelected && "text-foreground/60")}>
-                                    Example
-                                  </label>
-                                  <div className="mt-2 rounded-md bg-background/50 p-3 font-mono text-sm break-all">
-                                    {examples[item.id]}
+                                  <div className="flex-1 text-left">
+                                    <CardTitle className="flex items-center gap-2 text-lg">
+                                      {item.icon}
+                                      {item.label}
+                                    </CardTitle>
+                                    <CardDescription className="mt-1">{item.description}</CardDescription>
                                   </div>
-                                </div>
-                              )}
-                              <div className="mt-2 flex flex-col">
-                                <label className="text-sm font-medium">Difficulty</label>
-                                <label className="text-xs text-foreground/60">
-                                  How many addresses need to be checked to find one that matches the pattern?
-                                </label>
-                                <div className="mt-2 rounded-md bg-background/50 p-3 font-mono text-sm break-all">
-                                  {difficulty.toLocaleString()} ({displayDifficulty(difficulty)})
+                                  {isSelected && (
+                                    <div className="hidden text-xs text-muted-foreground sm:block">
+                                      {displayDifficulty(difficulty)}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
-                            </CardContent>
+                            </CardHeader>
+                            {isSelected && (
+                              <CardContent className="space-y-4 border-t pt-0">
+                                <div className="space-y-4 pt-4">
+                                  {formFields[item.id]}
+                                  {examples[item.id] && (
+                                    <div>
+                                      <label className="text-sm font-medium">Example</label>
+                                      <div className="mt-2 rounded-md bg-muted/50 p-3 font-mono text-sm break-all">
+                                        {examples[item.id]}
+                                      </div>
+                                    </div>
+                                  )}
+                                  <div className="flex flex-col">
+                                    <label className="text-sm font-medium">Difficulty</label>
+                                    <label className="text-xs text-muted-foreground">
+                                      How many addresses need to be checked to find one that matches the pattern?
+                                    </label>
+                                    <div className="mt-2 rounded-md bg-muted/50 p-3 font-mono text-sm break-all">
+                                      {difficulty.toLocaleString()} ({displayDifficulty(difficulty)})
+                                    </div>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            )}
                           </Card>
                         );
                       })}
@@ -643,19 +747,20 @@ export const NewOrderPage = () => {
                 <p className="mt-2 text-2xl font-bold text-primary">
                   {selectedProblems.length === 0
                     ? "Select at least 1 problem"
-                    : !form.formState.isValid
-                      ? "Fix form errors to estimate"
+                    : form.formState.errors.problems
+                      ? "Fix problem configuration errors"
                       : displayDifficulty(totalDifficulty)}
                 </p>
                 <h3 className="mt-4 text-lg font-semibold">Time Estimation</h3>
                 <p className="text-sm text-foreground/80">
-                  With 20 providers working for 30 minutes, you can expect to find approximately:
+                  With 20 providers working for {duration.replace("m", " minutes").replace("h", " hours")}, you can
+                  expect to find approximately:
                 </p>
                 <p className="mt-2 text-2xl font-bold text-primary">
                   {selectedProblems.length === 0
                     ? "Select at least 1 problem"
-                    : !form.formState.isValid
-                      ? "Fix form errors to estimate"
+                    : form.formState.errors.problems
+                      ? "Fix problem configuration errors"
                       : expectedMatches.toLocaleString() + " matching addresses"}
                 </p>
                 {expectedMatches < 100 && selectedProblems.length > 0 && (
@@ -665,6 +770,55 @@ export const NewOrderPage = () => {
                   </p>
                 )}
               </div>
+
+              <FormField
+                control={form.control}
+                name="duration"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Order Duration</FormLabel>
+                    <FormControl>
+                      <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
+                        {[
+                          { value: "5m", label: "5m" },
+                          { value: "15m", label: "15m" },
+                          { value: "30m", label: "30m" },
+                          { value: "1h", label: "1h" },
+                          { value: "4h", label: "4h" },
+                          { value: "12h", label: "12h" },
+                          { value: "24h", label: "24h" },
+                        ].map((duration) => (
+                          <Card
+                            key={duration.value}
+                            className={cn(
+                              "cursor-pointer border-2 transition-all hover:shadow-md",
+                              field.value === duration.value
+                                ? "border-primary bg-primary/10 shadow-sm ring-2 ring-primary/20"
+                                : "border-muted hover:border-primary/50",
+                            )}
+                            onClick={() => field.onChange(duration.value)}
+                          >
+                            <CardContent className="flex items-center justify-center p-3">
+                              <span
+                                className={cn(
+                                  "text-sm font-medium",
+                                  field.value === duration.value ? "text-primary font-bold" : "text-muted-foreground",
+                                )}
+                              >
+                                {duration.label}
+                              </span>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </FormControl>
+                    <FormDescription>
+                      How long should providers work on finding matching addresses for your order.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <Button type="submit" disabled={mutation.isPending || !isConnected || !form.formState.isValid}>
                 {mutation.isPending ? "Sending Order..." : !isConnected ? "Connect wallet to send order" : "Send Order"}
