@@ -87,7 +87,7 @@ export function MyOrdersSection({
               const availabilityClasses =
                 "inline-flex h-8 items-center gap-1 rounded-full border px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
               const availabilityBadge =
-                o.status === "completed" ? (
+                (o.status === "completed" || o.status === "processing") ? (
                   <Link to={`/order/${o.orderId}/results`}>
                     <button
                       type="button"
