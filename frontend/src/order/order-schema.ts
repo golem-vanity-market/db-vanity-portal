@@ -76,7 +76,7 @@ export const VanityOrderResultSchema = z.object({
   proof: z.object({
     address: z.string().startsWith("0x").length(42),
     pubKey: z.union([z.string().startsWith("0x").length(132), z.string().startsWith("xpub")]),
-    salt: z.string().length(66),
+    salt: z.string(),
   }),
 });
 
