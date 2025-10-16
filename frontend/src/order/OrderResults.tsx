@@ -14,6 +14,7 @@ import { useOrder } from "./useOrder";
 import { matchProblemToAddress } from "@/utils/difficulty";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/Toast";
+import { getAddress } from "viem";
 
 const fetchOrderResults = async (orderId: string) => {
   const golemClient = await makeClient();
@@ -254,81 +255,84 @@ function OrderResultsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredResults.map(({ id, order }) => (
-                <TableRow key={id}>
-                  <TableCell>
-                    <div
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => copyText(order.proof.address, "Address copied")}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          copyText(order.proof.address, "Address copied");
-                        }
-                      }}
-                      className="group inline-flex max-w-full cursor-pointer items-center gap-2"
-                      title="Click to copy address"
-                    >
-                      <span className="truncate font-mono text-sm">{order.proof.address}</span>
-                      <Clipboard className="size-4 text-muted-foreground group-hover:text-foreground" />
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <a
-                      href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${id}?tab=data`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 font-mono text-sm underline"
-                      title="Open result entity in explorer"
-                    >
-                      {truncateMiddle(id, 10, 8)} <ExternalLink className="size-3" />
-                    </a>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="inline-flex size-6 items-center justify-center rounded-full text-[10px] font-bold text-white"
-                          style={{ backgroundColor: colorFromId(order.provider.id) }}
-                          aria-hidden
-                        >
-                          {order.provider.name?.slice(0, 1).toUpperCase() || "?"}
-                        </div>
-                        <span className="text-sm">{order.provider.name}</span>
-                      </div>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button variant="ghost" size="icon" title="Provider details">
-                            <Info className="size-3.5" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-96" align="start">
-                          <div className="space-y-2 text-sm">
-                            <div className="font-semibold">{order.provider.name}</div>
-                            <div className="font-mono text-xs break-all">id: {order.provider.id}</div>
-                            <div className="font-mono text-xs break-all text-muted-foreground">
-                              wallet: {order.provider.walletAddress}
-                            </div>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => copyText(order.proof.salt, "Salt copied")}
-                        title="Copy salt"
+              {filteredResults.map(({ id, order }) => {
+                const addr = getAddress(order.proof.address);
+                return (
+                  <TableRow key={id}>
+                    <TableCell>
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => copyText(addr, "Address copied")}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            copyText(addr, "Address copied");
+                          }
+                        }}
+                        className="group inline-flex max-w-full cursor-pointer items-center gap-2"
+                        title="Click to copy address"
                       >
-                        <ClipboardCheck className="mr-2 size-3.5" /> Copy salt
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+                        <span className="truncate font-mono text-sm">{addr}</span>
+                        <Clipboard className="size-4 text-muted-foreground group-hover:text-foreground" />
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <a
+                        href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${id}?tab=data`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 font-mono text-sm underline"
+                        title="Open result entity in explorer"
+                      >
+                        {truncateMiddle(id, 10, 8)} <ExternalLink className="size-3" />
+                      </a>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="inline-flex size-6 items-center justify-center rounded-full text-[10px] font-bold text-white"
+                            style={{ backgroundColor: colorFromId(order.provider.id) }}
+                            aria-hidden
+                          >
+                            {order.provider.name?.slice(0, 1).toUpperCase() || "?"}
+                          </div>
+                          <span className="text-sm">{order.provider.name}</span>
+                        </div>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button variant="ghost" size="icon" title="Provider details">
+                              <Info className="size-3.5" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-96" align="start">
+                            <div className="space-y-2 text-sm">
+                              <div className="font-semibold">{order.provider.name}</div>
+                              <div className="font-mono text-xs break-all">id: {order.provider.id}</div>
+                              <div className="font-mono text-xs break-all text-muted-foreground">
+                                wallet: {order.provider.walletAddress}
+                              </div>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => copyText(order.proof.salt, "Salt copied")}
+                          title="Copy salt"
+                        >
+                          <ClipboardCheck className="mr-2 size-3.5" /> Copy salt
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </>
