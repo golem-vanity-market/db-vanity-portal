@@ -44,7 +44,7 @@ export const ProblemSchema = z.discriminatedUnion("type", [
 ]);
 
 export const VanityRequestSchema = z.object({
-  publicKey: z.union([z.string().startsWith("0x").length(132), z.string().startsWith("xpub").length(111)]),
+  publicKey: z.union([z.string().startsWith("0x").length(132), z.string().startsWith("xpub")]),
   problems: z.array(ProblemSchema).refine((value) => value.length > 0, {
     message: "You have to select at least one item.",
   }),
@@ -74,7 +74,7 @@ export const VanityOrderResultSchema = z.object({
   }),
   proof: z.object({
     address: z.string().startsWith("0x").length(42),
-    pubKey: z.string().startsWith("0x").length(132),
+    pubKey: z.union([z.string().startsWith("0x").length(132), z.string().startsWith("xpub")]),
     salt: z.string().length(66),
   }),
 });
