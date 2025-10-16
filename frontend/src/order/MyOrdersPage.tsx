@@ -42,7 +42,7 @@ const fetchMyRequests = async () => {
 const fetchMyOrders = async () => {
   const golemClient = await makeClient();
   const rawRes = await golemClient.queryEntities(
-    `vanity_market_order="1" && requestor="${golemClient.getRawClient().walletClient.account.address}"`,
+    `vanity_market_order="2" && requestor="${golemClient.getRawClient().walletClient.account.address}"`,
   );
   return rawRes
     .map(({ entityKey, storageValue }) => {

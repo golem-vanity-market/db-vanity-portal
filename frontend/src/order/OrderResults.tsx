@@ -17,7 +17,7 @@ import { toast } from "@/components/Toast";
 
 const fetchOrderResults = async (orderId: string) => {
   const golemClient = await makeClient();
-  const rawRes = await golemClient.queryEntities(`vanity_market_order_result="1" && orderId="${orderId}"`);
+  const rawRes = await golemClient.queryEntities(`vanity_market_order_result="2" && orderId="${orderId}"`);
   return rawRes
     .map(({ entityKey, storageValue }) => {
       let jsonParsed = null;
