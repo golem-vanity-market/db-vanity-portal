@@ -370,14 +370,25 @@ function OrderResultsPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => copyText(order.proof.salt, "Salt copied")}
-                          title="Copy salt"
-                        >
-                          <ClipboardCheck className="mr-2 size-3.5" /> Copy salt
-                        </Button>
+                        {order.proof.pubKey.startsWith("xpub") ? (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => copyText(order.proof.salt, "Derivation path copied")}
+                            title="Copy derivation path"
+                          >
+                            <ClipboardCheck className="mr-2 size-3.5" /> Copy derivation path
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => copyText(order.proof.salt, "Salt copied")}
+                            title="Copy salt"
+                          >
+                            <ClipboardCheck className="mr-2 size-3.5" /> Copy salt
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
