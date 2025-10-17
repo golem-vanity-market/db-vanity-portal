@@ -12,35 +12,41 @@ on:
 jobs:
   checks:
     name: "Check CLI code - NPM"
-    runs-on: ubuntu-latest
+    runs-on: web3pi
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup node 24
-        uses: actions/setup-node@v5
-        with:
-          node-version: 24
+      - name: Check requirements
+        run: |
+          set -x
+          bun --version
+          pnpm --version
+          npm --version
+          node --version
+          node-gyp --version
+          corepack --version
+          yarn --version
 
       - name: Install, lint and check shared
         working-directory: shared
         run: | 
-          npm install
-          npm run lint
-          npm run format:check
+          bun install
+          bun run lint
+          bun run format:check
 
       - name: Install, lint and check backend
         working-directory: backend
         run: |
-          npm install
-          npm run lint
-          npm run format:check
+          bun install
+          bun run lint
+          bun run format:check
 
       - name: Install, lint and check frontend
         working-directory: frontend
         run: |
-          npm install
-          npm run lint
-          npm run format:check
+          bun install
+          bun run lint
+          bun run format:check
 
 
