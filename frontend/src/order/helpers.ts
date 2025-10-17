@@ -8,7 +8,7 @@ export const getEthereumGlobal = () => {
 };
 
 // TODO: read from golem db when it's implemented
-export const REQUEST_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+export const REQUEST_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 export const truncateMiddle = (str: string, start = 6, end = 4) => {
   if (!str) return "";
