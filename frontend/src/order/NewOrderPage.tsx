@@ -400,6 +400,7 @@ export const NewOrderPage = () => {
   const hashesPerDuration = 20 // 20 providers
     * 5 * 1e6 // 5 MH/s
     * durationInMinutes * 60 // duration in seconds
+    * (form.getValues("keyType") === "xpub" ? 0.1 : 1); // xpub is ~10% as effective as a single public key
 
   const expectedMatches = Math.round(
     selectedProblems.length > 0 && totalDifficulty > 0 ? hashesPerDuration / totalDifficulty : 0,
