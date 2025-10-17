@@ -1,6 +1,6 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Clipboard, ClipboardCheck, Download, ExternalLink, Info } from "lucide-react";
+import { ArrowLeft, Clipboard, ClipboardCheck, Download, ExternalLink, Info, RefreshCw } from "lucide-react";
 import { useState } from "react";
 
 import { VanityOrderResult, VanityOrderResultSchema, type Problem } from "./order-schema";
@@ -40,10 +40,13 @@ const fetchOrderResults = async (orderId: string) => {
 
 function OrderResultsPage() {
   const { orderId } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const {
     data: results = [],
     error,
     isLoading,
+    refetch,
   } = useQuery({
     queryKey: ["orderResults", orderId],
     queryFn: () => fetchOrderResults(orderId!),
@@ -80,7 +83,17 @@ function OrderResultsPage() {
 
   const problems = new Set(orderData?.problems?.map((p) => p.type) ?? []);
 
-  const [activeFilter, setActiveFilter] = useState<string>("all");
+  const getInitialFilter = () => {
+    const hash = location.hash.slice(1); // Remove '#'
+    return hash || "all";
+  };
+
+  const [activeFilter, setActiveFilter] = useState<string>(getInitialFilter);
+
+  const handleFilterChange = (value: string) => {
+    setActiveFilter(value);
+    navigate(`#${value}`, { replace: true });
+  };
 
   const filteredResults =
     activeFilter === "all"
@@ -195,6 +208,11 @@ function OrderResultsPage() {
               <Download className="mr-2 size-4" /> Download CSV
             </Button>
           )}
+          {!isLoading && (
+            <Button onClick={() => refetch()} title="Refresh results" variant="secondary" disabled={isLoading}>
+              <RefreshCw className="mr-2 size-4" /> Refresh
+            </Button>
+          )}
           <Button asChild>
             <Link to="/order">
               <ArrowLeft className="mr-2 size-4" />
@@ -224,7 +242,7 @@ function OrderResultsPage() {
       ) : (
         <>
           {problems.size > 0 && (
-            <Tabs value={activeFilter} onValueChange={(v) => setActiveFilter(v)} className="w-full">
+            <Tabs value={activeFilter} onValueChange={handleFilterChange} className="w-full">
               <TabsList className="mb-2">
                 <TabsTrigger value="all">
                   <span>All</span>
