@@ -7,12 +7,16 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Loader2, PlusCircle, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
-import { makeClient, msToShort } from "./helpers";
+import { REQUEST_TTL_MS, makeClient, msToShort } from "./helpers";
 import OrdersExplainer from "./OrdersExplainer";
 import OpenOrdersSection from "./OpenOrdersSection";
 import MyOrdersSection from "./MyOrdersSection";
 import { VanityOrderSchema, VanityRequestWithTimestampSchema, type VanityRequestWithTimestamp } from "./order-schema";
 import { z } from "zod";
+
+const VALID_TABS = ["awaiting", "queued", "processing", "completed"] as const;
+type TabKey = (typeof VALID_TABS)[number];
+const VALID_TAB_SET = new Set<TabKey>(VALID_TABS);
 
 const fetchMyRequests = async () => {
   const golemClient = await makeClient();
@@ -94,11 +98,11 @@ export const MyOrdersPage = () => {
 
   const { isConnected } = useAppKitAccount();
   const [now, setNow] = useState(() => Date.now());
-  const [tab, setTab] = useState<"pending" | "active">(() => {
-    if (typeof window === "undefined") return "pending";
+  const [tab, setTab] = useState<TabKey>(() => {
+    if (typeof window === "undefined") return "awaiting";
     const hash = window.location.hash.replace(/^#/, "");
-    if (hash === "pending" || hash === "active") return hash;
-    return "pending";
+    if (VALID_TAB_SET.has(hash as TabKey)) return hash as TabKey;
+    return "awaiting";
   });
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 60_000);
@@ -117,8 +121,8 @@ export const MyOrdersPage = () => {
     if (typeof window === "undefined") return;
     const handler = () => {
       const hash = window.location.hash.replace(/^#/, "");
-      if (hash === "pending" || hash === "active") {
-        setTab(hash);
+      if (VALID_TAB_SET.has(hash as TabKey)) {
+        setTab(hash as TabKey);
       }
     };
     window.addEventListener("hashchange", handler);
@@ -130,10 +134,19 @@ export const MyOrdersPage = () => {
   }
 
   const pickedRequestIds = new Set(myOrders.map((order) => order.requestId));
+  const awaitingRequests = myRequests.filter((request) => {
+    const createdAt = new Date(request.order.timestamp).getTime();
+    if (!Number.isFinite(createdAt)) return false;
+    const expiresAt = createdAt + REQUEST_TTL_MS;
+    return !pickedRequestIds.has(request.id) && expiresAt > now;
+  });
+  const queuedOrders = myOrders.filter((order) => order.status === "queue");
+  const processingOrders = myOrders.filter((order) => order.status === "processing");
+  const completedOrders = myOrders.filter((order) => order.status === "completed");
 
-  const awaitingPickupCount = myRequests.filter((request) => !pickedRequestIds.has(request.id)).length;
-  const activeOrdersCount = myOrders.filter((order) => order.status !== "completed").length;
-  const completedOrdersCount = myOrders.filter((order) => order.status === "completed").length;
+  const awaitingPickupCount = awaitingRequests.length;
+  const activeOrdersCount = queuedOrders.length + processingOrders.length;
+  const completedOrdersCount = completedOrders.length;
   const totalOrders = myOrders.length;
   const completionRate = totalOrders > 0 ? Math.round((completedOrdersCount / totalOrders) * 100) : 0;
 
@@ -250,23 +263,45 @@ export const MyOrdersPage = () => {
 
       <OrdersExplainer />
 
-      <Tabs value={tab} onValueChange={(value) => setTab(value as "pending" | "active")} className="w-full">
+      <Tabs
+        value={tab}
+        onValueChange={(value) => {
+          if (VALID_TAB_SET.has(value as TabKey)) {
+            setTab(value as TabKey);
+          }
+        }}
+        className="w-full"
+      >
         <div className="rounded-3xl border border-border/70 shadow-lg shadow-primary/10">
           <div className="flex flex-col gap-4 border-b border-border/70 p-4 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
             <TabsList className="h-auto gap-2 rounded-full bg-background/80 p-1">
               <TabsTrigger
-                value="pending"
+                value="awaiting"
                 className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow"
               >
-                Posted (awaiting pickup)
-                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{myRequests.length}</span>
+                Awaiting
+                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{awaitingRequests.length}</span>
               </TabsTrigger>
               <TabsTrigger
-                value="active"
+                value="queued"
                 className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow"
               >
-                Picked up &amp; history
-                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{myOrders.length}</span>
+                Queued
+                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{queuedOrders.length}</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="processing"
+                className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow"
+              >
+                Processing
+                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{processingOrders.length}</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="completed"
+                className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow"
+              >
+                Completed
+                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{completedOrders.length}</span>
               </TabsTrigger>
             </TabsList>
             <div className="flex flex-wrap items-center gap-3">
@@ -285,18 +320,51 @@ export const MyOrdersPage = () => {
             </div>
           </div>
           <div className="space-y-6 p-4 sm:p-6">
-            <TabsContent value="pending" className="mt-0">
+            <TabsContent value="awaiting" className="mt-0">
               <OpenOrdersSection
-                pending={myRequests}
+                pending={awaitingRequests}
                 isLoading={isRequestsLoading}
                 error={requestsError}
                 now={now}
                 pickedRequestIds={pickedRequestIds}
-                onShowPicked={() => setTab("active")}
+                onShowPicked={() => setTab("queued")}
+                title="Awaiting pickup"
+                description="Requests that do not yet have a corresponding order."
+                emptyMessage="No requests awaiting pickup."
               />
             </TabsContent>
-            <TabsContent value="active" className="mt-0">
-              <MyOrdersSection orders={myOrders} isLoading={isOrdersLoading} error={ordersError} now={now} />
+            <TabsContent value="queued" className="mt-0">
+              <MyOrdersSection
+                orders={queuedOrders}
+                isLoading={isOrdersLoading}
+                error={ordersError}
+                now={now}
+                title="Queued orders"
+                description="Orders awaiting processing by a provider."
+                emptyMessage="No queued orders right now."
+              />
+            </TabsContent>
+            <TabsContent value="processing" className="mt-0">
+              <MyOrdersSection
+                orders={processingOrders}
+                isLoading={isOrdersLoading}
+                error={ordersError}
+                now={now}
+                title="Processing orders"
+                description="Orders currently being worked on by providers."
+                emptyMessage="No orders are processing at the moment."
+              />
+            </TabsContent>
+            <TabsContent value="completed" className="mt-0">
+              <MyOrdersSection
+                orders={completedOrders}
+                isLoading={isOrdersLoading}
+                error={ordersError}
+                now={now}
+                title="Completed orders"
+                description="All finished orders and their results."
+                emptyMessage="No completed orders yet."
+              />
             </TabsContent>
           </div>
         </div>

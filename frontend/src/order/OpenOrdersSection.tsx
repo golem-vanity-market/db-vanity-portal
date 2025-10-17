@@ -20,6 +20,9 @@ export function OpenOrdersSection({
   now,
   pickedRequestIds,
   onShowPicked,
+  title = "Posted (awaiting pickup)",
+  description = "Orders waiting for providers to claim them.",
+  emptyMessage = "No open orders. Create a new one to get started.",
 }: {
   pending: PendingItem[];
   isLoading: boolean;
@@ -27,6 +30,9 @@ export function OpenOrdersSection({
   now: number;
   pickedRequestIds: Set<string>;
   onShowPicked?: () => void;
+  title?: string;
+  description?: string;
+  emptyMessage?: string;
 }) {
   const visibleCount = pending.length;
 
@@ -34,8 +40,8 @@ export function OpenOrdersSection({
     <section className="rounded-2xl border border-border/60 bg-background p-4 shadow-sm sm:p-6">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="font-heading text-lg font-semibold text-foreground">Posted (awaiting pickup)</h2>
-          <p className="text-sm text-muted-foreground">Orders waiting for providers to claim them.</p>
+          <h2 className="font-heading text-lg font-semibold text-foreground">{title}</h2>
+          <p className="text-sm text-muted-foreground">{description}</p>
         </div>
         {isLoading ? (
           <span className="text-xs text-muted-foreground">Loading…</span>
@@ -59,7 +65,7 @@ export function OpenOrdersSection({
         </div>
       ) : pending.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border/60 bg-muted/40 p-6 text-sm text-muted-foreground">
-          No open orders. Create a new one to get started.
+          {emptyMessage}
         </div>
       ) : (
         <Table>

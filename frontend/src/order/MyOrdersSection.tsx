@@ -25,11 +25,17 @@ export function MyOrdersSection({
   isLoading,
   error,
   now,
+  title = "Picked up & history",
+  description = "Monitor in-flight work and revisit completed runs.",
+  emptyMessage = "No orders yet. Once a node picks up your order, it will appear here.",
 }: {
   orders: Order[];
   isLoading: boolean;
   error: unknown;
   now: number;
+  title?: string;
+  description?: string;
+  emptyMessage?: string;
 }) {
   const visibleCount = orders.length;
 
@@ -37,8 +43,8 @@ export function MyOrdersSection({
     <section className="rounded-2xl border border-border/60 bg-background p-4 shadow-sm sm:p-6">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="font-heading text-lg font-semibold text-foreground">Picked up &amp; history</h2>
-          <p className="text-sm text-muted-foreground">Monitor in-flight work and revisit completed runs.</p>
+          <h2 className="font-heading text-lg font-semibold text-foreground">{title}</h2>
+          <p className="text-sm text-muted-foreground">{description}</p>
         </div>
         {isLoading ? (
           <span className="text-xs text-muted-foreground">Loading…</span>
@@ -62,7 +68,7 @@ export function MyOrdersSection({
         </div>
       ) : orders.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border/60 bg-muted/40 p-6 text-sm text-muted-foreground">
-          No orders yet. Once a node picks up your order, it will appear here.
+          {emptyMessage}
         </div>
       ) : (
         <Table>
@@ -87,7 +93,7 @@ export function MyOrdersSection({
               const availabilityClasses =
                 "inline-flex h-8 items-center gap-1 rounded-full border px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
               const availabilityBadge =
-                (o.status === "completed" || o.status === "processing") ? (
+                o.status === "completed" || o.status === "processing" ? (
                   <Link to={`/order/${o.orderId}/results`}>
                     <button
                       type="button"
