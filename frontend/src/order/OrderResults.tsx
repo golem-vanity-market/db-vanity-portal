@@ -15,6 +15,7 @@ import { matchProblemToAddress } from "@/utils/difficulty";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/Toast";
 import { getAddress } from "viem";
+import { Badge } from "@/components/ui/badge";
 
 const fetchOrderResults = async (orderId: string) => {
   const golemClient = await makeClient();
@@ -175,11 +176,42 @@ function OrderResultsPage() {
     return `hsl(${h} ${s}% ${l}%)`;
   };
 
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "default";
+      case "processing":
+        return "secondary";
+      case "queue":
+        return "outline";
+      default:
+        return "outline";
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "Completed";
+      case "processing":
+        return "Processing";
+      case "queue":
+        return "Queued";
+      default:
+        return status;
+    }
+  };
+
   return (
     <div className="mx-auto max-w-screen-2xl space-y-6 px-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Results</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold">Results</h1>
+            {orderData?.status && (
+              <Badge variant={getStatusVariant(orderData.status)}>{getStatusLabel(orderData.status)}</Badge>
+            )}
+          </div>
           <p className="text-sm text-muted-foreground">Addresses found for your order.</p>
           {orderId && (
             <div className="mt-1 text-xs text-muted-foreground">
