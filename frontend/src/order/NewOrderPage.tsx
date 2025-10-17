@@ -598,7 +598,11 @@ export const NewOrderPage = () => {
                                   <Button
                                     type="button"
                                     variant="outline"
-                                    disabled={!savedPublicKey || publicKeyField.value === savedPublicKey}
+                                    disabled={
+                                      !savedPublicKey ||
+                                      !savedPublicKey.startsWith("0x") ||
+                                      publicKeyField.value === savedPublicKey
+                                    }
                                     onClick={() => {
                                       publicKeyField.onChange(savedPublicKey);
                                       toast({
@@ -627,7 +631,27 @@ export const NewOrderPage = () => {
                           render={({ field: xpubField }) => (
                             <FormItem>
                               <FormControl>
-                                <Input placeholder="xpub..." {...xpubField} />
+                                <div className="flex flex-row gap-1">
+                                  <Input placeholder="xpub..." {...xpubField} />
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={
+                                      !savedPublicKey ||
+                                      !savedPublicKey.startsWith("xpub") ||
+                                      xpubField.value === savedPublicKey
+                                    }
+                                    onClick={() => {
+                                      xpubField.onChange(savedPublicKey);
+                                      toast({
+                                        title: "Public key inserted",
+                                        description: "Make sure you control the corresponding private key.",
+                                      });
+                                    }}
+                                  >
+                                    Use previously saved key
+                                  </Button>
+                                </div>
                               </FormControl>
                               <FormDescription>
                                 Enter your extended public key (xpub format, 111 characters). This allows derivation of
