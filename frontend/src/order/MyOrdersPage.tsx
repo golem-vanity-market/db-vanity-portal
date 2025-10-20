@@ -43,11 +43,19 @@ const fetchMyRequests = async () => {
     .sort((a, b) => new Date(b.order.timestamp).getTime() - new Date(a.order.timestamp).getTime());
 };
 
-const fetchMyOrders = async () => {
+const fetchOrders = async () => {
   const golemClient = await makeClient();
-  const rawRes = await golemClient.queryEntities(
-    `vanity_market_order="2" && requestor="${golemClient.getRawClient().walletClient.account.address}"`,
-  );
+
+  const allOrders = localStorage.getItem("showAllOrders") === "true";
+
+  let rawRes;
+  if (!allOrders) {
+    rawRes = await golemClient.queryEntities(
+      `vanity_market_order="2" && requestor="${golemClient.getRawClient().walletClient.account.address}"`,
+    );
+  } else {
+    rawRes = await golemClient.queryEntities(`vanity_market_order="2"`);
+  }
   return rawRes
     .map(({ entityKey, storageValue }) => {
       let jsonParsed = null;
@@ -91,7 +99,7 @@ export const MyOrdersPage = () => {
     isFetching: isOrdersFetching,
   } = useQuery<VanityOrder[]>({
     queryKey: ["myOrders"],
-    queryFn: fetchMyOrders,
+    queryFn: fetchOrders,
     refetchInterval: 30_000,
     refetchIntervalInBackground: true,
   });
