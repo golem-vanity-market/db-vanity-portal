@@ -14,8 +14,15 @@ interface RpcProviderProps {
   children: ReactNode;
 }
 
-export const RpcProvider: React.FC<RpcProviderProps> = ({ rpcProvider, children }) => {
-  return <RpcContext.Provider value={{ rpcProvider }}>{children}</RpcContext.Provider>;
+export const RpcProvider: React.FC<RpcProviderProps> = ({
+  rpcProvider,
+  children,
+}) => {
+  return (
+    <RpcContext.Provider value={{ rpcProvider }}>
+      {children}
+    </RpcContext.Provider>
+  );
 };
 
 // 4. Custom hook for easy access

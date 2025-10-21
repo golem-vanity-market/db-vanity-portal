@@ -1,4 +1,9 @@
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Lightbulb } from "lucide-react";
 
 export const OrdersExplainer = () => (
@@ -8,12 +13,16 @@ export const OrdersExplainer = () => (
         <Lightbulb className="size-6" />
       </span>
       <div className="space-y-2">
-        <CardTitle className="text-lg font-semibold text-primary">How orders move through the network</CardTitle>
+        <CardTitle className="text-lg font-semibold text-primary">
+          How orders move through the network
+        </CardTitle>
         <CardDescription className="max-w-3xl text-sm leading-relaxed text-primary/80">
-          Orders are posted to the public order book and expire after a short time. Vanity nodes continuously scan the
-          order book and try to pick up and execute orders on a best‑effort basis. Due to volume and order constraints,
-          not all orders may be executed before they expire. Once an order is picked up, the node will create a new
-          record in Golem DB and attach the results to it.
+          Orders are posted to the public order book and expire after a short
+          time. Vanity nodes continuously scan the order book and try to pick up
+          and execute orders on a best‑effort basis. Due to volume and order
+          constraints, not all orders may be executed before they expire. Once
+          an order is picked up, the node will create a new record in Golem DB
+          and attach the results to it.
         </CardDescription>
       </div>
     </CardHeader>

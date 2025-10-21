@@ -1,12 +1,37 @@
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ExternalLink } from "lucide-react";
 import { ProviderDataEntry } from "../../../shared/src/provider";
 import { displayDifficulty, displayHours } from "@/utils";
 import { getProviderScore } from "./provider-utils";
-import { CircleDollarSign, Cpu, GaugeCircle, Hash, Timer, TrendingUp } from "lucide-react";
+import {
+  CircleDollarSign,
+  Cpu,
+  GaugeCircle,
+  Hash,
+  Timer,
+  TrendingUp,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import React from "react";
 
@@ -34,7 +59,8 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
     },
     {
       label: "Work Done",
-      description: "The total number of addresses that the provider has searched.",
+      description:
+        "The total number of addresses that the provider has searched.",
       icon: <Cpu className="size-4" />,
       allTime: displayDifficulty(provider.totalWork),
       h24: displayDifficulty(provider.totalWork24h),
@@ -48,28 +74,32 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
     },
     {
       label: "Speed",
-      description: "The provider's speed in terms of addresses searched per second.",
+      description:
+        "The provider's speed in terms of addresses searched per second.",
       icon: <GaugeCircle className="size-4" />,
       allTime: `${displayDifficulty(provider.speed)}/s`,
       h24: `${displayDifficulty(provider.speed24h)}/s`,
     },
     {
       label: "Efficiency",
-      description: "The provider's efficiency in terms of addresses searched per GLM.",
+      description:
+        "The provider's efficiency in terms of addresses searched per GLM.",
       icon: <TrendingUp className="size-4" />,
       allTime: `${displayDifficulty(provider.efficiency)}/GLM`,
       h24: `${displayDifficulty(provider.efficiency24h)}/GLM`,
     },
     {
       label: "Jobs",
-      description: "The total number of unique agreements that were made with this provider.",
+      description:
+        "The total number of unique agreements that were made with this provider.",
       icon: <Hash className="size-4" />,
       allTime: provider.numberOfJobs,
       h24: provider.numberOfJobs24h,
     },
     {
       label: "Longest Job",
-      description: "The duration of the longest agreement made with this provider.",
+      description:
+        "The duration of the longest agreement made with this provider.",
       icon: <Timer className="size-4" />,
       allTime: displayHours(provider.longestJob),
       h24: displayHours(provider.longestJob24h),
@@ -94,7 +124,10 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
               </a>
             </CardTitle>
             <CardDescription className="pt-1 font-mono text-xs break-all">
-              <Link target={"_blank"} to={`/provider?providerId=${provider.providerId}`}>
+              <Link
+                target={"_blank"}
+                to={`/provider?providerId=${provider.providerId}`}
+              >
                 {provider.providerId} Details
               </Link>
             </CardDescription>
@@ -113,7 +146,9 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
             <TooltipProvider delayDuration={200}>
               <Tooltip>
                 <TooltipTrigger>
-                  <Badge className={getScoreClassName(score)}>{score.toFixed(1)}% Score</Badge>
+                  <Badge className={getScoreClassName(score)}>
+                    {score.toFixed(1)}% Score
+                  </Badge>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>
@@ -144,7 +179,9 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
                       <TooltipTrigger>
                         <div className="flex items-center gap-2 text-muted-foreground">
                           {metric.icon}
-                          <span className="text-card-foreground">{metric.label}</span>
+                          <span className="text-card-foreground">
+                            {metric.label}
+                          </span>
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>

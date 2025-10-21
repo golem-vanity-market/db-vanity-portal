@@ -18,7 +18,10 @@ function combinationsBigInt(n: bigint, k: bigint): bigint {
 /**
  * Calculates the number of addresses with EXACTLY a certain number of letters, using BigInt.
  */
-function exactlyLettersCombinationsBigInt(letters: number, total: number): bigint {
+function exactlyLettersCombinationsBigInt(
+  letters: number,
+  total: number,
+): bigint {
   if (letters < 0 || letters > total) return 0n;
   const n = BigInt(total);
   const k = BigInt(letters);
@@ -44,7 +47,10 @@ const TOTAL_ADDRESS_SPACE = 16n ** 40n;
  * This is the number of addresses that meet or exceed the threshold.
  * NOTE: This calculation sums the spaces for each category, ignoring overlaps.
  */
-function calculateProbabilitySpace(category: ProblemId, threshold: number): bigint {
+function calculateProbabilitySpace(
+  category: ProblemId,
+  threshold: number,
+): bigint {
   switch (category) {
     case "user-prefix": {
       // The number of addresses with at least `threshold` characters matching the user-defined pattern.
@@ -125,7 +131,9 @@ export function calculateWorkUnitForProblems(problems: Problem[]): number {
           acc[problem.type] = problem.specifier.length;
           break;
         case "user-mask":
-          acc[problem.type] = problem.specifier.replace(/^0x/, "").replace(/x/g, "").length;
+          acc[problem.type] = problem.specifier
+            .replace(/^0x/, "")
+            .replace(/x/g, "").length;
           break;
         case "leading-any":
           acc[problem.type] = problem.length;
@@ -159,10 +167,15 @@ export function calculateWorkUnitForProblems(problems: Problem[]): number {
     totalProbabilitySpace += calculateProbabilitySpace(category, threshold);
   }
 
-  return Number(TOTAL_ADDRESS_SPACE / (totalProbabilitySpace || TOTAL_ADDRESS_SPACE));
+  return Number(
+    TOTAL_ADDRESS_SPACE / (totalProbabilitySpace || TOTAL_ADDRESS_SPACE),
+  );
 }
 
-export function matchProblemToAddress(address: string, problems: Problem[]): Problem | null {
+export function matchProblemToAddress(
+  address: string,
+  problems: Problem[],
+): Problem | null {
   for (const problem of problems) {
     switch (problem.type) {
       case "user-prefix": {

@@ -8,11 +8,18 @@ on:
     branches:
       - main
   workflow_dispatch:
+  schedule:
+    - cron: '0 5 * * *'
+
 
 jobs:
   checks:
     name: "Check CLI code - NPM"
     runs-on: web3pi
+
+    env:
+      NODE_ENV: production
+      NODE_OPTIONS: "--max-old-space-size=4096"
 
     steps:
       - uses: actions/checkout@v4

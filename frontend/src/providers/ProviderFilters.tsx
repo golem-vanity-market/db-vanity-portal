@@ -1,16 +1,37 @@
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CircleDollarSign, Cpu, FilterX, GaugeCircle, Hash, Timer, TrendingUp } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  CircleDollarSign,
+  Cpu,
+  FilterX,
+  GaugeCircle,
+  Hash,
+  Timer,
+  TrendingUp,
+} from "lucide-react";
 import React from "react";
 import { FilterCriteria } from "./provider-types";
 
 interface ProviderFiltersProps {
   filter: FilterCriteria;
-  changeFilterField: (key: keyof FilterCriteria, value: string | number | null) => void;
+  changeFilterField: (
+    key: keyof FilterCriteria,
+    value: string | number | null,
+  ) => void;
   applyFilters: () => void;
   resetFilters: () => void;
 }
@@ -27,7 +48,8 @@ export const filterableMetrics = [
   {
     label: "Work Done",
     unit: "GH",
-    description: "The total number of addresses that the provider has searched.",
+    description:
+      "The total number of addresses that the provider has searched.",
     icon: <Cpu className="size-4 text-muted-foreground" />,
     h24: { minKey: "minWork24h", maxKey: "maxWork24h" },
     allTime: { minKey: "minWork", maxKey: "maxWork" },
@@ -35,7 +57,8 @@ export const filterableMetrics = [
   {
     label: "Speed",
     unit: "MH/s",
-    description: "The provider's speed in terms of addresses searched per second.",
+    description:
+      "The provider's speed in terms of addresses searched per second.",
     icon: <GaugeCircle className="size-4 text-muted-foreground" />,
     h24: { minKey: "minSpeed24h", maxKey: "maxSpeed24h" },
     allTime: { minKey: "minSpeed", maxKey: "maxSpeed" },
@@ -43,7 +66,8 @@ export const filterableMetrics = [
   {
     label: "Efficiency",
     unit: "TH/GLM",
-    description: "The provider's efficiency in terms of addresses searched per GLM.",
+    description:
+      "The provider's efficiency in terms of addresses searched per GLM.",
     icon: <TrendingUp className="size-4 text-muted-foreground" />,
     h24: { minKey: "minEfficiency24h", maxKey: "maxEfficiency24h" },
     allTime: { minKey: "minEfficiency", maxKey: "maxEfficiency" },
@@ -59,7 +83,8 @@ export const filterableMetrics = [
   {
     label: "Number of Jobs",
     unit: "",
-    description: "The total number of unique agreements that were made with this provider.",
+    description:
+      "The total number of unique agreements that were made with this provider.",
     icon: <Hash className="size-4 text-muted-foreground" />,
     h24: { minKey: "minNumberOfJobs24h", maxKey: "maxNumberOfJobs24h" },
     allTime: { minKey: "minNumberOfJobs", maxKey: "maxNumberOfJobs" },
@@ -67,7 +92,8 @@ export const filterableMetrics = [
   {
     label: "Longest Job",
     unit: "h",
-    description: "The duration of the longest agreement made with this provider.",
+    description:
+      "The duration of the longest agreement made with this provider.",
     icon: <Timer className="size-4 text-muted-foreground" />,
     h24: { minKey: "minLongestJob24h", maxKey: "maxLongestJob24h" },
     allTime: { minKey: "minLongestJob", maxKey: "maxLongestJob" },
@@ -81,7 +107,12 @@ export const filterableMetrics = [
   allTime: { minKey: keyof FilterCriteria; maxKey: keyof FilterCriteria };
 }[];
 
-export const ProviderFilters = ({ filter, changeFilterField, applyFilters, resetFilters }: ProviderFiltersProps) => {
+export const ProviderFilters = ({
+  filter,
+  changeFilterField,
+  applyFilters,
+  resetFilters,
+}: ProviderFiltersProps) => {
   const handleNumericChange = (key: keyof FilterCriteria, value: string) => {
     const numericValue = value === "" ? null : Number(value);
     changeFilterField(key, numericValue);
@@ -104,7 +135,9 @@ export const ProviderFilters = ({ filter, changeFilterField, applyFilters, reset
           id="providerNameSearch"
           placeholder="Search by name..."
           value={filter.providerNameSearch}
-          onChange={(e) => changeFilterField("providerNameSearch", e.target.value)}
+          onChange={(e) =>
+            changeFilterField("providerNameSearch", e.target.value)
+          }
         />
       </div>
 
@@ -139,37 +172,61 @@ export const ProviderFilters = ({ filter, changeFilterField, applyFilters, reset
                   <AccordionContent className="pt-2 pb-4">
                     <div className="space-y-4">
                       <div>
-                        <Label className="text-xs text-muted-foreground">Last 24h</Label>
+                        <Label className="text-xs text-muted-foreground">
+                          Last 24h
+                        </Label>
                         <div className="mt-1 grid grid-cols-2 gap-2">
                           <Input
                             type="number"
                             placeholder="Min"
                             value={filter[metric.h24.minKey] ?? ""}
-                            onChange={(e) => handleNumericChange(metric.h24.minKey, e.target.value)}
+                            onChange={(e) =>
+                              handleNumericChange(
+                                metric.h24.minKey,
+                                e.target.value,
+                              )
+                            }
                           />
                           <Input
                             type="number"
                             placeholder="Max"
                             value={filter[metric.h24.maxKey] ?? ""}
-                            onChange={(e) => handleNumericChange(metric.h24.maxKey, e.target.value)}
+                            onChange={(e) =>
+                              handleNumericChange(
+                                metric.h24.maxKey,
+                                e.target.value,
+                              )
+                            }
                           />
                         </div>
                       </div>
 
                       <div>
-                        <Label className="text-xs text-muted-foreground">All Time</Label>
+                        <Label className="text-xs text-muted-foreground">
+                          All Time
+                        </Label>
                         <div className="mt-1 grid grid-cols-2 gap-2">
                           <Input
                             type="number"
                             placeholder="Min"
                             value={filter[metric.allTime.minKey] ?? ""}
-                            onChange={(e) => handleNumericChange(metric.allTime.minKey, e.target.value)}
+                            onChange={(e) =>
+                              handleNumericChange(
+                                metric.allTime.minKey,
+                                e.target.value,
+                              )
+                            }
                           />
                           <Input
                             type="number"
                             placeholder="Max"
                             value={filter[metric.allTime.maxKey] ?? ""}
-                            onChange={(e) => handleNumericChange(metric.allTime.maxKey, e.target.value)}
+                            onChange={(e) =>
+                              handleNumericChange(
+                                metric.allTime.maxKey,
+                                e.target.value,
+                              )
+                            }
                           />
                         </div>
                       </div>

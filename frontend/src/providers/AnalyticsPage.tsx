@@ -28,6 +28,7 @@ import ExperimentalAlert from "@/components/ExperimentalAlert";
 import { useFilterState } from "./useFilterState";
 import { FilterCriteria, sortOptions } from "./provider-types";
 import { FilterHistory } from "./FilterHistory";
+import ProviderAnalytics from "@/providers/ProviderAnalytics.tsx";
 
 const buildQuery = (appliedFilters: FilterCriteria) => {
   let qbuild = `$owner = "${import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}"`;
@@ -121,7 +122,7 @@ const buildQuery = (appliedFilters: FilterCriteria) => {
   return qbuild;
 };
 
-const ProvidersPage = () => {
+const AnalyticsPage = () => {
   const [loading, setLoading] = useState(true);
   const [providerData, setProviderData] = useState<ProviderData | null>(null);
   const [displayLimit, setDisplayLimit] = useState(50);
@@ -313,6 +314,7 @@ const ProvidersPage = () => {
                   : `${totalMatches} provider${totalMatches !== 1 ? "s" : ""} match your search criteria.`}
               </p>
             </div>
+
             <div className="flex flex-wrap items-end gap-4">
               {/* Sort By Dropdown */}
               <div className="flex-grow sm:flex-grow-0">
@@ -414,31 +416,36 @@ const ProvidersPage = () => {
               <Skeleton className="h-48 w-full rounded-lg" />
             </div>
           ) : displayedProviders.length > 0 ? (
-            <InfiniteScroll
-              dataLength={displayedProviders.length}
-              next={fetchMoreData}
-              hasMore={displayedProviders.length < totalMatches}
-              loader={
-                <div className="flex items-center justify-center py-4">
-                  <Loader2 className="mr-2 size-8 animate-spin" />
-                  <span>Loading more providers...</span>
-                </div>
-              }
-              endMessage={
-                <p className="py-4 text-center text-sm text-muted-foreground">
-                  <b>You have seen all {totalMatches} providers.</b>
-                </p>
-              }
-              className="space-y-4"
-            >
-              {displayedProviders.map((provider, index) => (
-                <ProviderCard
-                  key={provider.providerId}
-                  provider={provider}
-                  rank={index + 1}
-                />
-              ))}
-            </InfiniteScroll>
+            <>
+              <div className="mb-10 flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 py-24 text-center">
+                <ProviderAnalytics providerData={providerData} />
+              </div>
+              <InfiniteScroll
+                dataLength={displayedProviders.length}
+                next={fetchMoreData}
+                hasMore={displayedProviders.length < totalMatches}
+                loader={
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="mr-2 size-8 animate-spin" />
+                    <span>Loading more providers...</span>
+                  </div>
+                }
+                endMessage={
+                  <p className="py-4 text-center text-sm text-muted-foreground">
+                    <b>You have seen all {totalMatches} providers.</b>
+                  </p>
+                }
+                className="space-y-4"
+              >
+                {displayedProviders.map((provider, index) => (
+                  <ProviderCard
+                    key={provider.providerId}
+                    provider={provider}
+                    rank={index + 1}
+                  />
+                ))}
+              </InfiniteScroll>
+            </>
           ) : (
             <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 py-24 text-center">
               <h3 className="text-xl font-semibold">No Providers Found</h3>
@@ -470,4 +477,4 @@ const ProvidersPage = () => {
   );
 };
 
-export default ProvidersPage;
+export default AnalyticsPage;

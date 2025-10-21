@@ -1,11 +1,28 @@
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import ProblemList from "./ProblemList";
-import { REQUEST_TTL_MS, formatDateTime, formatRelative, msToShort, truncateMiddle } from "./helpers";
+import {
+  REQUEST_TTL_MS,
+  formatDateTime,
+  formatRelative,
+  msToShort,
+  truncateMiddle,
+} from "./helpers";
 import type { Problem } from "./order-schema";
 
 type PendingItem = {
@@ -40,13 +57,18 @@ export function OpenOrdersSection({
     <section className="rounded-2xl border border-border/60 bg-background p-4 shadow-sm sm:p-6">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="font-heading text-lg font-semibold text-foreground">{title}</h2>
+          <h2 className="font-heading text-lg font-semibold text-foreground">
+            {title}
+          </h2>
           <p className="text-sm text-muted-foreground">{description}</p>
         </div>
         {isLoading ? (
           <span className="text-xs text-muted-foreground">Loading…</span>
         ) : (
-          <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-semibold">
+          <Badge
+            variant="secondary"
+            className="rounded-full px-3 py-1 text-xs font-semibold"
+          >
             {visibleCount}
           </Badge>
         )}
@@ -122,13 +144,19 @@ export function OpenOrdersSection({
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className="font-mono text-sm text-muted-foreground" title={order.publicKey}>
+                    <span
+                      className="font-mono text-sm text-muted-foreground"
+                      title={order.publicKey}
+                    >
                       {truncateMiddle(order.publicKey, 14, 10)}
                     </span>
                   </TableCell>
                   <TableCell>
                     <div className="space-y-1">
-                      <span className="font-medium text-foreground" title={formatDateTime(order.timestamp)}>
+                      <span
+                        className="font-medium text-foreground"
+                        title={formatDateTime(order.timestamp)}
+                      >
                         {formatRelative(order.timestamp, now)}
                       </span>
                     </div>
@@ -142,7 +170,9 @@ export function OpenOrdersSection({
                       in {msToShort(remaining)}
                     </Badge>
                   </TableCell>
-                  <TableCell className="align-middle">{availabilityBadge}</TableCell>
+                  <TableCell className="align-middle">
+                    {availabilityBadge}
+                  </TableCell>
                   <TableCell className="">
                     <Popover>
                       <PopoverTrigger asChild>
@@ -156,7 +186,9 @@ export function OpenOrdersSection({
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-96" align="end">
-                        <div className="mb-2 text-sm font-semibold">Selected problems</div>
+                        <div className="mb-2 text-sm font-semibold">
+                          Selected problems
+                        </div>
                         <ProblemList problems={order.problems} />
                       </PopoverContent>
                     </Popover>

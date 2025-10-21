@@ -10,6 +10,7 @@ const root = createRoot(container);
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import Welcome from "./Welcome";
 import ProvidersPage from "./providers/ProvidersPage";
+import AnalyticsPage from "./providers/AnalyticsPage";
 import { NewOrderPage } from "./order/NewOrderPage";
 import { MyOrdersPage } from "./order/MyOrdersPage";
 import DetailsPage from "./provider/DetailsPage";
@@ -32,7 +33,10 @@ const golemBaseNetwork = defineChain({
     symbol: "ETH",
   },
   blockExplorers: {
-    default: { name: "default_block_explorer", url: String(import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER || "") },
+    default: {
+      name: "default_block_explorer",
+      url: String(import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER || ""),
+    },
   },
   rpcUrls: {
     default: {
@@ -57,6 +61,10 @@ const router = createBrowserRouter(
         {
           path: "/providers",
           element: <ProvidersPage />,
+        },
+        {
+          path: "/analytics",
+          element: <AnalyticsPage />,
         },
         {
           path: "/provider",

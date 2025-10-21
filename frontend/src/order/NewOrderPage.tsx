@@ -7,9 +7,23 @@ import { ArrowLeft, CheckSquare2, Square } from "lucide-react";
 import React, { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
@@ -174,10 +188,13 @@ const FormSchema = z
             }
           }),
       })
-      .refine((data) => Object.values(data).some((problem) => problem.enabled), {
-        message: "Select at least one problem",
-        path: ["problems"],
-      }),
+      .refine(
+        (data) => Object.values(data).some((problem) => problem.enabled),
+        {
+          message: "Select at least one problem",
+          path: ["problems"],
+        },
+      ),
   })
   .superRefine((val, ctx) => {
     const keyType = val.keyType;
@@ -240,7 +257,10 @@ async function sendOrder(data: z.infer<typeof FormSchema>) {
         }),
       ),
       btl: 1800 * 24, // 24h, block every 2 seconds
-      stringAnnotations: [new Annotation("vanity_market_request", "2"), new Annotation("timestamp", timestamp)],
+      stringAnnotations: [
+        new Annotation("vanity_market_request", "2"),
+        new Annotation("timestamp", timestamp),
+      ],
       numericAnnotations: [],
     },
   ]);
@@ -273,7 +293,10 @@ export const NewOrderPage = () => {
         "snake-score-no-case": { enabled: false, count: 15 },
         "user-prefix": { enabled: false, specifier: "0xC0FFEE00" },
         "user-suffix": { enabled: false, specifier: "00BADD1E" },
-        "user-mask": { enabled: false, specifier: "0x1234xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5678" },
+        "user-mask": {
+          enabled: false,
+          specifier: "0x1234xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5678",
+        },
       },
     },
   });
@@ -311,7 +334,8 @@ export const NewOrderPage = () => {
       const message = error instanceof Error ? error.message : "Unknown error";
       toast({
         title: "Error sending order, check the console for more details",
-        description: message.substring(0, 100) + (message.length > 100 ? "..." : ""),
+        description:
+          message.substring(0, 100) + (message.length > 100 ? "..." : ""),
         variant: "error",
       });
     },
@@ -334,20 +358,37 @@ export const NewOrderPage = () => {
         )
     : [];
 
-  const [examples, setExamples] = useState<Record<string, React.ReactNode>>(() => {
-    const initialExamples: Record<string, React.ReactNode> = {};
-    for (const problem of problems) {
-      initialExamples[problem.id] = problem.getDefaultExample();
-    }
-    return initialExamples;
-  });
+  const [examples, setExamples] = useState<Record<string, React.ReactNode>>(
+    () => {
+      const initialExamples: Record<string, React.ReactNode> = {};
+      for (const problem of problems) {
+        initialExamples[problem.id] = problem.getDefaultExample();
+      }
+      return initialExamples;
+    },
+  );
 
-  const updateExample = (problemId: ProblemId, specifierValue: string | number) => {
+  const updateExample = (
+    problemId: ProblemId,
+    specifierValue: string | number,
+  ) => {
     const problem = problemsById[problemId];
-    if (problem.specifierType === "text" && typeof specifierValue === "string") {
-      setExamples((prev) => ({ ...prev, [problemId]: problem.getExample(specifierValue) }));
-    } else if (problem.specifierType === "number" && typeof specifierValue === "number") {
-      setExamples((prev) => ({ ...prev, [problemId]: problem.getExample(specifierValue) }));
+    if (
+      problem.specifierType === "text" &&
+      typeof specifierValue === "string"
+    ) {
+      setExamples((prev) => ({
+        ...prev,
+        [problemId]: problem.getExample(specifierValue),
+      }));
+    } else if (
+      problem.specifierType === "number" &&
+      typeof specifierValue === "number"
+    ) {
+      setExamples((prev) => ({
+        ...prev,
+        [problemId]: problem.getExample(specifierValue),
+      }));
     }
   };
 
@@ -372,7 +413,8 @@ export const NewOrderPage = () => {
 
   const totalDifficulty = calculateWorkUnitForProblems(selectedProblems);
 
-  const duration = useWatch({ control: form.control, name: "duration" }) || "30m";
+  const duration =
+    useWatch({ control: form.control, name: "duration" }) || "30m";
 
   // Convert duration to minutes
   const durationInMinutes = (() => {
@@ -403,7 +445,9 @@ export const NewOrderPage = () => {
     * (form.getValues("keyType") === "xpub" ? 0.1 : 1); // xpub is ~10% as effective as a single public key
 
   const expectedMatches = Math.round(
-    selectedProblems.length > 0 && totalDifficulty > 0 ? hashesPerDuration / totalDifficulty : 0,
+    selectedProblems.length > 0 && totalDifficulty > 0
+      ? hashesPerDuration / totalDifficulty
+      : 0,
   );
 
   const formFields = problems.reduce(
@@ -436,10 +480,14 @@ export const NewOrderPage = () => {
                           }}
                           onClick={(e) => e.stopPropagation()}
                         />
-                        <div className="w-8 text-center font-bold text-primary">{field.value}</div>
+                        <div className="w-8 text-center font-bold text-primary">
+                          {field.value}
+                        </div>
                       </div>
                     </FormControl>
-                    <FormDescription>{problemConfig.description}</FormDescription>
+                    <FormDescription>
+                      {problemConfig.description}
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -471,10 +519,14 @@ export const NewOrderPage = () => {
                           max={problemConfig.max}
                           step={1}
                         />
-                        <div className="w-8 text-center font-bold text-primary">{field.value}</div>
+                        <div className="w-8 text-center font-bold text-primary">
+                          {field.value}
+                        </div>
                       </div>
                     </FormControl>
-                    <FormDescription>{problemConfig.description}</FormDescription>
+                    <FormDescription>
+                      {problemConfig.description}
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -507,20 +559,32 @@ export const NewOrderPage = () => {
                             if (value.length < 2) {
                               value = "0x";
                             } else {
-                              value = "0x" + value.replace(/^0x/i, "").replace(/[^0-9a-fA-FXx]/gi, "");
+                              value =
+                                "0x" +
+                                value
+                                  .replace(/^0x/i, "")
+                                  .replace(/[^0-9a-fA-FXx]/gi, "");
                             }
                           } else if (problemConfig.id === "user-prefix") {
                             if (value.length < 2) {
                               value = "0x";
                             } else {
-                              value = "0x" + value.replace(/^0x/i, "").replace(/[^0-9a-fA-F]/gi, "");
+                              value =
+                                "0x" +
+                                value
+                                  .replace(/^0x/i, "")
+                                  .replace(/[^0-9a-fA-F]/gi, "");
                             }
                           } else {
                             value = value.replace(/[^0-9a-fA-F]/gi, "");
                           }
                           value = value.slice(
                             0,
-                            problemConfig.id === "user-mask" ? 42 : problemConfig.id === "user-prefix" ? 42 : 40,
+                            problemConfig.id === "user-mask"
+                              ? 42
+                              : problemConfig.id === "user-prefix"
+                                ? 42
+                                : 40,
                           );
                           if (field.value === value) return;
                           field.onChange(value);
@@ -528,7 +592,9 @@ export const NewOrderPage = () => {
                         }}
                       />
                     </FormControl>
-                    <FormDescription>{problemConfig.description}</FormDescription>
+                    <FormDescription>
+                      {problemConfig.description}
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -557,11 +623,16 @@ export const NewOrderPage = () => {
       <Card>
         <CardHeader>
           <Alert variant="default" className="mb-2">
-            <strong>Disclaimer:</strong> This is an alpha implementation of the orderbook system. Please use{" "}
-            <span className="font-bold text-orange-600">testnet tokens only</span>. Orders will be handled by our nodes
-            in a best-effort manner. There is no guarantee that your order will be fulfilled. Never share your private
-            key. The public key you provide should correspond to a private key that you control, but the private key
-            itself is never shared or transmitted.
+            <strong>Disclaimer:</strong> This is an alpha implementation of the
+            orderbook system. Please use{" "}
+            <span className="font-bold text-orange-600">
+              testnet tokens only
+            </span>
+            . Orders will be handled by our nodes in a best-effort manner. There
+            is no guarantee that your order will be fulfilled. Never share your
+            private key. The public key you provide should correspond to a
+            private key that you control, but the private key itself is never
+            shared or transmitted.
           </Alert>
         </CardHeader>
         <CardContent>
@@ -595,7 +666,10 @@ export const NewOrderPage = () => {
                             <FormItem>
                               <FormControl>
                                 <div className="flex flex-row gap-1">
-                                  <Input placeholder="0x..." {...publicKeyField} />
+                                  <Input
+                                    placeholder="0x..."
+                                    {...publicKeyField}
+                                  />
                                   <Button
                                     type="button"
                                     variant="outline"
@@ -608,7 +682,8 @@ export const NewOrderPage = () => {
                                       publicKeyField.onChange(savedPublicKey);
                                       toast({
                                         title: "Public key inserted",
-                                        description: "Make sure you control the corresponding private key.",
+                                        description:
+                                          "Make sure you control the corresponding private key.",
                                       });
                                     }}
                                   >
@@ -617,8 +692,10 @@ export const NewOrderPage = () => {
                                 </div>
                               </FormControl>
                               <FormDescription>
-                                Enter your uncompressed public key (130 hex characters after 0x prefix). This will be
-                                used to derive addresses for vanity address generation.
+                                Enter your uncompressed public key (130 hex
+                                characters after 0x prefix). This will be used
+                                to derive addresses for vanity address
+                                generation.
                               </FormDescription>
                               <FormMessage />
                             </FormItem>
@@ -646,7 +723,8 @@ export const NewOrderPage = () => {
                                       xpubField.onChange(savedPublicKey);
                                       toast({
                                         title: "Public key inserted",
-                                        description: "Make sure you control the corresponding private key.",
+                                        description:
+                                          "Make sure you control the corresponding private key.",
                                       });
                                     }}
                                   >
@@ -655,8 +733,9 @@ export const NewOrderPage = () => {
                                 </div>
                               </FormControl>
                               <FormDescription>
-                                Enter your extended public key (xpub format, 111 characters). This allows derivation of
-                                multiple addresses for vanity generation.
+                                Enter your extended public key (xpub format, 111
+                                characters). This allows derivation of multiple
+                                addresses for vanity generation.
                               </FormDescription>
                               <FormMessage />
                             </FormItem>
@@ -665,8 +744,9 @@ export const NewOrderPage = () => {
                       </TabsContent>
                     </Tabs>
                     <FormDescription className="mt-2">
-                      The key that the providers will use to search for vanity addresses. Make sure you control the
-                      corresponding private key. Keep it secure and never share it.
+                      The key that the providers will use to search for vanity
+                      addresses. Make sure you control the corresponding private
+                      key. Keep it secure and never share it.
                     </FormDescription>
                   </FormItem>
                 )}
@@ -678,7 +758,9 @@ export const NewOrderPage = () => {
                   <FormItem>
                     <div className="mb-4">
                       <FormLabel className="text-base">Problems</FormLabel>
-                      <FormDescription>Select the problems you want to order for solving.</FormDescription>
+                      <FormDescription>
+                        Select the problems you want to order for solving.
+                      </FormDescription>
                     </div>
                     <div className="space-y-3">
                       {problems.map((item) => {
@@ -688,7 +770,9 @@ export const NewOrderPage = () => {
                           ...input,
                           type: item.id,
                         } as Problem;
-                        const difficulty = calculateWorkUnitForProblems([problemForDifficultyCalc]);
+                        const difficulty = calculateWorkUnitForProblems([
+                          problemForDifficultyCalc,
+                        ]);
 
                         return (
                           <Card
@@ -718,7 +802,9 @@ export const NewOrderPage = () => {
                                       {item.icon}
                                       {item.label}
                                     </CardTitle>
-                                    <CardDescription className="mt-1">{item.description}</CardDescription>
+                                    <CardDescription className="mt-1">
+                                      {item.description}
+                                    </CardDescription>
                                   </div>
                                   {isSelected && (
                                     <div className="hidden text-xs text-muted-foreground sm:block">
@@ -734,19 +820,25 @@ export const NewOrderPage = () => {
                                   {formFields[item.id]}
                                   {examples[item.id] && (
                                     <div>
-                                      <label className="text-sm font-medium">Example</label>
+                                      <label className="text-sm font-medium">
+                                        Example
+                                      </label>
                                       <div className="mt-2 rounded-md bg-muted/50 p-3 font-mono text-sm break-all">
                                         {examples[item.id]}
                                       </div>
                                     </div>
                                   )}
                                   <div className="flex flex-col">
-                                    <label className="text-sm font-medium">Difficulty</label>
+                                    <label className="text-sm font-medium">
+                                      Difficulty
+                                    </label>
                                     <label className="text-xs text-muted-foreground">
-                                      How many addresses need to be checked to find one that matches the pattern?
+                                      How many addresses need to be checked to
+                                      find one that matches the pattern?
                                     </label>
                                     <div className="mt-2 rounded-md bg-muted/50 p-3 font-mono text-sm break-all">
-                                      {difficulty.toLocaleString()} ({displayDifficulty(difficulty)})
+                                      {difficulty.toLocaleString()} (
+                                      {displayDifficulty(difficulty)})
                                     </div>
                                   </div>
                                 </div>
@@ -763,11 +855,13 @@ export const NewOrderPage = () => {
               <div className="mt-4 rounded-md border bg-muted/30 p-4">
                 <h3 className="text-lg font-semibold">Total Difficulty</h3>
                 <p className="text-sm text-foreground/80">
-                  This is an estimate of how many addresses need to be checked to find at least one that matches any of
-                  the selected problems.
+                  This is an estimate of how many addresses need to be checked
+                  to find at least one that matches any of the selected
+                  problems.
                 </p>
                 <p className="text-sm text-foreground/80">
-                  The more problems you select, the easier it will be to match any of them.
+                  The more problems you select, the easier it will be to match
+                  any of them.
                 </p>
                 <p className="mt-2 text-2xl font-bold text-primary">
                   {selectedProblems.length === 0
@@ -778,20 +872,22 @@ export const NewOrderPage = () => {
                 </p>
                 <h3 className="mt-4 text-lg font-semibold">Time Estimation</h3>
                 <p className="text-sm text-foreground/80">
-                  With 20 providers working for {duration.replace("m", " minutes").replace("h", " hours")}, you can
-                  expect to find approximately:
+                  With 20 providers working for{" "}
+                  {duration.replace("m", " minutes").replace("h", " hours")},
+                  you can expect to find approximately:
                 </p>
                 <p className="mt-2 text-2xl font-bold text-primary">
                   {selectedProblems.length === 0
                     ? "Select at least 1 problem"
                     : form.formState.errors.problems
                       ? "Fix problem configuration errors"
-                      : expectedMatches.toLocaleString() + " matching addresses"}
+                      : expectedMatches.toLocaleString() +
+                        " matching addresses"}
                 </p>
                 {expectedMatches < 100 && selectedProblems.length > 0 && (
                   <p className="mt-2 text-sm text-orange-500">
-                    Warning: The expected number of matches is low. Consider selecting easier problems for better
-                    results.
+                    Warning: The expected number of matches is low. Consider
+                    selecting easier problems for better results.
                   </p>
                 )}
               </div>
@@ -827,7 +923,9 @@ export const NewOrderPage = () => {
                               <span
                                 className={cn(
                                   "text-sm font-medium",
-                                  field.value === duration.value ? "text-primary font-bold" : "text-muted-foreground",
+                                  field.value === duration.value
+                                    ? "text-primary font-bold"
+                                    : "text-muted-foreground",
                                 )}
                               >
                                 {duration.label}
@@ -838,15 +936,25 @@ export const NewOrderPage = () => {
                       </div>
                     </FormControl>
                     <FormDescription>
-                      How long should providers work on finding matching addresses for your order.
+                      How long should providers work on finding matching
+                      addresses for your order.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <Button type="submit" disabled={mutation.isPending || !isConnected || !form.formState.isValid}>
-                {mutation.isPending ? "Sending Order..." : !isConnected ? "Connect wallet to send order" : "Send Order"}
+              <Button
+                type="submit"
+                disabled={
+                  mutation.isPending || !isConnected || !form.formState.isValid
+                }
+              >
+                {mutation.isPending
+                  ? "Sending Order..."
+                  : !isConnected
+                    ? "Connect wallet to send order"
+                    : "Send Order"}
               </Button>
             </form>
           </Form>

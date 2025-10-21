@@ -44,7 +44,10 @@ export const ProblemSchema = z.discriminatedUnion("type", [
 ]);
 
 export const VanityRequestSchema = z.object({
-  publicKey: z.union([z.string().startsWith("0x").length(132), z.string().startsWith("xpub")]),
+  publicKey: z.union([
+    z.string().startsWith("0x").length(132),
+    z.string().startsWith("xpub"),
+  ]),
   problems: z.array(ProblemSchema).refine((value) => value.length > 0, {
     message: "You have to select at least one item.",
   }),
@@ -59,7 +62,10 @@ export const VanityOrderSchema = z.object({
   valid: z.string().datetime().nullable(),
   started: z.string().datetime().nullable(),
   completed: z.string().datetime().nullable(),
-  pubKey: z.union([z.string().startsWith("0x").length(132), z.string().startsWith("xpub")]),
+  pubKey: z.union([
+    z.string().startsWith("0x").length(132),
+    z.string().startsWith("xpub"),
+  ]),
   budget: z.number(),
   cost: z.number(),
   work: z.number(),
@@ -75,7 +81,10 @@ export const VanityOrderResultSchema = z.object({
   }),
   proof: z.object({
     address: z.string().startsWith("0x").length(42),
-    pubKey: z.union([z.string().startsWith("0x").length(132), z.string().startsWith("xpub")]),
+    pubKey: z.union([
+      z.string().startsWith("0x").length(132),
+      z.string().startsWith("xpub"),
+    ]),
     salt: z.string(),
   }),
 });
@@ -89,4 +98,6 @@ export const VanityRequestWithTimestampSchema = VanityRequestSchema.extend({
   timestamp: z.string().datetime(),
 });
 
-export type VanityRequestWithTimestamp = z.infer<typeof VanityRequestWithTimestampSchema>;
+export type VanityRequestWithTimestamp = z.infer<
+  typeof VanityRequestWithTimestampSchema
+>;

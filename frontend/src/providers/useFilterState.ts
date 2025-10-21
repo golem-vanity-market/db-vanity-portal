@@ -16,7 +16,10 @@ interface FilterStateShape {
 }
 
 type FilterAction =
-  | { type: "CHANGE_STAGED_FILTER_FIELD"; payload: { key: keyof FilterCriteria; value: any } }
+  | {
+      type: "CHANGE_STAGED_FILTER_FIELD";
+      payload: { key: keyof FilterCriteria; value: any };
+    }
   | { type: "APPLY_FILTERS" }
   | { type: "SET_AND_APPLY_STAGED_FILTERS"; payload: Partial<FilterCriteria> }
   | { type: "RESET_FILTERS" }
@@ -60,12 +63,18 @@ const defaultFilterCriteria = (): FilterCriteria => ({
   sortOrder: "desc",
 });
 
-const filterReducer = (state: FilterStateShape, action: FilterAction): FilterStateShape => {
+const filterReducer = (
+  state: FilterStateShape,
+  action: FilterAction,
+): FilterStateShape => {
   switch (action.type) {
     case "CHANGE_STAGED_FILTER_FIELD":
       return {
         ...state,
-        stagedFilters: { ...state.stagedFilters, [action.payload.key]: action.payload.value },
+        stagedFilters: {
+          ...state.stagedFilters,
+          [action.payload.key]: action.payload.value,
+        },
       };
     case "APPLY_FILTERS": {
       const newHistoryEntry: HistoricalFilter = {
@@ -82,7 +91,11 @@ const filterReducer = (state: FilterStateShape, action: FilterAction): FilterSta
     }
     case "SET_AND_APPLY_STAGED_FILTERS": {
       const newFilters = { ...state.stagedFilters, ...action.payload };
-      const newHistoryEntry: HistoricalFilter = { id: crypto.randomUUID(), filter: newFilters, createdAt: new Date() };
+      const newHistoryEntry: HistoricalFilter = {
+        id: crypto.randomUUID(),
+        filter: newFilters,
+        createdAt: new Date(),
+      };
       const newHistory = [newHistoryEntry, ...state.filterHistory].slice(0, 10);
       return {
         ...state,
@@ -106,27 +119,37 @@ const filterReducer = (state: FilterStateShape, action: FilterAction): FilterSta
     case "REMOVE_FROM_HISTORY":
       return {
         ...state,
-        filterHistory: state.filterHistory.filter((f) => f.id !== action.payload),
+        filterHistory: state.filterHistory.filter(
+          (f) => f.id !== action.payload,
+        ),
       };
     case "PROMOTE_TO_FAVORITE": {
-      const entryToPromote = state.filterHistory.find((f) => f.id === action.payload);
+      const entryToPromote = state.filterHistory.find(
+        (f) => f.id === action.payload,
+      );
       if (!entryToPromote) return state;
       return {
         ...state,
-        filterHistory: state.filterHistory.filter((f) => f.id !== action.payload),
+        filterHistory: state.filterHistory.filter(
+          (f) => f.id !== action.payload,
+        ),
         favoriteFilters: [entryToPromote, ...state.favoriteFilters],
       };
     }
     case "REMOVE_FROM_FAVORITES":
       return {
         ...state,
-        favoriteFilters: state.favoriteFilters.filter((f) => f.id !== action.payload),
+        favoriteFilters: state.favoriteFilters.filter(
+          (f) => f.id !== action.payload,
+        ),
       };
     case "UPDATE_FAVORITE_NAME":
       return {
         ...state,
         favoriteFilters: state.favoriteFilters.map((f) =>
-          f.id === action.payload.id ? { ...f, customName: action.payload.newName } : f,
+          f.id === action.payload.id
+            ? { ...f, customName: action.payload.newName }
+            : f,
         ),
       };
     default:
@@ -142,7 +165,8 @@ const buildFilterFromLocalStorage = (
     return defaults;
   }
   return {
-    providerNameSearch: cached.providerNameSearch ?? defaults.providerNameSearch,
+    providerNameSearch:
+      cached.providerNameSearch ?? defaults.providerNameSearch,
     sortBy: cached.sortBy ?? defaults.sortBy,
     sortOrder: cached.sortOrder ?? defaults.sortOrder,
     minWork: cached.minWork ?? defaults.minWork,
@@ -167,8 +191,10 @@ const buildFilterFromLocalStorage = (
     maxTotalCost24h: cached.maxTotalCost24h ?? defaults.maxTotalCost24h,
     minNumberOfJobs: cached.minNumberOfJobs ?? defaults.minNumberOfJobs,
     maxNumberOfJobs: cached.maxNumberOfJobs ?? defaults.maxNumberOfJobs,
-    minNumberOfJobs24h: cached.minNumberOfJobs24h ?? defaults.minNumberOfJobs24h,
-    maxNumberOfJobs24h: cached.maxNumberOfJobs24h ?? defaults.maxNumberOfJobs24h,
+    minNumberOfJobs24h:
+      cached.minNumberOfJobs24h ?? defaults.minNumberOfJobs24h,
+    maxNumberOfJobs24h:
+      cached.maxNumberOfJobs24h ?? defaults.maxNumberOfJobs24h,
     minLongestJob: cached.minLongestJob ?? defaults.minLongestJob,
     maxLongestJob: cached.maxLongestJob ?? defaults.maxLongestJob,
     minLongestJob24h: cached.minLongestJob24h ?? defaults.minLongestJob24h,
@@ -234,21 +260,36 @@ export function useFilterState() {
   const [state, dispatch] = useReducer(filterReducer, undefined, initializer);
 
   useEffect(() => {
-    localStorage.setItem("providerFilterHistory", JSON.stringify(state.filterHistory));
-    localStorage.setItem("providerFavoriteFilters", JSON.stringify(state.favoriteFilters));
+    localStorage.setItem(
+      "providerFilterHistory",
+      JSON.stringify(state.filterHistory),
+    );
+    localStorage.setItem(
+      "providerFavoriteFilters",
+      JSON.stringify(state.favoriteFilters),
+    );
   }, [state.filterHistory, state.favoriteFilters]);
 
-  const changeStagedFilterField = useCallback(<K extends keyof FilterCriteria>(key: K, value: FilterCriteria[K]) => {
-    dispatch({ type: "CHANGE_STAGED_FILTER_FIELD", payload: { key, value } });
-  }, []);
+  const changeStagedFilterField = useCallback(
+    <K extends keyof FilterCriteria>(key: K, value: FilterCriteria[K]) => {
+      dispatch({ type: "CHANGE_STAGED_FILTER_FIELD", payload: { key, value } });
+    },
+    [],
+  );
 
   const applyFilters = useCallback(() => {
     dispatch({ type: "APPLY_FILTERS" });
   }, []);
 
-  const setAndApplyStagedFilters = useCallback((newFilterCriteria: Partial<FilterCriteria>) => {
-    dispatch({ type: "SET_AND_APPLY_STAGED_FILTERS", payload: newFilterCriteria });
-  }, []);
+  const setAndApplyStagedFilters = useCallback(
+    (newFilterCriteria: Partial<FilterCriteria>) => {
+      dispatch({
+        type: "SET_AND_APPLY_STAGED_FILTERS",
+        payload: newFilterCriteria,
+      });
+    },
+    [],
+  );
 
   const resetFilters = useCallback(() => {
     dispatch({ type: "RESET_FILTERS" });

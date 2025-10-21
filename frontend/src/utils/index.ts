@@ -23,7 +23,9 @@ export function displayHours(totalHours: number): string {
 
 export function assetsUrl(): string {
   // Ensure the base URL ends with a slash
-  const baseUrl = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : import.meta.env.BASE_URL + "/";
+  const baseUrl = import.meta.env.BASE_URL.endsWith("/")
+    ? import.meta.env.BASE_URL
+    : import.meta.env.BASE_URL + "/";
   return baseUrl + "assets/";
 }
 

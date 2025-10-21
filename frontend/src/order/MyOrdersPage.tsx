@@ -1,6 +1,12 @@
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useQuery } from "@tanstack/react-query";
@@ -11,7 +17,11 @@ import { REQUEST_TTL_MS, makeClient, msToShort } from "./helpers";
 import OrdersExplainer from "./OrdersExplainer";
 import OpenOrdersSection from "./OpenOrdersSection";
 import MyOrdersSection from "./MyOrdersSection";
-import { VanityOrderSchema, VanityRequestWithTimestampSchema, type VanityRequestWithTimestamp } from "./order-schema";
+import {
+  VanityOrderSchema,
+  VanityRequestWithTimestampSchema,
+  type VanityRequestWithTimestamp,
+} from "./order-schema";
 import { z } from "zod";
 
 const VALID_TABS = ["awaiting", "queued", "processing", "completed"] as const;
@@ -39,14 +49,18 @@ const fetchMyRequests = async () => {
       }
       return { id: entityKey as string, order: parsed.data };
     })
-    .filter((o): o is { id: string; order: VanityRequestWithTimestamp } => o !== null)
-    .sort((a, b) => new Date(b.order.timestamp).getTime() - new Date(a.order.timestamp).getTime());
+    .filter(
+      (o): o is { id: string; order: VanityRequestWithTimestamp } => o !== null,
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.order.timestamp).getTime() -
+        new Date(a.order.timestamp).getTime(),
+    );
 };
 
-const fetchOrders = async () => {
+const fetchOrders = async (allOrders: boolean) => {
   const golemClient = await makeClient();
-
-  const allOrders = localStorage.getItem("showAllOrders") === "true";
 
   let rawRes;
   if (!allOrders) {
@@ -72,11 +86,22 @@ const fetchOrders = async () => {
       }
       return { ...parsed.data, orderId: entityKey as string };
     })
-    .filter((o): o is z.infer<typeof VanityOrderSchema> & { orderId: string } => o !== null)
-    .sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
+    .filter(
+      (o): o is z.infer<typeof VanityOrderSchema> & { orderId: string } =>
+        o !== null,
+    )
+    .sort(
+      (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime(),
+    );
 };
 
 export const MyOrdersPage = () => {
+  const [showAllOrders, setShowAllOrders] = useState(() => {
+    return localStorage.getItem("showAllOrders") === "true";
+  });
+  const enableShowAllOrders =
+    localStorage.getItem("enableShowAllOrders") === "true";
+
   const {
     data: myRequests = [],
     isLoading: isRequestsLoading,
@@ -98,8 +123,8 @@ export const MyOrdersPage = () => {
     refetch: refetchOrders,
     isFetching: isOrdersFetching,
   } = useQuery<VanityOrder[]>({
-    queryKey: ["myOrders"],
-    queryFn: fetchOrders,
+    queryKey: ["myOrders", showAllOrders],
+    queryFn: () => fetchOrders(showAllOrders),
     refetchInterval: 30_000,
     refetchIntervalInBackground: true,
   });
@@ -149,33 +174,54 @@ export const MyOrdersPage = () => {
     return !pickedRequestIds.has(request.id) && expiresAt > now;
   });
   const queuedOrders = myOrders.filter((order) => order.status === "queue");
-  const processingOrders = myOrders.filter((order) => order.status === "processing");
-  const completedOrders = myOrders.filter((order) => order.status === "completed");
+  const processingOrders = myOrders.filter(
+    (order) => order.status === "processing",
+  );
+  const completedOrders = myOrders.filter(
+    (order) => order.status === "completed",
+  );
 
   const awaitingPickupCount = awaitingRequests.length;
   const activeOrdersCount = queuedOrders.length + processingOrders.length;
   const completedOrdersCount = completedOrders.length;
   const totalOrders = myOrders.length;
-  const completionRate = totalOrders > 0 ? Math.round((completedOrdersCount / totalOrders) * 100) : 0;
+  const completionRate =
+    totalOrders > 0
+      ? Math.round((completedOrdersCount / totalOrders) * 100)
+      : 0;
 
   const turnaroundDurations = myOrders
     .filter((order) => order.completed)
-    .map((order) => new Date(order.completed as string).getTime() - new Date(order.created).getTime())
+    .map(
+      (order) =>
+        new Date(order.completed as string).getTime() -
+        new Date(order.created).getTime(),
+    )
     .filter((ms) => Number.isFinite(ms) && ms > 0);
 
   const averageTurnaround =
     turnaroundDurations.length > 0
-      ? Math.round(turnaroundDurations.reduce((total, ms) => total + ms, 0) / turnaroundDurations.length)
+      ? Math.round(
+          turnaroundDurations.reduce((total, ms) => total + ms, 0) /
+            turnaroundDurations.length,
+        )
       : null;
 
   const pickupDurations = myOrders
     .filter((order) => order.started)
-    .map((order) => new Date(order.started as string).getTime() - new Date(order.created).getTime())
+    .map(
+      (order) =>
+        new Date(order.started as string).getTime() -
+        new Date(order.created).getTime(),
+    )
     .filter((ms) => Number.isFinite(ms) && ms > 0);
 
   const averagePickup =
     pickupDurations.length > 0
-      ? Math.round(pickupDurations.reduce((total, ms) => total + ms, 0) / pickupDurations.length)
+      ? Math.round(
+          pickupDurations.reduce((total, ms) => total + ms, 0) /
+            pickupDurations.length,
+        )
       : null;
 
   const stats = {
@@ -189,9 +235,15 @@ export const MyOrdersPage = () => {
   };
 
   const anyFetching = isRequestsFetching || isOrdersFetching;
-  const completionRateLabel = stats.totalOrders ? `${stats.completionRate}%` : "—";
-  const averageTurnaroundLabel = stats.averageTurnaround ? msToShort(stats.averageTurnaround) : "—";
-  const averagePickupLabel = stats.averagePickup ? msToShort(stats.averagePickup) : "—";
+  const completionRateLabel = stats.totalOrders
+    ? `${stats.completionRate}%`
+    : "—";
+  const averageTurnaroundLabel = stats.averageTurnaround
+    ? msToShort(stats.averageTurnaround)
+    : "—";
+  const averagePickupLabel = stats.averagePickup
+    ? msToShort(stats.averagePickup)
+    : "—";
 
   return (
     <div className="space-y-8">
@@ -202,9 +254,12 @@ export const MyOrdersPage = () => {
               Orders overview
             </span>
             <div className="space-y-2">
-              <h1 className="font-heading text-3xl font-semibold tracking-tight text-foreground">My Activity</h1>
+              <h1 className="font-heading text-3xl font-semibold tracking-tight text-foreground">
+                My Activity
+              </h1>
               <p className="max-w-2xl text-sm text-muted-foreground">
-                Track everything you have posted to the vanity marketplace and monitor progress in real time.
+                Track everything you have posted to the vanity marketplace and
+                monitor progress in real time.
               </p>
             </div>
           </div>
@@ -215,6 +270,11 @@ export const MyOrdersPage = () => {
                 New Order
               </Link>
             </Button>
+            {enableShowAllOrders && (
+              <Button onClick={() => setShowAllOrders(!showAllOrders)}>
+                Show all orders
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -225,7 +285,9 @@ export const MyOrdersPage = () => {
             <CardDescription className="text-xs font-semibold text-muted-foreground/80">
               Awaiting pickup
             </CardDescription>
-            <CardTitle className="text-3xl font-semibold">{stats.awaitingPickup}</CardTitle>
+            <CardTitle className="text-3xl font-semibold">
+              {stats.awaitingPickup}
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-5 pt-0 text-sm text-muted-foreground">
             Orders still visible in the public queue.
@@ -236,7 +298,9 @@ export const MyOrdersPage = () => {
             <CardDescription className="text-xs font-semibold text-muted-foreground/80">
               Active pipeline
             </CardDescription>
-            <CardTitle className="text-3xl font-semibold">{stats.activeOrders}</CardTitle>
+            <CardTitle className="text-3xl font-semibold">
+              {stats.activeOrders}
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-5 pt-0 text-sm text-muted-foreground">
             {stats.completedOrders} completed out of {stats.totalOrders} posted.
@@ -244,8 +308,12 @@ export const MyOrdersPage = () => {
         </Card>
         <Card className="border-none bg-primary/5 shadow-sm shadow-primary/20">
           <CardHeader className="p-5 pb-3">
-            <CardDescription className="text-xs font-semibold text-primary/80">Completion rate</CardDescription>
-            <CardTitle className="text-3xl font-semibold text-primary">{completionRateLabel}</CardTitle>
+            <CardDescription className="text-xs font-semibold text-primary/80">
+              Completion rate
+            </CardDescription>
+            <CardTitle className="text-3xl font-semibold text-primary">
+              {completionRateLabel}
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-5 pt-0 text-sm text-primary/90">
             Completed {stats.completedOrders} orders so far.
@@ -256,13 +324,17 @@ export const MyOrdersPage = () => {
             <CardDescription className="text-xs font-semibold text-muted-foreground/80">
               Average Processing speed
             </CardDescription>
-            <CardTitle className="text-3xl font-semibold">{averageTurnaroundLabel}</CardTitle>
+            <CardTitle className="text-3xl font-semibold">
+              {averageTurnaroundLabel}
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-5 pt-0">
             <dl className="grid gap-4 text-sm">
               <div>
                 <dt className="text-xs text-muted-foreground/80">Avg pickup</dt>
-                <dd className="mt-1 text-base font-semibold text-foreground">{averagePickupLabel}</dd>
+                <dd className="mt-1 text-base font-semibold text-foreground">
+                  {averagePickupLabel}
+                </dd>
               </div>
             </dl>
           </CardContent>
@@ -288,28 +360,36 @@ export const MyOrdersPage = () => {
                 className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow"
               >
                 Awaiting
-                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{awaitingRequests.length}</span>
+                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
+                  {awaitingRequests.length}
+                </span>
               </TabsTrigger>
               <TabsTrigger
                 value="queued"
                 className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow"
               >
                 Queued
-                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{queuedOrders.length}</span>
+                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
+                  {queuedOrders.length}
+                </span>
               </TabsTrigger>
               <TabsTrigger
                 value="processing"
                 className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow"
               >
                 Processing
-                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{processingOrders.length}</span>
+                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
+                  {processingOrders.length}
+                </span>
               </TabsTrigger>
               <TabsTrigger
                 value="completed"
                 className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow"
               >
                 Completed
-                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{completedOrders.length}</span>
+                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
+                  {completedOrders.length}
+                </span>
               </TabsTrigger>
             </TabsList>
             <div className="flex flex-wrap items-center gap-3">
@@ -322,7 +402,11 @@ export const MyOrdersPage = () => {
                 disabled={anyFetching}
                 title="Refresh both lists"
               >
-                {anyFetching ? <Loader2 className="mr-2 size-4 animate-spin" /> : <RefreshCw className="mr-2 size-4" />}
+                {anyFetching ? (
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="mr-2 size-4" />
+                )}
                 Refresh
               </Button>
             </div>

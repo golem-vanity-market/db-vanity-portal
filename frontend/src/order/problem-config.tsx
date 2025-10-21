@@ -124,12 +124,16 @@ export const problems = [
     specifierKey: "specifier",
     icon: <Grid3x3 />,
     getExample: addressExamples["user-mask"],
-    getDefaultExample: () => addressExamples["user-mask"]("0x1234xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5678"),
+    getDefaultExample: () =>
+      addressExamples["user-mask"](
+        "0x1234xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5678",
+      ),
   },
   {
     id: "leading-any",
     label: "Leading",
-    description: "Search for addresses that start with at least <length> of the same character (e.g., 0xaaaaaaaa...)",
+    description:
+      "Search for addresses that start with at least <length> of the same character (e.g., 0xaaaaaaaa...)",
     specifierType: "number",
     defaultValue: 8,
     specifierKey: "length",
@@ -142,7 +146,8 @@ export const problems = [
   {
     id: "trailing-any",
     label: "Trailing",
-    description: "Search for addresses that end with at least <length> of the same character (e.g., 0x...aaaaaaaa)",
+    description:
+      "Search for addresses that end with at least <length> of the same character (e.g., 0x...aaaaaaaa)",
     specifierType: "number",
     defaultValue: 8,
     specifierKey: "length",

@@ -12,7 +12,9 @@ export const REQUEST_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 export const truncateMiddle = (str: string, start = 6, end = 4) => {
   if (!str) return "";
-  return str.length > start + end ? `${str.slice(0, start)}…${str.slice(-end)}` : str;
+  return str.length > start + end
+    ? `${str.slice(0, start)}…${str.slice(-end)}`
+    : str;
 };
 
 export const formatDateTime = (iso: string) => new Date(iso).toLocaleString();

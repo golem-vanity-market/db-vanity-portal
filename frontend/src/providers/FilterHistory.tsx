@@ -1,5 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { History, Trash, Heart, Edit } from "lucide-react";
 import { useState } from "react";
 import { FilterCriteria, sortOptions } from "./provider-types";
@@ -23,9 +27,14 @@ const formatFilter = (filter: FilterCriteria) => {
     criteria.push({ key: "Name", value: filter.providerNameSearch });
   }
 
-  const sortOption = sortOptions.find((option) => option.value === filter.sortBy);
+  const sortOption = sortOptions.find(
+    (option) => option.value === filter.sortBy,
+  );
   if (sortOption) {
-    criteria.push({ key: "Sort by", value: `${sortOption.label} (${filter.sortOrder})` });
+    criteria.push({
+      key: "Sort by",
+      value: `${sortOption.label} (${filter.sortOrder})`,
+    });
   }
 
   filterableMetrics.forEach((metric) => {
@@ -142,10 +151,15 @@ export const FilterHistory = ({
         </div>
         <div className="mt-4 space-y-2">
           {filterHistory.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No filter history yet.</p>
+            <p className="text-sm text-muted-foreground">
+              No filter history yet.
+            </p>
           ) : (
             filterHistory.map((historicalFilter) => (
-              <div key={historicalFilter.id} className="flex items-center justify-between">
+              <div
+                key={historicalFilter.id}
+                className="flex items-center justify-between"
+              >
                 <div className="relative flex-1">
                   <Button
                     variant="ghost"
@@ -163,9 +177,14 @@ export const FilterHistory = ({
                       })}
                     </div>
                   </Button>
-                  {hoveredId === historicalFilter.id && <FilterDetails filter={historicalFilter.filter} />}
+                  {hoveredId === historicalFilter.id && (
+                    <FilterDetails filter={historicalFilter.filter} />
+                  )}
                 </div>
-                <Button variant="ghost" onClick={() => promoteToFavorite(historicalFilter.id)}>
+                <Button
+                  variant="ghost"
+                  onClick={() => promoteToFavorite(historicalFilter.id)}
+                >
                   <Heart className="size-4" />
                 </Button>
                 <Button
@@ -183,10 +202,15 @@ export const FilterHistory = ({
         <div className="space-y-2">
           <h4 className="leading-none font-medium">Favorite Filters</h4>
           {favoriteFilters.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No favorite filters yet.</p>
+            <p className="text-sm text-muted-foreground">
+              No favorite filters yet.
+            </p>
           ) : (
             favoriteFilters.map((favoriteFilter) => (
-              <div key={favoriteFilter.id} className="flex items-center justify-between">
+              <div
+                key={favoriteFilter.id}
+                className="flex items-center justify-between"
+              >
                 <div className="relative flex-1">
                   <Button
                     variant="ghost"
@@ -197,14 +221,19 @@ export const FilterHistory = ({
                   >
                     <div className="truncate">
                       {favoriteFilter.customName ||
-                        `${formatDate(favoriteFilter.createdAt)} at ${favoriteFilter.createdAt.toLocaleString([], {
-                          hour: "numeric",
-                          minute: "2-digit",
-                          hour12: true,
-                        })}`}
+                        `${formatDate(favoriteFilter.createdAt)} at ${favoriteFilter.createdAt.toLocaleString(
+                          [],
+                          {
+                            hour: "numeric",
+                            minute: "2-digit",
+                            hour12: true,
+                          },
+                        )}`}
                     </div>
                   </Button>
-                  {hoveredId === favoriteFilter.id && <FilterDetails filter={favoriteFilter.filter} />}
+                  {hoveredId === favoriteFilter.id && (
+                    <FilterDetails filter={favoriteFilter.filter} />
+                  )}
                   {editingId === favoriteFilter.id && (
                     <div className="absolute top-full z-10 w-80 rounded-lg border bg-background p-4 shadow-lg">
                       <input
@@ -215,7 +244,10 @@ export const FilterHistory = ({
                         placeholder="Enter custom name"
                       />
                       <div className="mt-2 flex justify-end space-x-2">
-                        <Button variant="destructive" onClick={() => setEditingId(null)}>
+                        <Button
+                          variant="destructive"
+                          onClick={() => setEditingId(null)}
+                        >
                           Cancel
                         </Button>
                         <Button onClick={handleSaveName}>Save</Button>
@@ -225,7 +257,12 @@ export const FilterHistory = ({
                 </div>
                 <Button
                   variant="ghost"
-                  onClick={() => handleEditClick(favoriteFilter.id, favoriteFilter.customName || "")}
+                  onClick={() =>
+                    handleEditClick(
+                      favoriteFilter.id,
+                      favoriteFilter.customName || "",
+                    )
+                  }
                 >
                   <Edit className="size-4" />
                 </Button>

@@ -11,7 +11,13 @@ export const ConnectButton = () => {
     const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
     return (
       <Button variant="outline" onClick={() => open()} className="font-heading">
-        {walletInfo?.icon && <img src={walletInfo.icon} alt={walletInfo.name} className="inline size-5" />}
+        {walletInfo?.icon && (
+          <img
+            src={walletInfo.icon}
+            alt={walletInfo.name}
+            className="inline size-5"
+          />
+        )}
         {shortAddress}
       </Button>
     );

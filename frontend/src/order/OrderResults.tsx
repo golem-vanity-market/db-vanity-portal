@@ -1,15 +1,38 @@
 import { useParams, Link, useLocation, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Clipboard, ClipboardCheck, Download, ExternalLink, Info, RefreshCw } from "lucide-react";
+import {
+  ArrowLeft,
+  Clipboard,
+  ClipboardCheck,
+  Download,
+  ExternalLink,
+  Info,
+  RefreshCw,
+} from "lucide-react";
 import { useState } from "react";
 
-import { VanityOrderResult, VanityOrderResultSchema, type Problem } from "./order-schema";
+import {
+  VanityOrderResult,
+  VanityOrderResultSchema,
+  type Problem,
+} from "./order-schema";
 import { makeClient, truncateMiddle } from "./helpers";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useOrder } from "./useOrder";
 import { matchProblemToAddress } from "@/utils/difficulty";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,7 +42,9 @@ import { Badge } from "@/components/ui/badge";
 
 const fetchOrderResults = async (orderId: string) => {
   const golemClient = await makeClient();
-  const rawRes = await golemClient.queryEntities(`vanity_market_order_result="2" && orderId="${orderId}"`);
+  const rawRes = await golemClient.queryEntities(
+    `vanity_market_order_result="2" && orderId="${orderId}"`,
+  );
   return rawRes
     .map(({ entityKey, storageValue }) => {
       let jsonParsed = null;
@@ -57,7 +82,9 @@ function OrderResultsPage() {
   const { data: orderData } = useOrder(orderId ?? "");
 
   const resultsWithProblemAssigned = results.map((result) => {
-    const problem = orderData ? matchProblemToAddress(result.order.proof.address, orderData.problems) : null;
+    const problem = orderData
+      ? matchProblemToAddress(result.order.proof.address, orderData.problems)
+      : null;
     return { ...result, problem };
   });
 
@@ -99,7 +126,9 @@ function OrderResultsPage() {
   const filteredResults =
     activeFilter === "all"
       ? resultsWithProblemAssigned
-      : resultsWithProblemAssigned.filter((r) => r.problem && r.problem.type === activeFilter);
+      : resultsWithProblemAssigned.filter(
+          (r) => r.problem && r.problem.type === activeFilter,
+        );
 
   const problemCounts = resultsWithProblemAssigned.reduce((acc, r) => {
     if (r.problem) {
@@ -119,7 +148,11 @@ function OrderResultsPage() {
     }
   };
 
-  const downloadText = (filename: string, content: string, mime: string = "text/plain;charset=utf-8") => {
+  const downloadText = (
+    filename: string,
+    content: string,
+    mime: string = "text/plain;charset=utf-8",
+  ) => {
     try {
       const blob = new Blob([content], { type: mime });
       const url = URL.createObjectURL(blob);
@@ -162,14 +195,17 @@ function OrderResultsPage() {
       id,
       order.proof.pubKey,
     ]);
-    const csv = [header, ...rows].map((r) => r.map(escape).join(",")).join("\n");
+    const csv = [header, ...rows]
+      .map((r) => r.map(escape).join(","))
+      .join("\n");
     return csv;
   };
 
   // Simple deterministic color from provider id for avatar
   const colorFromId = (id: string) => {
     let hash = 0;
-    for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) | 0;
+    for (let i = 0; i < id.length; i++)
+      hash = (hash * 31 + id.charCodeAt(i)) | 0;
     const h = Math.abs(hash) % 360;
     const s = 65;
     const l = 45;
@@ -209,10 +245,14 @@ function OrderResultsPage() {
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold">Results</h1>
             {orderData?.status && (
-              <Badge variant={getStatusVariant(orderData.status)}>{getStatusLabel(orderData.status)}</Badge>
+              <Badge variant={getStatusVariant(orderData.status)}>
+                {getStatusLabel(orderData.status)}
+              </Badge>
             )}
           </div>
-          <p className="text-sm text-muted-foreground">Addresses found for your order.</p>
+          <p className="text-sm text-muted-foreground">
+            Addresses found for your order.
+          </p>
           {orderId && (
             <div className="mt-1 text-xs text-muted-foreground">
               Order:{" "}
@@ -232,7 +272,11 @@ function OrderResultsPage() {
           {!isLoading && results.length > 0 && (
             <Button
               onClick={() =>
-                downloadText(`order_${orderId ?? "results"}_results.csv`, toCsv(), "text/csv;charset=utf-8")
+                downloadText(
+                  `order_${orderId ?? "results"}_results.csv`,
+                  toCsv(),
+                  "text/csv;charset=utf-8",
+                )
               }
               title="Download all results as CSV"
               variant="secondary"
@@ -241,7 +285,12 @@ function OrderResultsPage() {
             </Button>
           )}
           {!isLoading && (
-            <Button onClick={() => refetch()} title="Refresh results" variant="secondary" disabled={isLoading}>
+            <Button
+              onClick={() => refetch()}
+              title="Refresh results"
+              variant="secondary"
+              disabled={isLoading}
+            >
               <RefreshCw className="mr-2 size-4" /> Refresh
             </Button>
           )}
@@ -269,12 +318,17 @@ function OrderResultsPage() {
         </div>
       ) : results.length === 0 ? (
         <div className="rounded-lg border p-4 text-sm text-muted-foreground">
-          No results yet. If a provider finds a matching address, it will appear here.
+          No results yet. If a provider finds a matching address, it will appear
+          here.
         </div>
       ) : (
         <>
           {problems.size > 0 && (
-            <Tabs value={activeFilter} onValueChange={handleFilterChange} className="w-full">
+            <Tabs
+              value={activeFilter}
+              onValueChange={handleFilterChange}
+              className="w-full"
+            >
               <TabsList className="mb-2">
                 <TabsTrigger value="all">
                   <span>All</span>
@@ -323,7 +377,9 @@ function OrderResultsPage() {
                         className="group inline-flex max-w-full cursor-pointer items-center gap-2"
                         title="Click to copy address"
                       >
-                        <span className="truncate font-mono text-sm">{addr}</span>
+                        <span className="truncate font-mono text-sm">
+                          {addr}
+                        </span>
                         <Clipboard className="size-4 text-muted-foreground group-hover:text-foreground" />
                       </div>
                     </TableCell>
@@ -335,7 +391,8 @@ function OrderResultsPage() {
                         className="inline-flex items-center gap-1 font-mono text-sm underline"
                         title="Open result entity in explorer"
                       >
-                        {truncateMiddle(id, 10, 8)} <ExternalLink className="size-3" />
+                        {truncateMiddle(id, 10, 8)}{" "}
+                        <ExternalLink className="size-3" />
                       </a>
                     </TableCell>
                     <TableCell>
@@ -343,23 +400,34 @@ function OrderResultsPage() {
                         <div className="flex items-center gap-2">
                           <div
                             className="inline-flex size-6 items-center justify-center rounded-full text-[10px] font-bold text-white"
-                            style={{ backgroundColor: colorFromId(order.provider.id) }}
+                            style={{
+                              backgroundColor: colorFromId(order.provider.id),
+                            }}
                             aria-hidden
                           >
-                            {order.provider.name?.slice(0, 1).toUpperCase() || "?"}
+                            {order.provider.name?.slice(0, 1).toUpperCase() ||
+                              "?"}
                           </div>
                           <span className="text-sm">{order.provider.name}</span>
                         </div>
                         <Popover>
                           <PopoverTrigger asChild>
-                            <Button variant="ghost" size="icon" title="Provider details">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              title="Provider details"
+                            >
                               <Info className="size-3.5" />
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-96" align="start">
                             <div className="space-y-2 text-sm">
-                              <div className="font-semibold">{order.provider.name}</div>
-                              <div className="font-mono text-xs break-all">id: {order.provider.id}</div>
+                              <div className="font-semibold">
+                                {order.provider.name}
+                              </div>
+                              <div className="font-mono text-xs break-all">
+                                id: {order.provider.id}
+                              </div>
                               <div className="font-mono text-xs break-all text-muted-foreground">
                                 wallet: {order.provider.walletAddress}
                               </div>
@@ -374,19 +442,28 @@ function OrderResultsPage() {
                           <Button
                             variant="secondary"
                             size="sm"
-                            onClick={() => copyText(order.proof.salt, "Derivation path copied")}
+                            onClick={() =>
+                              copyText(
+                                order.proof.salt,
+                                "Derivation path copied",
+                              )
+                            }
                             title="Copy derivation path"
                           >
-                            <ClipboardCheck className="mr-2 size-3.5" /> Copy derivation path
+                            <ClipboardCheck className="mr-2 size-3.5" /> Copy
+                            derivation path
                           </Button>
                         ) : (
                           <Button
                             variant="secondary"
                             size="sm"
-                            onClick={() => copyText(order.proof.salt, "Salt copied")}
+                            onClick={() =>
+                              copyText(order.proof.salt, "Salt copied")
+                            }
                             title="Copy salt"
                           >
-                            <ClipboardCheck className="mr-2 size-3.5" /> Copy salt
+                            <ClipboardCheck className="mr-2 size-3.5" /> Copy
+                            salt
                           </Button>
                         )}
                       </div>

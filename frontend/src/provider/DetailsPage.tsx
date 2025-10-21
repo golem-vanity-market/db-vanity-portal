@@ -52,7 +52,9 @@ const DetailsPage = () => {
         Do not give feedback based on this page.
       </div>
 
-      <h1 className={"mb-4 text-lg font-bold"}>Fancies for Provider {providerId}</h1>
+      <h1 className={"mb-4 text-lg font-bold"}>
+        Fancies for Provider {providerId}
+      </h1>
 
       {fancies.length === 0 ? (
         <p>Loading fancies...</p>
@@ -60,17 +62,29 @@ const DetailsPage = () => {
         <table className="w-full table-auto border-collapse border border-gray-300">
           <thead>
             <tr>
-              <th className="border border-gray-300 px-4 py-2 text-left">Address</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Created</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Score (×10⁹)</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">
+                Address
+              </th>
+              <th className="border border-gray-300 px-4 py-2 text-left">
+                Created
+              </th>
+              <th className="border border-gray-300 px-4 py-2 text-left">
+                Score (×10⁹)
+              </th>
             </tr>
           </thead>
           <tbody>
             {fancies.map((fancy: FancyEntry, index: number) => (
               <tr key={index}>
-                <td className="border border-gray-300 px-4 py-2 font-mono">{fancy.address}</td>
-                <td className="border border-gray-300 px-4 py-2">{fancy.created.toISOString()}</td>
-                <td className="border border-gray-300 px-4 py-2">{(fancy.score / 1e9).toFixed(1)}</td>
+                <td className="border border-gray-300 px-4 py-2 font-mono">
+                  {fancy.address}
+                </td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {fancy.created.toISOString()}
+                </td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {(fancy.score / 1e9).toFixed(1)}
+                </td>
               </tr>
             ))}
           </tbody>

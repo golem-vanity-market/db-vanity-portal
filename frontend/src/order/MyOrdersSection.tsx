@@ -1,8 +1,19 @@
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import ProblemList from "./ProblemList";
@@ -43,13 +54,18 @@ export function MyOrdersSection({
     <section className="rounded-2xl border border-border/60 bg-background p-4 shadow-sm sm:p-6">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="font-heading text-lg font-semibold text-foreground">{title}</h2>
+          <h2 className="font-heading text-lg font-semibold text-foreground">
+            {title}
+          </h2>
           <p className="text-sm text-muted-foreground">{description}</p>
         </div>
         {isLoading ? (
           <span className="text-xs text-muted-foreground">Loading…</span>
         ) : (
-          <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-semibold">
+          <Badge
+            variant="secondary"
+            className="rounded-full px-3 py-1 text-xs font-semibold"
+          >
             {visibleCount}
           </Badge>
         )}
@@ -88,7 +104,11 @@ export function MyOrdersSection({
           <TableBody>
             {orders.map((o) => {
               const statusVariant =
-                o.status === "completed" ? "default" : o.status === "processing" ? "secondary" : "outline";
+                o.status === "completed"
+                  ? "default"
+                  : o.status === "processing"
+                    ? "secondary"
+                    : "outline";
               const problemsCount = o.problems?.length ?? 0;
               const availabilityClasses =
                 "inline-flex h-8 items-center gap-1 rounded-full border px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
@@ -136,18 +156,27 @@ export function MyOrdersSection({
                     </a>
                   </TableCell>
                   <TableCell>
-                    <span className="font-mono text-sm text-muted-foreground" title={o.pubKey}>
+                    <span
+                      className="font-mono text-sm text-muted-foreground"
+                      title={o.pubKey}
+                    >
                       {truncateMiddle(o.pubKey, 14, 10)}
                     </span>
                   </TableCell>
                   <TableCell>
-                    <span className="font-medium text-foreground" title={formatDateTime(o.created)}>
+                    <span
+                      className="font-medium text-foreground"
+                      title={formatDateTime(o.created)}
+                    >
                       {formatRelative(o.created, now)}
                     </span>
                   </TableCell>
                   <TableCell>
                     {o.started ? (
-                      <span className="font-medium text-foreground" title={formatDateTime(o.started)}>
+                      <span
+                        className="font-medium text-foreground"
+                        title={formatDateTime(o.started)}
+                      >
                         {formatRelative(o.started, now)}
                       </span>
                     ) : (
@@ -156,7 +185,10 @@ export function MyOrdersSection({
                   </TableCell>
                   <TableCell>
                     {o.completed ? (
-                      <span className="font-medium text-foreground" title={formatDateTime(o.completed)}>
+                      <span
+                        className="font-medium text-foreground"
+                        title={formatDateTime(o.completed)}
+                      >
                         {formatRelative(o.completed, now)}
                       </span>
                     ) : (
@@ -164,7 +196,10 @@ export function MyOrdersSection({
                     )}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={statusVariant} className="rounded-full px-3 py-1 capitalize">
+                    <Badge
+                      variant={statusVariant}
+                      className="rounded-full px-3 py-1 capitalize"
+                    >
                       {o.status}
                     </Badge>
                   </TableCell>
@@ -182,7 +217,9 @@ export function MyOrdersSection({
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-96" align="end">
-                        <div className="mb-2 text-sm font-semibold">Selected problems</div>
+                        <div className="mb-2 text-sm font-semibold">
+                          Selected problems
+                        </div>
                         <ProblemList problems={o.problems ?? []} />
                       </PopoverContent>
                     </Popover>
