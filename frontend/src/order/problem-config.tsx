@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import React from "react";
 import { addressExamples } from "@/utils/address-examples";
-import { ProblemId } from "./order-schema";
+import { ProblemId } from "db-vanity-model/src/order-schema.ts";
 
 interface ProblemConfigBase {
   label: string;

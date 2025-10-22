@@ -1,6 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { VanityRequestWithTimestamp, Problem } from "./order-schema";
+import {
+  VanityRequestWithTimestamp,
+  Problem,
+} from "db-vanity-model/src/order-schema.ts";
 import { problemsById } from "./problem-config";
 import {
   Collapsible,

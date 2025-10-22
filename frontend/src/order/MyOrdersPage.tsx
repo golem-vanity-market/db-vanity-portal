@@ -21,7 +21,7 @@ import {
   VanityOrderSchema,
   VanityRequestWithTimestampSchema,
   type VanityRequestWithTimestamp,
-} from "./order-schema";
+} from "db-vanity-model/src/order-schema.ts";
 import { z } from "zod";
 
 const VALID_TABS = ["awaiting", "queued", "processing", "completed"] as const;

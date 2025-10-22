@@ -31,7 +31,11 @@ import { calculateWorkUnitForProblems } from "@/utils/difficulty";
 import { displayDifficulty } from "@/utils";
 import { Alert } from "@/components/ui/alert";
 import { useAppKitAccount } from "@reown/appkit/react";
-import { VanityRequestSchema, Problem, ProblemId } from "./order-schema";
+import {
+  VanityRequestSchema,
+  Problem,
+  ProblemId,
+} from "db-vanity-model/src/order-schema.ts";
 import { problems, problemsById } from "./problem-config";
 import { Link } from "react-router-dom";
 import { toast } from "@/components/Toast";

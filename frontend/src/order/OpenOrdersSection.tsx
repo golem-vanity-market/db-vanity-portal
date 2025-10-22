@@ -23,7 +23,7 @@ import {
   msToShort,
   truncateMiddle,
 } from "./helpers";
-import type { Problem } from "./order-schema";
+import type { Problem } from "db-vanity-model/src/order-schema.ts";
 
 type PendingItem = {
   id: string;

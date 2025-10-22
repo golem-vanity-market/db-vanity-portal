@@ -17,7 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import ProblemList from "./ProblemList";
-import type { Problem } from "./order-schema";
+import type { Problem } from "db-vanity-model/src/order-schema.ts";
 import { formatDateTime, formatRelative, truncateMiddle } from "./helpers";
 
 type Order = {

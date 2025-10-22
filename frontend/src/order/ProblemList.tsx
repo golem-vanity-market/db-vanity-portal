@@ -1,5 +1,5 @@
 import { problemsById } from "./problem-config";
-import type { Problem } from "./order-schema";
+import type { Problem } from "db-vanity-model/src/order-schema.ts";
 
 const getProblemDisplayName = (problem: Problem) => {
   const config = problemsById[problem.type];

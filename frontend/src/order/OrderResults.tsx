@@ -15,7 +15,7 @@ import {
   VanityOrderResult,
   VanityOrderResultSchema,
   type Problem,
-} from "./order-schema";
+} from "db-vanity-model/src/order-schema.ts";
 import { makeClient, truncateMiddle } from "./helpers";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";

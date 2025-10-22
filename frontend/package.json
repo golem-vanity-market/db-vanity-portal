@@ -43,7 +43,7 @@
     "@tanstack/react-query": "^5.90.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "db-vanity-model": "git+https://github.com/golem-vanity-market/db-vanity-model#fd3fcf9",
+    "db-vanity-model": "git+https://github.com/golem-vanity-market/db-vanity-model#babc6661625898c4cbec4d778ee0840c63ef1bcb",
     "golem-base-sdk": "^0.1.16",
     "js-logger": "^1.6.1",
     "lucide-react": "^0.546.0",

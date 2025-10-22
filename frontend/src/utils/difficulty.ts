@@ -1,4 +1,4 @@
-import { Problem, ProblemId } from "@/order/order-schema";
+import { Problem, ProblemId } from "db-vanity-model/src/order-schema.ts";
 
 /**
  * Calculates "n choose k" using BigInt for perfect precision.

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { makeClient } from "./helpers";
-import { VanityOrderSchema } from "./order-schema";
+import { VanityOrderSchema } from "db-vanity-model/src/order-schema.ts";
 
 const isValidHex = (str: string): str is `0x${string}` => {
   return /^0x[0-9a-fA-F]+$/.test(str);
