@@ -9,7 +9,7 @@ import {
   Info,
   RefreshCw,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 import {
   VanityOrderResult,
@@ -238,6 +238,130 @@ function OrderResultsPage() {
     }
   };
 
+  const renderHighlightedAddress = (
+    address: string,
+    problem: Problem | null,
+  ): ReactNode => {
+    if (!address.startsWith("0x")) {
+      return <>{address}</>;
+    }
+
+    if (!problem) {
+      return <>{address}</>;
+    }
+
+    const body = address.slice(2);
+    const highlight = Array.from({ length: body.length }, () => false);
+
+    switch (problem.type) {
+      case "user-prefix": {
+        const prefix = problem.specifier.replace(/^0x/, "");
+        const length = Math.min(prefix.length, body.length);
+        if (body.toLowerCase().startsWith(prefix.toLowerCase())) {
+          for (let i = 0; i < length; i++) {
+            highlight[i] = true;
+          }
+        }
+        break;
+      }
+      case "user-suffix": {
+        const suffix = problem.specifier;
+        const length = Math.min(suffix.length, body.length);
+        if (body.toLowerCase().endsWith(suffix.toLowerCase())) {
+          for (let i = body.length - length; i < body.length; i++) {
+            if (i >= 0) highlight[i] = true;
+          }
+        }
+        break;
+      }
+      case "user-mask": {
+        const mask = problem.specifier.replace(/^0x/, "").toLowerCase();
+        for (let i = 0; i < mask.length && i < body.length; i++) {
+          if (mask[i] !== "x" && body[i]?.toLowerCase() === mask[i]) {
+            highlight[i] = true;
+          }
+        }
+        break;
+      }
+      case "leading-any": {
+        const length = Math.min(problem.length, body.length);
+        const firstChar = body[0]?.toLowerCase();
+        if (firstChar) {
+          for (let i = 0; i < length; i++) {
+            if (body[i]?.toLowerCase() === firstChar) {
+              highlight[i] = true;
+            } else {
+              break;
+            }
+          }
+        }
+        break;
+      }
+      case "trailing-any": {
+        const length = Math.min(problem.length, body.length);
+        const lastChar = body[body.length - 1]?.toLowerCase();
+        if (lastChar) {
+          for (let offset = 0; offset < length; offset++) {
+            const idx = body.length - 1 - offset;
+            if (idx < 0) break;
+            const char = body[idx];
+            if (char && char.toLowerCase() === lastChar) {
+              highlight[idx] = true;
+            } else {
+              break;
+            }
+          }
+        }
+        break;
+      }
+      case "letters-heavy": {
+        for (let i = 0; i < body.length; i++) {
+          if (/[a-f]/i.test(body[i])) {
+            highlight[i] = true;
+          }
+        }
+        break;
+      }
+      case "numbers-heavy": {
+        for (let i = 0; i < body.length; i++) {
+          if (/[0-9]/.test(body[i])) {
+            highlight[i] = true;
+          }
+        }
+        break;
+      }
+      case "snake-score-no-case": {
+        for (let i = 0; i < body.length - 1; i++) {
+          if (body[i].toLowerCase() === body[i + 1].toLowerCase()) {
+            highlight[i] = true;
+            highlight[i + 1] = true;
+          }
+        }
+        break;
+      }
+      default:
+        break;
+    }
+
+    if (!highlight.some(Boolean)) {
+      return <>{address}</>;
+    }
+
+    return (
+      <>
+        0x
+        {Array.from(body).map((char, idx) => (
+          <span
+            key={idx}
+            className={highlight[idx] ? "text-primary" : undefined}
+          >
+            {char}
+          </span>
+        ))}
+      </>
+    );
+  };
+
   return (
     <div className="mx-auto max-w-screen-2xl space-y-6 px-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -359,7 +483,7 @@ function OrderResultsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredResults.map(({ id, order }) => {
+              {filteredResults.map(({ id, order, problem }) => {
                 const addr = getAddress(order.proof.address);
                 return (
                   <TableRow key={id}>
@@ -378,7 +502,7 @@ function OrderResultsPage() {
                         title="Click to copy address"
                       >
                         <span className="truncate font-mono text-sm">
-                          {addr}
+                          {renderHighlightedAddress(addr, problem)}
                         </span>
                         <Clipboard className="size-4 text-muted-foreground group-hover:text-foreground" />
                       </div>
