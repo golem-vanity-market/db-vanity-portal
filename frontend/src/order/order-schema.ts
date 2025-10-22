@@ -57,11 +57,11 @@ export const VanityRequestSchema = z.object({
 export const VanityOrderSchema = z.object({
   requestId: z.string(),
   status: z.enum(["queue", "processing", "completed"]),
-  created: z.string().datetime(),
+  created: z.iso.datetime(),
   duration: z.number(),
-  valid: z.string().datetime().nullable(),
-  started: z.string().datetime().nullable(),
-  completed: z.string().datetime().nullable(),
+  valid: z.iso.datetime().nullable(),
+  started: z.iso.datetime().nullable(),
+  completed: z.iso.datetime().nullable(),
   pubKey: z.union([
     z.string().startsWith("0x").length(132),
     z.string().startsWith("xpub"),
@@ -95,7 +95,7 @@ export type Problem = z.infer<typeof ProblemSchema>;
 export type ProblemId = Problem["type"];
 
 export const VanityRequestWithTimestampSchema = VanityRequestSchema.extend({
-  timestamp: z.string().datetime(),
+  timestamp: z.iso.datetime(),
 });
 
 export type VanityRequestWithTimestamp = z.infer<
