@@ -11,6 +11,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "db-vanity-model": "git+https://github.com/golem-vanity-market/db-vanity-model#fd3fcf9",
     "dotenv": "^17.2.2",
     "ethers": "^6.15.0",
     "golem-base-sdk": "^0.1.16",

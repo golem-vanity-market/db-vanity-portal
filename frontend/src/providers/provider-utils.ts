@@ -1,4 +1,4 @@
-import { ProviderDataEntry } from "../../../shared/src/provider";
+import { ProviderDataEntry } from "db-vanity-model/src/provider";
 
 export const getProviderScore = (provider: ProviderDataEntry): number => {
   const speedScore = provider.speed ? provider.speed / 10.0e6 : 0;

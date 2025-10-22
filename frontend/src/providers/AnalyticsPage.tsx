@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createROClient } from "golem-base-sdk";
-import { ProviderData } from "../../../shared/src/provider";
+import { ProviderData } from "db-vanity-model/src/provider";
 import {
   fetchAllEntities,
   mapValueForAnnotation,
   mapValueForNumberAnnotation,
-} from "../../../shared/src/query";
+} from "db-vanity-model/src/query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";

@@ -1,4 +1,4 @@
-import { ProviderData } from "../../shared/src/provider.ts";
+import { ProviderData } from "db-vanity-model/src/provider.ts";
 
 export interface BlockInfo {
   number: bigint;

@@ -21,7 +21,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ExternalLink } from "lucide-react";
-import { ProviderDataEntry } from "../../../shared/src/provider";
+import { ProviderDataEntry } from "db-vanity-model/src/provider";
 import { displayDifficulty, displayHours } from "@/utils";
 import { getProviderScore } from "./provider-utils";
 import {

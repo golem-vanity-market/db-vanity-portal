@@ -15,14 +15,14 @@ import { operations } from "./queries.ts";
 import {
   ProviderData,
   type ProviderDataEntry,
-} from "../../shared/src/provider.ts";
+} from "db-vanity-model/src/provider.ts";
 import dotenv from "dotenv";
-import { serializeProvider } from "../../shared/src/provider.ts";
+import { serializeProvider } from "db-vanity-model/src/provider.ts";
 import {
   fetchAllEntitiesRaw,
   mapValueForAnnotation,
   mapValueForNumberAnnotation,
-} from "../../shared/src/query.ts";
+} from "db-vanity-model/src/query.ts";
 
 dotenv.config();
 

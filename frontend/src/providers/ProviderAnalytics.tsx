@@ -1,4 +1,4 @@
-import { ProviderData } from "../../../shared/src/provider.ts";
+import { ProviderData } from "db-vanity-model/src/provider.ts";
 import { useEffect, useState } from "react";
 // @ts-expect-error TS7016 Plotly types are missing
 import Plot from "react-plotly.js";
