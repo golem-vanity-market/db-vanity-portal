@@ -53,63 +53,46 @@ function calculateProbabilitySpace(
 ): bigint {
   switch (category) {
     case "user-prefix": {
-      // The number of addresses with at least `threshold` characters matching the user-defined pattern.
       if (threshold > 40 || threshold < 1) return TOTAL_ADDRESS_SPACE;
       return 16n ** BigInt(40 - threshold);
     }
-
     case "user-suffix": {
-      // The number of addresses with at least `threshold` characters matching the user-defined pattern.
       if (threshold > 40 || threshold < 1) return TOTAL_ADDRESS_SPACE;
       return 16n ** BigInt(40 - threshold);
     }
-
     case "user-mask": {
-      // The number of addresses with at least `threshold` characters matching the user-defined mask.
       if (threshold > 40 || threshold < 1) return TOTAL_ADDRESS_SPACE;
       return 16n ** BigInt(40 - threshold);
     }
-
     case "leading-any": {
-      // The number of addresses with at least `threshold` identical leading characters.
       if (threshold > 40 || threshold < 1) return TOTAL_ADDRESS_SPACE;
       return 16n * 16n ** BigInt(40 - threshold);
     }
-
     case "trailing-any": {
-      // The number of addresses with at least `threshold` identical trailing characters.
       if (threshold > 40 || threshold < 1) return TOTAL_ADDRESS_SPACE;
       return 16n * 16n ** BigInt(40 - threshold);
     }
-
     case "letters-heavy": {
-      // At least `threshold` letters. We must sum combinations for k = threshold, threshold+1, ..., 40.
-      let total = 0n;
+      let totalMatches = 0n;
       for (let k = threshold; k <= 40; k++) {
-        total += exactlyLettersCombinationsBigInt(k, 40);
+        totalMatches += exactlyLettersCombinationsBigInt(k, 40);
       }
-      return total;
+      return totalMatches;
     }
-
     case "numbers-heavy": {
-      // At least `threshold` numbers. This is equivalent to at most `40-threshold` letters.
-      let total = 0n;
+      let totalMatches = 0n;
       for (let k = threshold; k <= 40; k++) {
-        // An address with `k` numbers has `40-k` letters.
-        total += exactlyLettersCombinationsBigInt(40 - k, 40);
+        totalMatches += exactlyLettersCombinationsBigInt(40 - k, 40);
       }
-      return total;
+      return totalMatches;
     }
-
     case "snake-score-no-case": {
-      // At least `threshold` adjacent pairs. Max pairs is 39.
-      let total = 0n;
+      let totalMatches = 0n;
       for (let k = threshold; k <= 39; k++) {
-        total += snakeCombinationsBigInt(k, 40);
+        totalMatches += snakeCombinationsBigInt(k, 40);
       }
-      return total;
+      return totalMatches;
     }
-
     default:
       throw new Error(`Unknown category: ${category}`);
   }
@@ -117,8 +100,7 @@ function calculateProbabilitySpace(
 
 /**
  * Calculate the number of addresses that need to be checked on average
- * to find an address matching at least one problem. If thresholds are not
- * provided the calculation will be done based on the thresholds defined in each problem
+ * to find an address matching at least one problem.
  */
 export function calculateWorkUnitForProblems(problems: Problem[]): number {
   const thresholds = problems.reduce(
@@ -192,11 +174,14 @@ export function matchProblemToAddress(
       }
       case "user-mask": {
         let match = true;
-        const addressWithout0x = address.replace(/^0x/, "");
-        const maskWithout0x = problem.specifier.replace(/^0x/, "");
+        const addressWithout0x = address.replace(/^0x/, "").toLowerCase();
+        const maskWithout0x = problem.specifier
+          .replace(/^0x/, "")
+          .toLowerCase();
         for (let i = 0; i < maskWithout0x.length; i++) {
           const char = maskWithout0x[i];
-          if (char !== "x" && char !== addressWithout0x[i]) {
+          const addrChar = addressWithout0x[i];
+          if (char !== "x" && (!addrChar || char !== addrChar)) {
             match = false;
             break;
           }
@@ -264,4 +249,143 @@ export function matchProblemToAddress(
     }
   }
   return null;
+}
+
+const pow16 = (exponent: number): bigint => {
+  if (exponent <= 0) return 1n;
+  return 16n ** BigInt(exponent);
+};
+
+const expectedTriesFromSpace = (space: bigint): bigint => {
+  if (space <= 0n) return 0n;
+  return TOTAL_ADDRESS_SPACE / space;
+};
+
+export type ProblemMatchInfo = {
+  rarity: bigint;
+  summary: string;
+  powerOf16Exponent?: number;
+};
+
+export function getProblemMatchInfo(
+  address: string,
+  problem: Problem,
+): ProblemMatchInfo | null {
+  if (!address.startsWith("0x")) return null;
+  const body = address.slice(2);
+
+  switch (problem.type) {
+    case "user-prefix": {
+      const prefix = problem.specifier.replace(/^0x/, "");
+      const length = Math.min(prefix.length, body.length);
+      const matched = prefix.slice(0, length).toUpperCase();
+      return {
+        rarity: pow16(length),
+        summary: `${length} char prefix (${matched})`,
+        powerOf16Exponent: length,
+      };
+    }
+    case "user-suffix": {
+      const suffix = problem.specifier;
+      const length = Math.min(suffix.length, body.length);
+      const matched = suffix.slice(-length).toUpperCase();
+      return {
+        rarity: pow16(length),
+        summary: `${length} char suffix (${matched})`,
+        powerOf16Exponent: length,
+      };
+    }
+    case "user-mask": {
+      const mask = problem.specifier.replace(/^0x/, "").toLowerCase();
+      const lowered = body.toLowerCase();
+      let matched = 0;
+      for (let i = 0; i < mask.length && i < body.length; i++) {
+        const maskChar = mask[i];
+        const addrChar = lowered[i];
+        if (maskChar !== "x" && addrChar && maskChar === addrChar) {
+          matched++;
+        }
+      }
+      return {
+        rarity: pow16(matched),
+        summary: `${matched} mask characters fixed`,
+        powerOf16Exponent: matched,
+      };
+    }
+    case "leading-any": {
+      const lowered = body.toLowerCase();
+      const first = lowered[0];
+      if (!first) return null;
+      let run = 0;
+      for (let i = 0; i < lowered.length; i++) {
+        if (lowered[i] === first) run++;
+        else break;
+      }
+      return {
+        rarity: pow16(run),
+        summary: `${run} leading ${first.toUpperCase()}`,
+        powerOf16Exponent: run,
+      };
+    }
+    case "trailing-any": {
+      const lowered = body.toLowerCase();
+      const last = lowered[lowered.length - 1];
+      if (!last) return null;
+      let run = 0;
+      for (let offset = 0; offset < lowered.length; offset++) {
+        const idx = lowered.length - 1 - offset;
+        if (idx < 0) break;
+        if (lowered[idx] === last) run++;
+        else break;
+      }
+      return {
+        rarity: pow16(run),
+        summary: `${run} trailing ${last.toUpperCase()}`,
+        powerOf16Exponent: run,
+      };
+    }
+    case "letters-heavy": {
+      const letters = body.replace(/[0-9]/g, "");
+      const count = letters.length;
+      const probabilitySpace = calculateProbabilitySpace(
+        "letters-heavy",
+        count,
+      );
+      return {
+        rarity: expectedTriesFromSpace(probabilitySpace),
+        summary: `${count} letters`,
+      };
+    }
+    case "numbers-heavy": {
+      const numbers = body.replace(/[a-f]/gi, "");
+      const count = numbers.length;
+      const probabilitySpace = calculateProbabilitySpace(
+        "numbers-heavy",
+        count,
+      );
+      return {
+        rarity: expectedTriesFromSpace(probabilitySpace),
+        summary: `${count} digits`,
+      };
+    }
+    case "snake-score-no-case": {
+      const lowered = body.toLowerCase();
+      let pairs = 0;
+      for (let i = 0; i < lowered.length - 1; i++) {
+        if (lowered[i] === lowered[i + 1]) {
+          pairs++;
+        }
+      }
+      const probabilitySpace = calculateProbabilitySpace(
+        "snake-score-no-case",
+        pairs,
+      );
+      return {
+        rarity: expectedTriesFromSpace(probabilitySpace),
+        summary: `${pairs} snake pairs`,
+      };
+    }
+    default:
+      return null;
+  }
 }

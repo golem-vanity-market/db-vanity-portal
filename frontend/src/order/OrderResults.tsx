@@ -26,6 +26,12 @@ import {
 } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   Table,
   TableBody,
   TableCell,
@@ -34,11 +40,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useOrder } from "./useOrder";
-import { matchProblemToAddress } from "@/utils/difficulty";
+import { getProblemMatchInfo, matchProblemToAddress } from "@/utils/difficulty";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/Toast";
 import { getAddress } from "viem";
 import { Badge } from "@/components/ui/badge";
+import { displayDifficulty } from "@/utils";
 
 const fetchOrderResults = async (orderId: string) => {
   const golemClient = await makeClient();
@@ -85,7 +92,17 @@ function OrderResultsPage() {
     const problem = orderData
       ? matchProblemToAddress(result.order.proof.address, orderData.problems)
       : null;
-    return { ...result, problem };
+    const matchInfo = problem
+      ? getProblemMatchInfo(result.order.proof.address, problem)
+      : null;
+    return { ...result, problem, matchInfo };
+  });
+
+  const resultsSortedByRarity = resultsWithProblemAssigned.toSorted((a, b) => {
+    const rarityA = a.matchInfo?.rarity ?? 0n;
+    const rarityB = b.matchInfo?.rarity ?? 0n;
+    if (rarityA === rarityB) return 0;
+    return rarityA < rarityB ? 1 : -1;
   });
 
   const problemLabel = (p: Problem["type"]) => {
@@ -125,8 +142,8 @@ function OrderResultsPage() {
 
   const filteredResults =
     activeFilter === "all"
-      ? resultsWithProblemAssigned
-      : resultsWithProblemAssigned.filter(
+      ? resultsSortedByRarity
+      : resultsSortedByRarity.filter(
           (r) => r.problem && r.problem.type === activeFilter,
         );
 
@@ -256,9 +273,9 @@ function OrderResultsPage() {
     switch (problem.type) {
       case "user-prefix": {
         const prefix = problem.specifier.replace(/^0x/, "");
-        const length = Math.min(prefix.length, body.length);
         if (body.toLowerCase().startsWith(prefix.toLowerCase())) {
-          for (let i = 0; i < length; i++) {
+          const limit = Math.min(prefix.length, body.length);
+          for (let i = 0; i < limit; i++) {
             highlight[i] = true;
           }
         }
@@ -266,10 +283,10 @@ function OrderResultsPage() {
       }
       case "user-suffix": {
         const suffix = problem.specifier;
-        const length = Math.min(suffix.length, body.length);
         if (body.toLowerCase().endsWith(suffix.toLowerCase())) {
-          for (let i = body.length - length; i < body.length; i++) {
-            if (i >= 0) highlight[i] = true;
+          const start = Math.max(body.length - suffix.length, 0);
+          for (let i = start; i < body.length; i++) {
+            highlight[i] = true;
           }
         }
         break;
@@ -277,18 +294,24 @@ function OrderResultsPage() {
       case "user-mask": {
         const mask = problem.specifier.replace(/^0x/, "").toLowerCase();
         for (let i = 0; i < mask.length && i < body.length; i++) {
-          if (mask[i] !== "x" && body[i]?.toLowerCase() === mask[i]) {
+          const maskChar = mask[i];
+          const addrChar = body[i];
+          if (
+            maskChar !== "x" &&
+            addrChar &&
+            addrChar.toLowerCase() === maskChar
+          ) {
             highlight[i] = true;
           }
         }
         break;
       }
       case "leading-any": {
-        const length = Math.min(problem.length, body.length);
         const firstChar = body[0]?.toLowerCase();
         if (firstChar) {
-          for (let i = 0; i < length; i++) {
-            if (body[i]?.toLowerCase() === firstChar) {
+          for (let i = 0; i < body.length; i++) {
+            const char = body[i];
+            if (char && char.toLowerCase() === firstChar) {
               highlight[i] = true;
             } else {
               break;
@@ -298,12 +321,9 @@ function OrderResultsPage() {
         break;
       }
       case "trailing-any": {
-        const length = Math.min(problem.length, body.length);
         const lastChar = body[body.length - 1]?.toLowerCase();
         if (lastChar) {
-          for (let offset = 0; offset < length; offset++) {
-            const idx = body.length - 1 - offset;
-            if (idx < 0) break;
+          for (let idx = body.length - 1; idx >= 0; idx--) {
             const char = body[idx];
             if (char && char.toLowerCase() === lastChar) {
               highlight[idx] = true;
@@ -479,11 +499,39 @@ function OrderResultsPage() {
                 <TableHead className="w-[40%]">Address</TableHead>
                 <TableHead>Entity</TableHead>
                 <TableHead>Provider</TableHead>
+                <TableHead className="text-right">
+                  <TooltipProvider delayDuration={200}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span
+                          className="inline-flex w-full cursor-help items-center justify-end gap-1"
+                          tabIndex={0}
+                        >
+                          Rarity
+                          <Info
+                            className="size-3.5 text-muted-foreground"
+                            aria-hidden="true"
+                          />
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        align="end"
+                        className="max-w-xs text-left"
+                      >
+                        <p>
+                          Estimated number of random addresses a provider would
+                          need to generate before finding a match. Higher values
+                          indicate rarer results.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredResults.map(({ id, order, problem }) => {
+              {filteredResults.map(({ id, order, problem, matchInfo }) => {
                 const addr = getAddress(order.proof.address);
                 return (
                   <TableRow key={id}>
@@ -559,6 +607,22 @@ function OrderResultsPage() {
                           </PopoverContent>
                         </Popover>
                       </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {matchInfo ? (
+                        <span
+                          className="font-mono text-sm font-medium"
+                          title={
+                            matchInfo.powerOf16Exponent !== undefined
+                              ? `~16^${matchInfo.powerOf16Exponent} ${matchInfo.summary}`
+                              : matchInfo.summary
+                          }
+                        >
+                          {displayDifficulty(Number(matchInfo.rarity))}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
