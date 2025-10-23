@@ -118,16 +118,14 @@ export const problems = [
     id: "user-mask",
     label: "Mask",
     description:
-      "Search for addresses that match the specified mask. Use X to match any character (e.g., 0x1234xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5678)",
+      "Search for addresses that match the specified mask. Use X to match any character (e.g., 1234xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5678)",
     specifierType: "text",
-    defaultValue: "0x1234xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5678",
+    defaultValue: "1234xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5678",
     specifierKey: "specifier",
     icon: <Grid3x3 />,
     getExample: addressExamples["user-mask"],
     getDefaultExample: () =>
-      addressExamples["user-mask"](
-        "0x1234xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5678",
-      ),
+      addressExamples["user-mask"]("1234xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5678"),
   },
   {
     id: "leading-any",

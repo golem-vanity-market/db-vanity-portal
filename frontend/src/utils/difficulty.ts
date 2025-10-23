@@ -296,7 +296,11 @@ export function getProblemMatchInfo(
       };
     }
     case "user-mask": {
-      const mask = problem.specifier.replace(/^0x/, "").toLowerCase();
+      // in case mask includes 0x prefix
+      const mask =
+        problem.specifier.length === 42
+          ? problem.specifier.slice(2).toLowerCase()
+          : problem.specifier.toLowerCase();
       const lowered = body.toLowerCase();
       let matched = 0;
       for (let i = 0; i < mask.length && i < body.length; i++) {

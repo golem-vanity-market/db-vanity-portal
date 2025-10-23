@@ -175,17 +175,11 @@ const FormSchema = z
           })
           .superRefine((data, ctx) => {
             if (data.enabled) {
-              if (!data.specifier.startsWith("0x")) {
+              if (data.specifier.length !== 40) {
                 ctx.addIssue({
                   code: z.ZodIssueCode.custom,
-                  message: "Specifier must start with 0x",
-                  path: ["specifier"],
-                });
-              }
-              if (data.specifier.length !== 42) {
-                ctx.addIssue({
-                  code: z.ZodIssueCode.custom,
-                  message: "Specifier must be 42 characters long",
+                  message:
+                    "Specifier must be 40 characters long (don't include the 0x prefix)",
                   path: ["specifier"],
                 });
               }
@@ -299,7 +293,7 @@ export const NewOrderPage = () => {
         "user-suffix": { enabled: false, specifier: "00BADD1E" },
         "user-mask": {
           enabled: false,
-          specifier: "0x1234xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5678",
+          specifier: "1234xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5678",
         },
       },
     },
@@ -560,15 +554,7 @@ export const NewOrderPage = () => {
                         onChange={(e) => {
                           let value = e.target.value;
                           if (problemConfig.id === "user-mask") {
-                            if (value.length < 2) {
-                              value = "0x";
-                            } else {
-                              value =
-                                "0x" +
-                                value
-                                  .replace(/^0x/i, "")
-                                  .replace(/[^0-9a-fA-FXx]/gi, "");
-                            }
+                            value = value.replace(/[^0-9a-fA-FXx]/gi, "");
                           } else if (problemConfig.id === "user-prefix") {
                             if (value.length < 2) {
                               value = "0x";
@@ -584,11 +570,7 @@ export const NewOrderPage = () => {
                           }
                           value = value.slice(
                             0,
-                            problemConfig.id === "user-mask"
-                              ? 42
-                              : problemConfig.id === "user-prefix"
-                                ? 42
-                                : 40,
+                            problemConfig.id === "user-prefix" ? 42 : 40,
                           );
                           if (field.value === value) return;
                           field.onChange(value);

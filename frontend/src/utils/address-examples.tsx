@@ -42,7 +42,7 @@ export const addressExamples = {
     );
   },
   "user-mask": (specifier: string) => {
-    const mask = specifier.replace("0x", "").toUpperCase();
+    const mask = specifier.toUpperCase();
     if (mask.length !== 40)
       return <InvalidInput reason="Mask must be exactly 40 characters" />;
     if (!/^[0-9A-FX]{40}$/.test(mask))
