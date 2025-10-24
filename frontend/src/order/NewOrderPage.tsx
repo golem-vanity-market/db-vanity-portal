@@ -5,6 +5,7 @@ import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { ArrowLeft, CheckSquare2, Square } from "lucide-react";
 import React, { useState } from "react";
+import {vanityDurationToSeconds} from "db-vanity-model/src/utils.ts"
 
 import { Button } from "@/components/ui/button";
 import {
@@ -45,7 +46,7 @@ const FormSchema = z
   .object({
     keyType: z.enum(["publicKey", "xpub"]),
     publicKey: z.string(),
-    duration: z.enum(["5m", "15m", "30m", "1h", "4h", "12h", "24h"]),
+    duration: z.string(),
     problems: z
       .object({
         "leading-any": z
@@ -416,31 +417,12 @@ export const NewOrderPage = () => {
     useWatch({ control: form.control, name: "duration" }) || "30m";
 
   // Convert duration to minutes
-  const durationInMinutes = (() => {
-    switch (duration) {
-      case "5m":
-        return 5;
-      case "15m":
-        return 15;
-      case "30m":
-        return 30;
-      case "1h":
-        return 60;
-      case "4h":
-        return 240;
-      case "12h":
-        return 720;
-      case "24h":
-        return 1440;
-      default:
-        return 30;
-    }
-  })();
+  const durationSec = vanityDurationToSeconds(duration);
 
   // prettier-ignore
   const hashesPerDuration = 20 // 20 providers
     * 5 * 1e6 // 5 MH/s
-    * durationInMinutes * 60 // duration in seconds
+    * durationSec // duration in seconds
     * (form.getValues("keyType") === "xpub" ? 0.1 : 1); // xpub is ~10% as effective as a single public key
 
   const expectedMatches = Math.round(
@@ -860,7 +842,7 @@ export const NewOrderPage = () => {
                 <h3 className="mt-4 text-lg font-semibold">Time Estimation</h3>
                 <p className="text-sm text-foreground/80">
                   With 20 providers working for{" "}
-                  {duration.replace("m", " minutes").replace("h", " hours")},
+                  {duration},
                   you can expect to find approximately:
                 </p>
                 <p className="mt-2 text-2xl font-bold text-primary">
@@ -884,42 +866,10 @@ export const NewOrderPage = () => {
                 name="duration"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Order Duration</FormLabel>
+                    <FormLabel>Order Duration (human readable)</FormLabel>
                     <FormControl>
                       <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
-                        {[
-                          { value: "5m", label: "5m" },
-                          { value: "15m", label: "15m" },
-                          { value: "30m", label: "30m" },
-                          { value: "1h", label: "1h" },
-                          { value: "4h", label: "4h" },
-                          { value: "12h", label: "12h" },
-                          { value: "24h", label: "24h" },
-                        ].map((duration) => (
-                          <Card
-                            key={duration.value}
-                            className={cn(
-                              "cursor-pointer border-2 transition-all hover:shadow-md",
-                              field.value === duration.value
-                                ? "border-primary bg-primary/10 shadow-sm ring-2 ring-primary/20"
-                                : "border-muted hover:border-primary/50",
-                            )}
-                            onClick={() => field.onChange(duration.value)}
-                          >
-                            <CardContent className="flex items-center justify-center p-3">
-                              <span
-                                className={cn(
-                                  "text-sm font-medium",
-                                  field.value === duration.value
-                                    ? "text-primary font-bold"
-                                    : "text-muted-foreground",
-                                )}
-                              >
-                                {duration.label}
-                              </span>
-                            </CardContent>
-                          </Card>
-                        ))}
+                        <input style={{padding: 10}} type={"text"} value={field.value} onChange={(e)=>field.onChange(e.target.value)}/>
                       </div>
                     </FormControl>
                     <FormDescription>
