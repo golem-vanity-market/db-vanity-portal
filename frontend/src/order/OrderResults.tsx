@@ -9,14 +9,14 @@ import {
   Info,
   RefreshCw,
 } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import {
   VanityOrderResult,
   VanityOrderResultSchema,
   type Problem,
 } from "db-vanity-model/src/order-schema.ts";
-import { makeClient, truncateMiddle } from "./helpers";
+import { makeClient, msToShort, truncateMiddle } from "./helpers";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -71,6 +71,43 @@ const fetchOrderResults = async (orderId: string) => {
     })
     .filter((o): o is { id: string; order: VanityOrderResult } => o !== null);
 };
+
+type ProcessingCountdownProps = {
+  started?: string | Date | null;
+  duration?: number | string | bigint | null;
+};
+
+function ProcessingCountdown({ started, duration }: ProcessingCountdownProps) {
+  const [now, setNow] = useState(() => Date.now());
+
+  const startedAt = started ? new Date(started).getTime() : Number.NaN;
+  const durationSeconds = duration != null ? Number(duration) : Number.NaN;
+  const isValidTiming =
+    Number.isFinite(startedAt) &&
+    Number.isFinite(durationSeconds) &&
+    durationSeconds > 0;
+
+  useEffect(() => {
+    if (!isValidTiming || typeof window === "undefined") return;
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, [isValidTiming, startedAt, durationSeconds]);
+
+  if (!isValidTiming) return null;
+
+  const remainingMs = Math.max(startedAt + durationSeconds * 1000 - now, 0);
+
+  const label =
+    remainingMs <= 1000
+      ? "order finishing..."
+      : `~${remainingMs < 60_000 ? "<1m" : msToShort(remainingMs)} remaining`;
+
+  return (
+    <span className="text-xs text-muted-foreground" aria-live="polite">
+      {label}
+    </span>
+  );
+}
 
 function OrderResultsPage() {
   const { orderId } = useParams();
@@ -402,6 +439,12 @@ function OrderResultsPage() {
               <Badge variant={getStatusVariant(orderData.status)}>
                 {getStatusLabel(orderData.status)}
               </Badge>
+            )}
+            {status === "processing" && (
+              <ProcessingCountdown
+                started={orderData?.started ?? null}
+                duration={orderData?.duration ?? null}
+              />
             )}
           </div>
           <p className="text-sm text-muted-foreground">

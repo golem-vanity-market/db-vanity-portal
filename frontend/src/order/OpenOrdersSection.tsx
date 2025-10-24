@@ -214,10 +214,7 @@ export function OpenOrdersSection({
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <CancelRequestMenuItem
-                          requestId={id}
-                          invalidateKeys={[["myRequests"], ["myOrders"]]}
-                        />
+                        <CancelRequestMenuItem requestId={id} />
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

@@ -7,7 +7,7 @@ import {
 import { Lightbulb } from "lucide-react";
 
 export const OrdersExplainer = () => (
-  <Card className="overflow-hidden border-none bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 shadow-sm shadow-primary/10">
+  <Card className="overflow-hidden border-none bg-linear-to-r from-primary/5 via-primary/10 to-primary/5 shadow-sm shadow-primary/10">
     <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
       <span className="flex size-12 items-center justify-center rounded-full bg-primary/15 text-primary">
         <Lightbulb className="size-6" />
