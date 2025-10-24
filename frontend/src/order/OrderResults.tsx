@@ -46,6 +46,7 @@ import { toast } from "@/components/Toast";
 import { getAddress } from "viem";
 import { Badge } from "@/components/ui/badge";
 import { displayDifficulty } from "@/utils";
+import { CancelRequestButton } from "./CancelRequestButton";
 
 const fetchOrderResults = async (orderId: string) => {
   const golemClient = await makeClient();
@@ -237,6 +238,8 @@ function OrderResultsPage() {
         return "secondary";
       case "queue":
         return "outline";
+      case "cancelled":
+        return "destructive";
       default:
         return "outline";
     }
@@ -250,6 +253,8 @@ function OrderResultsPage() {
         return "Processing";
       case "queue":
         return "Queued";
+      case "cancelled":
+        return "Cancelled";
       default:
         return status;
     }
@@ -382,6 +387,11 @@ function OrderResultsPage() {
     );
   };
 
+  const status = orderData?.status;
+  const requestId = orderData?.requestId ?? null;
+  const canCancel =
+    status !== undefined && status !== "completed" && status !== "cancelled";
+
   return (
     <div className="mx-auto max-w-screen-2xl space-y-6 px-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -413,6 +423,14 @@ function OrderResultsPage() {
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {canCancel && (
+            <CancelRequestButton
+              requestId={requestId}
+              variant="link"
+              size="default"
+              className="text-destructive"
+            />
+          )}
           {!isLoading && results.length > 0 && (
             <Button
               onClick={() =>

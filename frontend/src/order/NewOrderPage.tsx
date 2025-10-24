@@ -244,6 +244,7 @@ async function sendOrder(data: z.infer<typeof FormSchema>) {
     publicKey: data.publicKey,
     problems: selectedProblems,
     duration: data.duration,
+    cancelledAt: null,
   });
 
   const res = await golemClient.createEntities([
@@ -254,9 +255,9 @@ async function sendOrder(data: z.infer<typeof FormSchema>) {
           timestamp,
         }),
       ),
-      btl: 1800 * 24, // 24h, block every 2 seconds
+      btl: 30 * 1800 * 24, // 30d, block every 2 seconds
       stringAnnotations: [
-        new Annotation("vanity_market_request", "2"),
+        new Annotation("vanity_market_request", "3"),
         new Annotation("timestamp", timestamp),
       ],
       numericAnnotations: [],

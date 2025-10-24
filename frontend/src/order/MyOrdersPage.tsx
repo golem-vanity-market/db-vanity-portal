@@ -31,7 +31,7 @@ const VALID_TAB_SET = new Set<TabKey>(VALID_TABS);
 const fetchMyRequests = async () => {
   const golemClient = await makeClient();
   const rawRes = await golemClient.queryEntities(
-    `vanity_market_request="2" && $owner="${golemClient.getRawClient().walletClient.account.address}"`,
+    `vanity_market_request="3" && $owner="${golemClient.getRawClient().walletClient.account.address}"`,
   );
   return rawRes
     .map(({ entityKey, storageValue }) => {
@@ -65,10 +65,10 @@ const fetchOrders = async (allOrders: boolean) => {
   let rawRes;
   if (!allOrders) {
     rawRes = await golemClient.queryEntities(
-      `vanity_market_order="2" && requestor="${golemClient.getRawClient().walletClient.account.address}"`,
+      `vanity_market_order="3" && requestor="${golemClient.getRawClient().walletClient.account.address}"`,
     );
   } else {
-    rawRes = await golemClient.queryEntities(`vanity_market_order="2"`);
+    rawRes = await golemClient.queryEntities(`vanity_market_order="3"`);
   }
   return rawRes
     .map(({ entityKey, storageValue }) => {
@@ -178,7 +178,7 @@ export const MyOrdersPage = () => {
     (order) => order.status === "processing",
   );
   const completedOrders = myOrders.filter(
-    (order) => order.status === "completed",
+    (order) => order.status === "completed" || order.status === "cancelled",
   );
 
   const awaitingPickupCount = awaitingRequests.length;

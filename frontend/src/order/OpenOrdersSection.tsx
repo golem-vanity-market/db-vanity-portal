@@ -15,6 +15,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import ProblemList from "./ProblemList";
 import {
   REQUEST_TTL_MS,
@@ -24,6 +29,8 @@ import {
   truncateMiddle,
 } from "./helpers";
 import type { Problem } from "db-vanity-model/src/order-schema.ts";
+import { CancelRequestMenuItem } from "./CancelRequestButton";
+import { MoreVertical } from "lucide-react";
 
 type PendingItem = {
   id: string;
@@ -99,6 +106,7 @@ export function OpenOrdersSection({
               <TableHead className="">Expires</TableHead>
               <TableHead className="">Availability</TableHead>
               <TableHead className="">Problems</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -192,6 +200,26 @@ export function OpenOrdersSection({
                         <ProblemList problems={order.problems} />
                       </PopoverContent>
                     </Popover>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-muted-foreground"
+                          aria-label="Open actions menu"
+                        >
+                          <MoreVertical className="size-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <CancelRequestMenuItem
+                          requestId={id}
+                          invalidateKeys={[["myRequests"], ["myOrders"]]}
+                        />
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               );

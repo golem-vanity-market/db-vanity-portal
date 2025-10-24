@@ -15,15 +15,24 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Link } from "react-router-dom";
 import ProblemList from "./ProblemList";
 import type { Problem } from "db-vanity-model/src/order-schema.ts";
 import { formatDateTime, formatRelative, truncateMiddle } from "./helpers";
+import { CancelRequestMenuItem } from "./CancelRequestButton";
+import { ExternalLink, MoreVertical } from "lucide-react";
 
 type Order = {
   orderId: string;
   requestId: string;
-  status: "queue" | "processing" | "completed";
+  status: "queue" | "processing" | "completed" | "cancelled";
   created: string;
   started: string | null;
   completed: string | null;
@@ -99,6 +108,7 @@ export function MyOrdersSection({
               <TableHead className="">Status</TableHead>
               <TableHead className="">Results</TableHead>
               <TableHead className="">Problems</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -108,29 +118,42 @@ export function MyOrdersSection({
                   ? "default"
                   : o.status === "processing"
                     ? "secondary"
-                    : "outline";
+                    : o.status === "cancelled"
+                      ? "destructive"
+                      : "outline";
               const problemsCount = o.problems?.length ?? 0;
               const availabilityClasses =
                 "inline-flex h-8 items-center gap-1 rounded-full border px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
-              const availabilityBadge =
-                o.status === "completed" || o.status === "processing" ? (
-                  <Link to={`/order/${o.orderId}/results`}>
-                    <button
-                      type="button"
-                      title="View picked-up details"
-                      className={`${availabilityClasses} cursor-pointer border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 focus-visible:ring-emerald-200`}
-                    >
-                      Results
-                      <span aria-hidden>→</span>
-                    </button>
-                  </Link>
-                ) : (
+              const availabilityBadge = (() => {
+                if (
+                  o.status === "completed" ||
+                  o.status === "processing" ||
+                  o.status === "cancelled"
+                ) {
+                  return (
+                    <Link to={`/order/${o.orderId}/results`}>
+                      <button
+                        type="button"
+                        title="View picked-up details"
+                        className={`${availabilityClasses} cursor-pointer border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 focus-visible:ring-emerald-200`}
+                      >
+                        Results
+                        <span aria-hidden>→</span>
+                      </button>
+                    </Link>
+                  );
+                }
+                return (
                   <span
                     className={`${availabilityClasses} cursor-default border-muted-foreground/30 bg-transparent text-muted-foreground`}
                   >
                     Awaiting provider
                   </span>
                 );
+              })();
+
+              const showCancel =
+                o.status !== "completed" && o.status !== "cancelled";
               return (
                 <TableRow key={`${o.orderId}-${o.created}`} className="text-sm">
                   <TableCell>
@@ -223,6 +246,50 @@ export function MyOrdersSection({
                         <ProblemList problems={o.problems ?? []} />
                       </PopoverContent>
                     </Popover>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-muted-foreground"
+                          aria-label="Open actions menu"
+                        >
+                          <MoreVertical className="size-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <a
+                            href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${o.orderId}?tab=data`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2"
+                          >
+                            <ExternalLink className="size-4" />
+                            <span>View order</span>
+                          </a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <a
+                            href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${o.requestId}?tab=data`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2"
+                          >
+                            <ExternalLink className="size-4" />
+                            <span>View request</span>
+                          </a>
+                        </DropdownMenuItem>
+                        {showCancel && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <CancelRequestMenuItem requestId={o.requestId} />
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               );
