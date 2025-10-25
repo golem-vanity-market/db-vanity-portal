@@ -5,7 +5,7 @@ import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { ArrowLeft, CheckSquare2, Square } from "lucide-react";
 import React, { useState } from "react";
-import {vanityDurationToSeconds} from "db-vanity-model/src/utils.ts"
+import { vanityDurationToSeconds } from "db-vanity-model/src/utils.ts";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -841,9 +841,8 @@ export const NewOrderPage = () => {
                 </p>
                 <h3 className="mt-4 text-lg font-semibold">Time Estimation</h3>
                 <p className="text-sm text-foreground/80">
-                  With 20 providers working for{" "}
-                  {duration},
-                  you can expect to find approximately:
+                  With 20 providers working for {duration}, you can expect to
+                  find approximately:
                 </p>
                 <p className="mt-2 text-2xl font-bold text-primary">
                   {selectedProblems.length === 0
@@ -869,7 +868,12 @@ export const NewOrderPage = () => {
                     <FormLabel>Order Duration (human readable)</FormLabel>
                     <FormControl>
                       <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
-                        <input style={{padding: 10}} type={"text"} value={field.value} onChange={(e)=>field.onChange(e.target.value)}/>
+                        <input
+                          style={{ padding: 10 }}
+                          type={"text"}
+                          value={field.value}
+                          onChange={(e) => field.onChange(e.target.value)}
+                        />
                       </div>
                     </FormControl>
                     <FormDescription>

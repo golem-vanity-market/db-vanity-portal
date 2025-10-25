@@ -15,7 +15,7 @@ on:
 jobs:
   checks:
     name: "Check CLI code - NPM"
-    runs-on: web3pi
+    runs-on: ubuntu-latest
 
     env:
       NODE_ENV: production
@@ -24,27 +24,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install bun
+        uses: oven-sh/setup-bun@v2
+
       - name: Check requirements
         run: |
           set -x
           bun --version
-          pnpm --version
           npm --version
           node --version
-          node-gyp --version
-          corepack --version
-          yarn --version
 
-      - name: Install and build backend
-        working-directory: backend
+      - name: Install and build full page
         run: |
           bun install
           bun run build
-
-      - name: Install and build frontend
-        working-directory: frontend
-        run: |
-          bun install
-          bun run build
-
 
