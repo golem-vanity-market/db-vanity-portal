@@ -12,7 +12,7 @@ import {
 import { Separator } from "./components/ui/separator";
 import { Badge } from "./components/ui/badge";
 import { Skeleton } from "./components/ui/skeleton";
-import { Footer } from "./Footer";
+import { Footer } from "./Footer.tsx";
 import { assetsUrl } from "./utils";
 import { ConnectButton } from "@/components/ConnectButton";
 

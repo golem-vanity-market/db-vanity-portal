@@ -2,13 +2,13 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Dashboard from "./Dashboard";
+import Dashboard from "./Dashboard.tsx";
 import { ThemeProvider } from "./components/theme-provider";
 const container = document.getElementById("root") as HTMLDivElement;
 const root = createRoot(container);
 
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
-import Welcome from "./Welcome";
+import Welcome from "./Welcome.tsx";
 import ProvidersPage from "./providers/ProvidersPage";
 import AnalyticsPage from "./providers/AnalyticsPage";
 import { NewOrderPage } from "./order/NewOrderPage";
