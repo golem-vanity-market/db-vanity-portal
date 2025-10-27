@@ -174,7 +174,7 @@ const Welcome = () => {
             <CardHeader>
               <CardTitle>See it in Action</CardTitle>
               <CardDescription>
-                Enter a hexadecimal prefix (0-9, a-f) to see an example.
+                Enter a hexadecimal prefix (0-9, a-f, A-F) to see an example.
               </CardDescription>
             </CardHeader>
             <CardContent>
