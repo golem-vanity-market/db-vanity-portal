@@ -7,7 +7,7 @@ export const getEthereumGlobal = () => {
   return null;
 };
 
-// TODO: read from golem db when it's implemented
+// TODO: read from arkiv when it's implemented
 export const REQUEST_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 export const truncateMiddle = (str: string, start = 6, end = 4) => {

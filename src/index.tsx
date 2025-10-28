@@ -26,7 +26,7 @@ const golemBaseNetwork = defineChain({
   id: Number(import.meta.env.VITE_GOLEM_DB_CHAIN_ID),
   caipNetworkId: `eip155:${import.meta.env.VITE_GOLEM_DB_CHAIN_ID}`,
   chainNamespace: "eip155",
-  name: "Golem DB",
+  name: import.meta.env.VITE_GOLEM_DB_NETWORK_NAME || "Arkiv",
   nativeCurrency: {
     decimals: 18,
     name: "ETH",

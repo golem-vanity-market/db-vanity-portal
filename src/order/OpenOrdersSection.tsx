@@ -105,7 +105,7 @@ export function OpenOrdersSection({
               <TableHead className="">Added</TableHead>
               <TableHead className="">Expires</TableHead>
               <TableHead className="">Availability</TableHead>
-              <TableHead className="">Problems</TableHead>
+              <TableHead className="">Patterns</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>

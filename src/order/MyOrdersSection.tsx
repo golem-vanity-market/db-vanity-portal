@@ -107,7 +107,7 @@ export function MyOrdersSection({
               <TableHead className="">Completed</TableHead>
               <TableHead className="">Status</TableHead>
               <TableHead className="">Results</TableHead>
-              <TableHead className="">Problems</TableHead>
+              <TableHead className="">Patterns</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -234,14 +234,14 @@ export function MyOrdersSection({
                           variant="ghost"
                           size="sm"
                           className="h-8 gap-2 px-3 text-sm font-medium text-primary"
-                          aria-label={`View selected problems (${problemsCount})`}
+                          aria-label={`View selected patterns (${problemsCount})`}
                         >
                           View ({problemsCount})
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-96" align="end">
                         <div className="mb-2 text-sm font-semibold">
-                          Selected problems
+                          Selected patterns
                         </div>
                         <ProblemList problems={o.problems ?? []} />
                       </PopoverContent>

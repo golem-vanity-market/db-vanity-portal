@@ -21,8 +21,8 @@ export const OrdersExplainer = () => (
           time. Vanity nodes continuously scan the order book and try to pick up
           and execute orders on a best‑effort basis. Due to volume and order
           constraints, not all orders may be executed before they expire. Once
-          an order is picked up, the node will create a new record in Golem DB
-          and attach the results to it.
+          an order is picked up, the node will create a new record in Arkiv and
+          attach the results to it.
         </CardDescription>
       </div>
     </CardHeader>

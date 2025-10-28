@@ -113,8 +113,8 @@ const Dashboard = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {import.meta.env.VITE_GOLEM_DB_NETWORK_NAME || "Golem DB"}{" "}
-                  Block: {current_block.toString()}
+                  {import.meta.env.VITE_GOLEM_DB_NETWORK_NAME || "Arkiv"} Block:{" "}
+                  {current_block.toString()}
                 </Link>
               </Badge>
             ) : (

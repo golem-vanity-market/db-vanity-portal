@@ -726,9 +726,9 @@ export const NewOrderPage = () => {
                 render={() => (
                   <FormItem>
                     <div className="mb-4">
-                      <FormLabel className="text-base">Problems</FormLabel>
+                      <FormLabel className="text-base">Patterns</FormLabel>
                       <FormDescription>
-                        Select the problems you want to order for solving.
+                        Select the patterns you want to order for solving.
                       </FormDescription>
                     </div>
                     <div className="space-y-3">
