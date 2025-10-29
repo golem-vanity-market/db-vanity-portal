@@ -1,4 +1,4 @@
-import { GolemBaseUpdate, Hex } from "golem-base-sdk";
+import { ArkivUpdate, Hex } from "golem-base-sdk";
 import { makeClient } from "./helpers";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/Toast";
@@ -15,7 +15,7 @@ async function cancelRequest(requestId: Hex): Promise<void> {
   bodyObj.cancelledAt = new Date().toISOString();
   const updatedBodyString = JSON.stringify(bodyObj);
   const requestBodyUpdated = new TextEncoder().encode(updatedBodyString);
-  const updateBody: GolemBaseUpdate = {
+  const updateBody: ArkivUpdate = {
     entityKey: requestId,
     data: requestBodyUpdated,
     btl: 30 * 1800 * 24, // 7d, block every 2 seconds

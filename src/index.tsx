@@ -22,7 +22,7 @@ import { assetsUrl } from "@/utils";
 import { Toaster } from "@/components/ui/sonner";
 import OrderResultsPage from "./order/OrderResults";
 
-const golemBaseNetwork = defineChain({
+const arkivNetwork = defineChain({
   id: Number(import.meta.env.VITE_ARKIV_CHAIN_ID),
   caipNetworkId: `eip155:${import.meta.env.VITE_ARKIV_CHAIN_ID}`,
   chainNamespace: "eip155",
@@ -91,14 +91,14 @@ const router = createBrowserRouter(
 const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || "";
 
 const wagmiAdapter = new WagmiAdapter({
-  networks: [golemBaseNetwork],
+  networks: [arkivNetwork],
   projectId,
   ssr: false,
 });
 
 createAppKit({
   adapters: [wagmiAdapter],
-  networks: [golemBaseNetwork],
+  networks: [arkivNetwork],
   projectId,
   features: {
     analytics: false,
@@ -106,7 +106,7 @@ createAppKit({
     email: false,
   },
   chainImages: {
-    [golemBaseNetwork.id]: `${assetsUrl()}arkiv_logo.svg`,
+    [arkivNetwork.id]: `https://arkiv.network/images/arkiv-logo.svg`,
   },
   themeVariables: {
     "--w3m-accent": "var(--color-primary)",
