@@ -158,7 +158,7 @@ export function MyOrdersSection({
                 <TableRow key={`${o.orderId}-${o.created}`} className="text-sm">
                   <TableCell>
                     <a
-                      href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${o.orderId}?tab=data`}
+                      href={`${import.meta.env.VITE_ARKIV_BLOCK_EXPLORER}/entity/${o.orderId}?tab=data`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-mono text-sm font-medium text-foreground underline underline-offset-4"
@@ -169,7 +169,7 @@ export function MyOrdersSection({
                   </TableCell>
                   <TableCell>
                     <a
-                      href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${o.requestId}?tab=data`}
+                      href={`${import.meta.env.VITE_ARKIV_BLOCK_EXPLORER}/entity/${o.requestId}?tab=data`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-mono text-sm text-muted-foreground underline underline-offset-4"
@@ -262,7 +262,7 @@ export function MyOrdersSection({
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
                           <a
-                            href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${o.orderId}?tab=data`}
+                            href={`${import.meta.env.VITE_ARKIV_BLOCK_EXPLORER}/entity/${o.orderId}?tab=data`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2"
@@ -273,7 +273,7 @@ export function MyOrdersSection({
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <a
-                            href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${o.requestId}?tab=data`}
+                            href={`${import.meta.env.VITE_ARKIV_BLOCK_EXPLORER}/entity/${o.requestId}?tab=data`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2"

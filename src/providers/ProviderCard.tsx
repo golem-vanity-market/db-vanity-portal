@@ -133,7 +133,7 @@ export const ProviderCard = ({ provider, rank }: ProviderCardProps) => {
             </CardDescription>
             <CardDescription className="pt-1 font-mono text-xs break-all">
               <a
-                href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${provider.key}?tab=data`}
+                href={`${import.meta.env.VITE_ARKIV_BLOCK_EXPLORER}/entity/${provider.key}?tab=data`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 text-xs text-primary underline"

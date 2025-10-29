@@ -21,9 +21,9 @@ const Dashboard = () => {
   const client = useMemo(
     () =>
       createROClient(
-        parseInt(import.meta.env.VITE_GOLEM_DB_CHAIN_ID || ""),
-        import.meta.env.VITE_GOLEM_DB_RPC || "",
-        import.meta.env.VITE_GOLEM_DB_RPC_WS || "",
+        parseInt(import.meta.env.VITE_ARKIV_CHAIN_ID || ""),
+        import.meta.env.VITE_ARKIV_RPC || "",
+        import.meta.env.VITE_ARKIV_RPC_WS || "",
       ),
     [],
   );
@@ -107,13 +107,13 @@ const Dashboard = () => {
               <Badge variant="outline" className="h-9 font-heading text-sm">
                 <Link
                   to={
-                    import.meta.env.VITE_GOLEM_DB_LANDING_PAGE ||
+                    import.meta.env.VITE_ARKIV_LANDING_PAGE ||
                     "https://golem.network"
                   }
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {import.meta.env.VITE_GOLEM_DB_NETWORK_NAME || "Arkiv"} Block:{" "}
+                  {import.meta.env.VITE_ARKIV_NETWORK_NAME || "Arkiv"} Block:{" "}
                   {current_block.toString()}
                 </Link>
               </Badge>

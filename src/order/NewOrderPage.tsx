@@ -226,10 +226,10 @@ const getEthereumGlobal = () => {
 
 async function sendOrder(data: z.infer<typeof FormSchema>) {
   const golemClient = await createClient(
-    parseInt(import.meta.env.VITE_GOLEM_DB_CHAIN_ID),
+    parseInt(import.meta.env.VITE_ARKIV_CHAIN_ID),
     new Tagged("ethereumprovider", getEthereumGlobal()),
-    import.meta.env.VITE_GOLEM_DB_RPC,
-    import.meta.env.VITE_GOLEM_DB_RPC_WS,
+    import.meta.env.VITE_ARKIV_RPC,
+    import.meta.env.VITE_ARKIV_RPC_WS,
   );
 
   const timestamp = new Date().toISOString();
@@ -322,7 +322,7 @@ export const NewOrderPage = () => {
           label: "View in block explorer",
           onClick: () => {
             window.open(
-              `${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${data[0].entityKey}?tab=data`,
+              `${import.meta.env.VITE_ARKIV_BLOCK_EXPLORER}/entity/${data[0].entityKey}?tab=data`,
               "_blank",
             );
           },

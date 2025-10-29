@@ -31,7 +31,7 @@ import { FilterHistory } from "./FilterHistory";
 import ProviderAnalytics from "@/providers/ProviderAnalytics.tsx";
 
 const buildQuery = (appliedFilters: FilterCriteria) => {
-  let qbuild = `$owner = "${import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS}"`;
+  let qbuild = `$owner = "${import.meta.env.VITE_ARKIV_OWNER_ADDRESS}"`;
   if (appliedFilters.providerNameSearch) {
     qbuild += ` && name = "${escapeForJS(appliedFilters.providerNameSearch)}"`;
   }
@@ -146,9 +146,9 @@ const AnalyticsPage = () => {
   const client = useMemo(
     () =>
       createROClient(
-        parseInt(import.meta.env.VITE_GOLEM_DB_CHAIN_ID || ""),
-        import.meta.env.VITE_GOLEM_DB_RPC || "",
-        import.meta.env.VITE_GOLEM_DB_RPC_WS || "",
+        parseInt(import.meta.env.VITE_ARKIV_CHAIN_ID || ""),
+        import.meta.env.VITE_ARKIV_RPC || "",
+        import.meta.env.VITE_ARKIV_RPC_WS || "",
       ),
     [],
   );
@@ -181,7 +181,7 @@ const AnalyticsPage = () => {
       const entities = await fetchAllEntities(
         client,
         10,
-        import.meta.env.VITE_GOLEM_DB_OWNER_ADDRESS,
+        import.meta.env.VITE_ARKIV_OWNER_ADDRESS,
         qbuild,
       );
       const data = new ProviderData({ grouped: "all", byProviderId: entities });
@@ -196,7 +196,7 @@ const AnalyticsPage = () => {
   const copyCurlQuery = () => {
     const qbuild = buildQuery(appliedFilters);
     let completeQuery = `curl ${
-      import.meta.env.VITE_GOLEM_DB_RPC
+      import.meta.env.VITE_ARKIV_RPC
     } -X POST -H "Content-Type: application/json" --data '{"method":"golembase_queryEntities","params":["%%QUERY%%"], "id": 1, "jsonrpc":"2.0"}' | jq '.result[] | .value' | wc -l`;
     completeQuery = completeQuery.replace("%%QUERY%%", escapeForJS(qbuild));
     window.navigator.clipboard.writeText(completeQuery);

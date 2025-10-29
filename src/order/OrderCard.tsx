@@ -57,7 +57,7 @@ export const OrderCard = ({
             <h3 className="text-md font-medium">ID</h3>
             <p>
               <a
-                href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${id}?tab=data`}
+                href={`${import.meta.env.VITE_ARKIV_BLOCK_EXPLORER}/entity/${id}?tab=data`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 font-mono text-sm text-muted-foreground underline"

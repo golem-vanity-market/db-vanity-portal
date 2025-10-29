@@ -454,7 +454,7 @@ function OrderResultsPage() {
             <div className="mt-1 text-xs text-muted-foreground">
               Order:{" "}
               <a
-                href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${orderId}?tab=data`}
+                href={`${import.meta.env.VITE_ARKIV_BLOCK_EXPLORER}/entity/${orderId}?tab=data`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-mono underline"
@@ -618,7 +618,7 @@ function OrderResultsPage() {
                     </TableCell>
                     <TableCell>
                       <a
-                        href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${id}?tab=data`}
+                        href={`${import.meta.env.VITE_ARKIV_BLOCK_EXPLORER}/entity/${id}?tab=data`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 font-mono text-sm underline"

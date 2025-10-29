@@ -23,10 +23,10 @@ import { Toaster } from "@/components/ui/sonner";
 import OrderResultsPage from "./order/OrderResults";
 
 const golemBaseNetwork = defineChain({
-  id: Number(import.meta.env.VITE_GOLEM_DB_CHAIN_ID),
-  caipNetworkId: `eip155:${import.meta.env.VITE_GOLEM_DB_CHAIN_ID}`,
+  id: Number(import.meta.env.VITE_ARKIV_CHAIN_ID),
+  caipNetworkId: `eip155:${import.meta.env.VITE_ARKIV_CHAIN_ID}`,
   chainNamespace: "eip155",
-  name: import.meta.env.VITE_GOLEM_DB_NETWORK_NAME || "Arkiv",
+  name: import.meta.env.VITE_ARKIV_NETWORK_NAME || "Arkiv",
   nativeCurrency: {
     decimals: 18,
     name: "ETH",
@@ -35,13 +35,13 @@ const golemBaseNetwork = defineChain({
   blockExplorers: {
     default: {
       name: "default_block_explorer",
-      url: String(import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER || ""),
+      url: String(import.meta.env.VITE_ARKIV_BLOCK_EXPLORER || ""),
     },
   },
   rpcUrls: {
     default: {
-      http: [import.meta.env.VITE_GOLEM_DB_RPC || ""],
-      webSocket: [import.meta.env.VITE_GOLEM_DB_RPC_WS || ""],
+      http: [import.meta.env.VITE_ARKIV_RPC || ""],
+      webSocket: [import.meta.env.VITE_ARKIV_RPC_WS || ""],
     },
   },
 });
@@ -106,7 +106,7 @@ createAppKit({
     email: false,
   },
   chainImages: {
-    [golemBaseNetwork.id]: `${assetsUrl()}golem_db_logo.svg`,
+    [golemBaseNetwork.id]: `${assetsUrl()}arkiv_logo.svg`,
   },
   themeVariables: {
     "--w3m-accent": "var(--color-primary)",

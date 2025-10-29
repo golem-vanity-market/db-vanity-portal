@@ -45,9 +45,9 @@ export const msToShort = (ms: number) => {
 
 export const makeClient = async () => {
   return createClient(
-    parseInt(import.meta.env.VITE_GOLEM_DB_CHAIN_ID),
+    parseInt(import.meta.env.VITE_ARKIV_CHAIN_ID),
     new Tagged("ethereumprovider", getEthereumGlobal()),
-    import.meta.env.VITE_GOLEM_DB_RPC,
-    import.meta.env.VITE_GOLEM_DB_RPC_WS,
+    import.meta.env.VITE_ARKIV_RPC,
+    import.meta.env.VITE_ARKIV_RPC_WS,
   );
 };

@@ -141,7 +141,7 @@ export function OpenOrdersSection({
                   <TableCell>
                     <div className="space-y-1">
                       <a
-                        href={`${import.meta.env.VITE_GOLEM_DB_BLOCK_EXPLORER}/entity/${id}?tab=data`}
+                        href={`${import.meta.env.VITE_ARKIV_BLOCK_EXPLORER}/entity/${id}?tab=data`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="font-mono text-sm font-medium text-foreground underline underline-offset-4"
