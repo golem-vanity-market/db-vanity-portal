@@ -1,6 +1,6 @@
 {
-  "name": "db-provider-reputation-frontend",
-  "description": "Provider reputation dashboard",
+  "name": "vanity-market-portal",
+  "description": "Portal for Golem Vanity Market",
   "version": "0.1.0",
   "private": true,
   "type": "module",
