@@ -225,7 +225,7 @@ const getEthereumGlobal = () => {
 };
 
 async function sendOrder(data: z.infer<typeof FormSchema>) {
-  const golemClient = await createClient(
+  const arkivClient = await createClient(
     parseInt(import.meta.env.VITE_ARKIV_CHAIN_ID),
     new Tagged("ethereumprovider", getEthereumGlobal()),
     import.meta.env.VITE_ARKIV_RPC,
@@ -248,7 +248,7 @@ async function sendOrder(data: z.infer<typeof FormSchema>) {
     cancelledAt: null,
   });
 
-  const res = await golemClient.createEntities([
+  const res = await arkivClient.createEntities([
     {
       data: utf8Encode.encode(
         JSON.stringify({

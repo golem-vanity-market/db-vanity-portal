@@ -1,4 +1,4 @@
-import { Tagged, createClient } from "golem-base-sdk";
+import { Tagged, createClient } from "arkiv-sdk";
 
 export const getEthereumGlobal = () => {
   if (typeof window !== "undefined" && (window as any).ethereum) {

@@ -1,4 +1,4 @@
-import { ArkivUpdate, Hex } from "golem-base-sdk";
+import { ArkivUpdate, ExpirationTime, Hex } from "arkiv-sdk";
 import { makeClient } from "./helpers";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/Toast";
@@ -18,7 +18,7 @@ async function cancelRequest(requestId: Hex): Promise<void> {
   const updateBody: ArkivUpdate = {
     entityKey: requestId,
     data: requestBodyUpdated,
-    btl: 30 * 1800 * 24, // 7d, block every 2 seconds
+    expiresIn: ExpirationTime.fromDays(7),
     numericAnnotations: metadata.numericAnnotations,
     stringAnnotations: metadata.stringAnnotations,
   };

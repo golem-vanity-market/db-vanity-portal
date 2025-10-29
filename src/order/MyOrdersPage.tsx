@@ -29,9 +29,9 @@ type TabKey = (typeof VALID_TABS)[number];
 const VALID_TAB_SET = new Set<TabKey>(VALID_TABS);
 
 const fetchMyRequests = async () => {
-  const golemClient = await makeClient();
-  const rawRes = await golemClient.queryEntities(
-    `vanity_market_request="3" && $owner="${golemClient.getRawClient().walletClient.account.address}"`,
+  const arkivClient = await makeClient();
+  const rawRes = await arkivClient.queryEntities(
+    `vanity_market_request="3" && $owner="${arkivClient.getRawClient().walletClient.account.address}"`,
   );
   return rawRes
     .map(({ entityKey, storageValue }) => {
@@ -60,15 +60,15 @@ const fetchMyRequests = async () => {
 };
 
 const fetchOrders = async (allOrders: boolean) => {
-  const golemClient = await makeClient();
+  const arkivClient = await makeClient();
 
   let rawRes;
   if (!allOrders) {
-    rawRes = await golemClient.queryEntities(
-      `vanity_market_order="3" && requestor="${golemClient.getRawClient().walletClient.account.address}"`,
+    rawRes = await arkivClient.queryEntities(
+      `vanity_market_order="3" && requestor="${arkivClient.getRawClient().walletClient.account.address}"`,
     );
   } else {
-    rawRes = await golemClient.queryEntities(`vanity_market_order="3"`);
+    rawRes = await arkivClient.queryEntities(`vanity_market_order="3"`);
   }
   return rawRes
     .map(({ entityKey, storageValue }) => {

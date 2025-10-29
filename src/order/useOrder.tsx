@@ -10,8 +10,8 @@ const fetchOrder = async (orderId: string) => {
   if (!isValidHex(orderId)) {
     throw new Error("Invalid order ID format");
   }
-  const golemClient = await makeClient();
-  const rawRes = await golemClient.getStorageValue(orderId);
+  const arkivClient = await makeClient();
+  const rawRes = await arkivClient.getStorageValue(orderId);
   if (!rawRes) {
     throw new Error("Order not found");
   }

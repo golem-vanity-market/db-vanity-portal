@@ -18,7 +18,6 @@ import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { createAppKit } from "@reown/appkit/react";
 import { defineChain } from "@reown/appkit/networks";
 import { WagmiProvider } from "wagmi";
-import { assetsUrl } from "@/utils";
 import { Toaster } from "@/components/ui/sonner";
 import OrderResultsPage from "./order/OrderResults";
 

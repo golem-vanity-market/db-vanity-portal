@@ -49,8 +49,8 @@ import { displayDifficulty } from "@/utils";
 import { CancelRequestButton } from "./CancelRequestButton";
 
 const fetchOrderResults = async (orderId: string) => {
-  const golemClient = await makeClient();
-  const rawRes = await golemClient.queryEntities(
+  const arkivClient = await makeClient();
+  const rawRes = await arkivClient.queryEntities(
     `vanity_market_order_result="2" && orderId="${orderId}"`,
   );
   return rawRes
