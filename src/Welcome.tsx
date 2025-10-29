@@ -151,7 +151,24 @@ const Welcome = () => {
         </div>
         <p className="mx-auto mt-6 max-w-3xl text-lg text-muted-foreground md:text-xl">
           A decentralized solution for generating personalized Ethereum vanity
-          addresses using the Golem Network.
+          addresses built on top of{" "}
+          <Link
+            style={{ fontWeight: "bold" }}
+            to={"https://golem.network"}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Golem Network
+          </Link>{" "}
+          and{" "}
+          <Link
+            style={{ fontWeight: "bold" }}
+            to={"https://arkiv.network"}
+            target="_blank"
+            rel="noreferrer"
+          >
+            [ ARKIV ]
+          </Link>
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-4">
           <Button size="lg" asChild>
@@ -284,7 +301,7 @@ const Welcome = () => {
               <Lock className="h-8 w-8 text-primary" />
             </div>
             <CardTitle className="text-3xl font-bold tracking-tight">
-              Security by Design
+              Secure by Design
             </CardTitle>
             <CardDescription className="mx-auto max-w-2xl pt-2 text-base">
               Our non-custodial process ensures you are the only one who ever
