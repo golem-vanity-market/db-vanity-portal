@@ -55,7 +55,12 @@ export const Footer = () => {
           <AlertTriangle className="size-4 flex-shrink-0" />
           <span>
             This project is still experimental. Data may not be fully accurate.
-            Use only as reference.
+            Use only as reference. Built from commit:
+            <a
+              href={`https://github.com/golem-vanity-market/db-vanity-portal/commit/${import.meta.env.VITE_GIT_COMMIT}`}
+            >
+              {import.meta.env.VITE_GIT_COMMIT}
+            </a>
           </span>
         </div>
 
